@@ -1,1 +1,103 @@
-# classification
+:::{.callout-warning}
+This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
+:::
+
+
+
+# Logistic regression {#sec-logistic}
+
+## A new hypothesis class: linear logistic classifiers
+
+For classification, it is natural to make predictions in $\{+1, -1\}$ and use the $0-1$ loss function. However, even for simple linear classifiers, it is very difficult to find values for $\theta, \theta_0$ that minimize simple training error $$J(\theta, \theta_0) = \frac{1}{n} \sum_{i=1}^n \mathcal{L}(\text{sign}(\theta^Tx^{(i)} + \theta_0),
+  y^{(i)})\;\;.$$ This problem is NP-hard, which probably implies that solving the most difficult instances of this problem would require computation time *exponential* in the number of training examples, $n$.
+
+What makes this a difficult optimization problem is its lack of "smoothness":
+
+-   There can be two hypotheses, $(\theta, \theta_0)$ and $(\theta', \theta_0')$, where one is closer in parameter space to the optimal parameter values $(\theta^*, \theta_0^*)$, but they make the same number of misclassifications so they have the same $J$ value.
+
+-   All predictions are categorical: the classifier can't express a degree of certainty about whether a particular input $x$ should have an associated value $y$.
+
+For these reasons, if we are considering a hypothesis $\theta,\theta_0$ that makes five incorrect predictions, it is difficult to see how we might change $\theta,\theta_0$ so that it will perform better, which makes it difficult to design an algorithm that searches through the space of hypotheses for a good one.
+
+For these reasons, we are going to investigate a new hypothesis class: *linear logistic classifiers*. These hypotheses are still parameterized by a $d$-dimensional vector $\theta$ and a scalar $\theta_0$, but instead of making predictions in $\{+1, -1\}$, they generate real-valued outputs in the interval $(0, 1)$. A linear logistic classifier has the form $$h(x; \theta, \theta_0) = \sigma(\theta^T x + \theta_0)\;\;.$$ This looks familiar! What's new?
+
+The *logistic* function, also known as the *sigmoid* function, is defined as $$\sigma(z) = \frac{1}{1+e^{-z}}\;\;,$$ and plotted below, as a function of its input $z$. Its output can be interpreted as a probability, because for any value of $z$ the output is in $(0, 1)$.
+
+
+What does a linear logistic classifier (LLC) look like? Let's consider the simple case where $d = 1$, so our input points simply lie along the $x$ axis. The plot below shows LLCs for three different parameter settings: $\sigma(10x + 1)$, $\sigma(-2x + 1)$, and $\sigma(2x - 3).$
+
+
+But wait! Remember that the definition of a classifier from @sec-classification is that it's a mapping from 
+$
+\mathbb{R}^d
+\rightarrow \{-1, +1\}
+$ or to some other discrete set. So, then, it seems like an LLC is actually not a classifier!
+
+Given an LLC, with an output value in $(0, 1)$, what should we do if we are forced to make a prediction in $\{+1, -1\}$? A default answer is to predict $+1$ if $\sigma(\theta^T x + \theta_0) > 0.5$ and $-1$ otherwise. The value $0.5$ is sometimes called a *prediction threshold*.
+
+In fact, for different problem settings, we might prefer to pick a different prediction threshold. The field of *decision theory* considers how to make this choice from the perspective of Bayesian reasoning. For example, if the consequences of predicting $+1$ when the answer should be $-1$ are much worse than the consequences of predicting $-1$ when the answer should be $+1$, then we might set the prediction threshold to be greater than $0.5$.
+
+When $d = 2$, then our inputs $x$ lie in a two-dimensional space with axes $x_1$ and $x_2$, and the output of the LLC is a surface, as shown below, for $\theta = (1, 1), \theta_0 = 2$.
+
+![](figures/logreg3d.png){width="70%"}
+
+## Loss function for logistic classifiers {#logistic}
+
+Recall that optimization is a key approach to solving machine learning problems; this also applies to logistic regression, as we can see by defining a lass function for this problem. Recall that a common loss function is the 0-1 loss, introduced in @sec-intro: 
+
+$$
+L_{01}(h(x; \Theta), y) =
+  \begin{cases}
+    0 & \text{ if } y = h(x; \Theta)\\
+    1 & \text{ otherwise}
+  \end{cases}\;\;,
+$$ 
+
+which gives a value of 0 for a correct prediction, and a 1 for an incorrect prediction. In the case of linear separators, this becomes: 
+$$
+L_{01}(h(x;\theta, \theta_0), y) =
+  \begin{cases}
+    0 & \text{ if } y(\theta^Tx + \theta_0) > 0 \\
+    1 & \text{ otherwise}
+  \end{cases}\;\;.
+$$
+
+For logistic regression, we have defined a class, LLC, of hypotheses whose outputs are in $(0, 1)$, but we have training data with $y$ values in $\{+1, -1\}$. How can we define a loss function? Intuitively, we would like to have *low loss if we assign a low probability to the incorrect class.* We'll define a loss function, called *negative log-likelihood* (NLL), that does just this. In addition, it has the cool property that it extends nicely to the case where we would like to classify our inputs into more than two classes.
+
+In order to simplify the description, we will assume that (or transform so that) the labels in the training data are $y \in \{0, 1\}$, enabling them to be interpreted as probabilities of being a member of the class of interest. We would like to pick the parameters of our classifier to maximize the probability assigned by the LCC to the correct $y$ values, as specified in the training set. 
+
+Letting guess $g^{(i)} =\sigma(\theta^Tx^{(i)} + \theta_0)$, that probability is 
+$$
+\prod_{i = 1}^n \begin{cases} g^{(i)} & \text{if $y^{(i)} =
+    1$}  \\ 1 - g^{(i)} & \text{otherwise}
+\end{cases}\;\;,
+$$ under the assumption that our predictions are independent. This can be cleverly rewritten, when $y^{(i)} \in \{0, 1\}$, as 
+$$
+\prod_{i = 1}^n {g^{(i)}}^{y^{(i)}}(1 - g^{(i)})^{1 - y^{(i)}}\;\;.
+$$
+
+Now, because products are kind of hard to deal with, and because the log function is monotonic, the $\theta, \theta_0$ that maximize the log of this quantity will be the same as the $\theta, \theta_0$ that maximize the original, so we can try to maximize $$
+\sum_{i = 1}^n  \left( {y^{(i)}}\log {g^{(i)}} +(1 - y^{(i)})\log(1 - g^{(i)})\right)\;\;.
+$$ 
+
+We can turn the maximization problem above into a minimization problem by taking the negative of the above expression, and write in terms of minimizing a loss 
+$$
+\sum_{i = 1}^n \mathcal{L}_\text{nll}(g^{(i)}, y^{(i)})
+$$ 
+where $\mathcal{L}_\text{nll}$ is the *negative log-likelihood* loss function: 
+
+$$
+\mathcal{L}_\text{nll}(\text{guess},\text{actual}) =
+-\left(\text{actual}\cdot \log (\text{guess}) + (1 - \text{actual})\cdot\log (1 -
+  \text{guess})\right) \;\;.
+$$ This loss function is also sometimes referred to as the *log loss* or *cross entropy*.
+
+## Logistic classification as optimization
+
+We can finally put all these pieces together and develop an objective function for optimizing regularized negative log-likelihood for a linear logistic classifier. In fact, this process is usually called "logistic regression," so we'll call our objective $J_\text{lr}$, and define it as 
+$$
+J_\text{lr}(\theta, \theta_0; {\cal D}) =
+  \left(\frac{1}{n} \sum_{i=1}^n
+    \mathcal{L}_\text{nll}(\sigma(\theta^T x^{(i)} + \theta_0), y^{(i)})\right) +
+     \lambda \left\lVert\theta\right\rVert^2\;\;.
+$$

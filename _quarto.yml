@@ -16,7 +16,7 @@ book:
     - index.qmd
     - regression.qmd
     - gradient_descent.qmd
-    # - classification.qmd
+    - classification.qmd
     # - feature_representation.qmd
     # - neural_networks.qmd
     # - convolutional_neural_networks.qmd
