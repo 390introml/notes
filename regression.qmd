@@ -1,4 +1,3 @@
-
 # Regression {#chap-regression}
 
 *Regression* is an important machine-learning problem that provides a good starting point for diving deeply into the field.
@@ -25,9 +24,17 @@ which gives examples of input values $x^{(i)}$ and the output values $y^{(i)}$ t
 $$h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.$$
  This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than to divide the inputs into discrete categories.
 
+Real life rarely gives us vectors of real numbers. The $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$ whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$ (e.g., a person's height or the amount of bass in a song). 
+This process of converting our data into a numerical form is often referred to as *data pre-processing*. 
+Then $h$ maps $\varphi(x)$ to $\mathbb{R}$. 
+
+
 What makes a hypothesis useful? That it works well on *new* data; that is, that it makes good predictions on examples it hasn't seen. 
 
 
+$$
+\mathcal{D}_\text{train} = \left\{\left(x^{(1)}, y^{(1)}\right), \dots, \left(x^{(n)}, y^{(n)}\right)\right\}\;\;,
+$$
 
 :::{.column-margin}
 My favorite analogy is to problem sets.  We evaluate a
@@ -39,21 +46,20 @@ But we don't know exactly what data this hypothesis might be tested on when we u
 
 To make this discussion more concrete, we have to provide a *loss function*, to say how unhappy we are when we guess an output $g$ given an input $x$ for which the desired output was $a$.
 
-Given a training set ${\cal D}_n$ and a hypothesis $h$ with parameters $\Theta,$ we can define the *training error* of $h$ to be the average loss on the training data: 
 
-$$\begin{aligned}
-  \mathcal{E}_n(h; \Theta) =  \frac{1}{n}\sum_{i = 1}^n
-  \mathcal{L}(h(x^{(i)};\Theta), y^{(i)})\;\;,
-\end{aligned}$${#eq-erm}
+Given a training set $\mathcal{D}_\text{train}$ and a hypothesis $h$ with parameters $\Theta$, the *training error* of $h$ can be defined as the average loss on the training data:
+
+$$
+\mathcal{E}_\text{train}(h; \Theta) = \frac{1}{n}\sum_{i=1}^n \mathcal{L}(h(x^{(i)}; \Theta), y^{(i)})\;\;.
+$$
 
  The training error of $h$ gives us some idea of how well it characterizes the relationship between $x$ and $y$ values in our data, but it isn't the quantity that we *most* care about. What we most care about is *test error*: 
 
-$$\begin{aligned}
-  \mathcal{E}(h) = \frac{1}{n'}\sum_{i = n + 1}^{n + n'}
-  \mathcal{L}(h(x^{(i)}), y^{(i)})
-\end{aligned}$$
+
+$$
+\mathcal{E}_\text{test}(h) = \frac{1}{n'}\sum_{i=n+1}^{n+n'} \mathcal{L}(h(x^{(i)}), y^{(i)})\;\;,
+$$
  
- on $n'$ new examples that were not used in the process of finding the hypothesis.
 
 :::{.column-margin}
 It might be worthwhile to stare at the two errors and think about what's the difference. For example, notice how $\Theta$ is no long a variable in the testing error? this is because in evaluating the testing error, the parameters will have been "picked"/"fixed" already.
@@ -73,7 +79,11 @@ $$
 \Theta^* = \arg\min_{\Theta} J(\Theta)\;\;.
 $$
 
-A very common form for a machine-learning objective is 
+
+In the most general case, there is not a guarantee that there exists a unique set of parameters which minimize the objective function.
+However, we will ignore that for now. 
+A very common form for a machine-learning objective is:
+
 $$
 J(\Theta) = \left(\frac{1}{n} \sum_{i=1}^n
   \underbrace{\mathcal{L}(h(x^{(i)}; \Theta),
@@ -96,7 +106,8 @@ $$h(x;\theta, \theta_0) = \theta^Tx + \theta_0
 $${#eq-linear_reg_hypothesis}
 
  
- with model parameters $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$) this has the same familiar slope-intercept form as $y = mx + b$; in higher dimensions, this model describes the so-called hyperplanes.
+where the model parameters are $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$), this corresponds to the familiar slope-intercept form $y = mx + b$ of a *line*. In two dimesions ($d = 2$), this corresponds to a *plane*. In higher dimensions, this model describes a *hyperplane*.
+
 
 We define a *loss function* to describe how to evaluate the quality of the predictions our hypothesis is making, when compared to the "target" $y$ values in the data set. The choice of loss function is part of modeling your domain. In the absence of additional information about a regression problem, we typically use *squared loss*: 
 $$\mathcal{L}(g, a) = (g - a)^2\;\;.$$
@@ -114,6 +125,7 @@ Applying the general optimization framework to the linear regression hypothesis 
 $$J(\theta, \theta_0) = \frac{1}{n}\sum_{i =
     1}^n\left(\theta^Tx^{(i)} + \theta_0 - y^{(i)}\right)^2 \;\;,
 $${#eq-reg_mse_withconst}
+
 
 resulting in the solution: 
 $$\theta^*, \theta_0^* = {\rm arg}\min_{\theta, \theta_0} J(\theta,
