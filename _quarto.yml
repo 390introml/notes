@@ -109,6 +109,8 @@ comments:
   hypothesis: true
 resources:
   - demos/
+filters:
+  - pseudocode
 # tikz:
 # cache: true
 

@@ -19,9 +19,29 @@ We start by considering gradient descent in one dimension. Assume $\Theta \in \m
 
 The hyper-parameter $\eta$ is often called *learning rate* when gradient descent is applied in machine learning. For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudo-code below; and we'll see adaptive (non-constant) step-sizes soon. What's important to notice though, is that even when $\eta$ is constant, the actual magnitude of the change to $\Theta$ may not be constant, as that change depends on the magnitude of the gradient itself too.
 
-::: codebox
-$\Theta^{(0)} \gets \Theta_{\it init}$ $t \gets 0$ $t \gets t+1$ $\Theta^{(t)} = \Theta^{(t-1)} - \eta \, f'(\Theta^{(t-1)})$ $|f'(\Theta^{(t)})| < \epsilon$ $\Theta^{(t)}$
-:::
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{1D-Gradient-Descent}{$\Theta_{init}, \eta, f, f', \epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{init}$ 
+  \State $t \gets 0$ 
+  \Repeat
+    \State $t \gets t+1$
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta \, f'(\Theta^{(t-1)})$
+  \Until{$|f'(\Theta^{(t)})| < \epsilon$}
+  \Return{$\Theta^{(t)}$}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+```
 
 Note that this algorithm terminates when the derivative of the function $f$ is sufficiently small. There are many other reasonable ways to decide to terminate, including:
 
@@ -32,7 +52,7 @@ Note that this algorithm terminates when the derivative of the function $f$ is s
 
 
 :::{.study-question-callout}
-Consider all of the potential stopping criteria for $\proc{1D-Gradient-Descent}$, both in the algorithm as it appears and listed separately later. Can you think of ways that any two of the criteria relate to each other?
+Consider all of the potential stopping criteria for 1D-Gradient-Descent, both in the algorithm as it appears and listed separately later. Can you think of ways that any two of the criteria relate to each other?
 :::
 
 :::{#thm-gd}
@@ -85,6 +105,10 @@ $\left|f(\Theta^{(t)}) -
   f(\Theta^{(t-1)}) \right| < \epsilon
 $, which is sensible no matter the dimensionality of $\Theta$.
 
+::: {.study-question-callout}
+Which termination criteria from the 1D case were defined in a way that assumes $\Theta$ is one dimensional?
+:::
+
 ## Application to regression {#sec-gd_ridge}
 
 Recall from the previous chapter that choosing a loss function is the first step in formulating a machine-learning problem as an optimization problem, and for regression we studied the mean square loss, which captures loss as $({\rm guess} - {\rm actual})^2$. This leads to the *ordinary least squares* objective 
@@ -126,18 +150,74 @@ $$
 
 Note that $\nabla_\theta J_\text{ridge}$ will be of shape $d \times 1$ and $\partial J_\text{ridge}/\partial \theta_0$ will be a scalar since we have separated $\theta_0$ from $\theta$ here.
 
+::: {.study-question-callout}
+Convince yourself that the dimensions of all these
+  quantities are correct, under the assumption that $\theta$ is $d
+    \times 1$. How does $d$ relate to $m$ as discussed for $\Theta$ in the
+  previous section?
+:::
+
+::: {.study-question-callout}
+Compute $\nabla_\theta ||\theta||^2$ by finding the
+  vector of partial derivatives $(\partial ||\theta||^2 / \partial
+    \theta_1, \ldots, \partial ||\theta||^2 / \partial
+    \theta_d)$. What is the shape of $\nabla_\theta ||\theta||^2$?
+:::
+
+::: {.study-question-callout}
+Compute $\nabla_\theta J_\text{ridge}(
+    \theta^T x + \theta_0, y)$ by finding the
+  vector of partial derivatives $(\partial J_\text{ridge}(
+    \theta^T x + \theta_0, y)/ \partial \theta_1, \ldots,
+    \partial J_\text{ridge}(
+    \theta^T x + \theta_0, y) / \partial
+    \theta_d)$.
+:::
+
+::: {.study-question-callout}
+Use these last two results to verify our derivation above.
+:::
+
 Putting everything together, our gradient descent algorithm for ridge regression becomes
 
-::: codebox
-$\theta^{(0)} \gets \theta_{\it init}$ $\theta_0^{(0)} \gets \theta_{0 {\it init}}$ $t \gets 0$ $t \gets t+1$ $\theta^{(t)} = \theta^{(t-1)} - \eta\left(\frac{1}{n}\sum_{i=1}^n
-    \left({\theta^{(t-1)}}^T x^{(i)} + \theta_0^{(t-1)} -
-      y^{(i)}\right) x^{(i)}
-    + \lambda\theta^{(t-1)}
-    \right)$ $\theta_0^{(t)} = \theta_0^{(t-1)} - \eta\left(\frac{1}{n}\sum_{i=1}^n
-    \left({\theta^{(t-1)}}^T x^{(i)} + \theta_0^{(t-1)} -
-      y^{(i)} \right)
-    \right)$ $\left| J_{\text{ridge}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{ridge}}(\theta^{(t-1)},
-    \theta_0^{(t-1)}) \right| <\epsilon$ $\theta^{(t)},\theta_0^{(t)}$
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{RR-Gradient-Descent}{$\theta_{\it init}, \theta_{0 {\it init}},\eta,\epsilon$}
+  \State $\theta^{(0)} \gets \theta_{\it init}$
+  \State $\theta_0^{(0)} \gets \theta_{0 {\it init}}$
+  \State $t \gets 0$
+  \Repeat
+    \State   $t \gets t+1$
+    \State   $\theta^{(t)} = \theta^{(t-1)} - \eta\left(\frac{1}{n}\sum_{i=1}^n
+    \left({{\theta}^{(t-1)}}^T {x}^{(i)} + {\theta_0}^{(t-1)} -
+      {y}^{(i)}\right) {x}^{(i)}
+    + \lambda{\theta}^{(t-1)}
+    \right)$
+  \State $\theta_0^{(t)} = \theta_0^{(t-1)} - \eta\left(\frac{1}{n}\sum_{i=1}^n
+    \left({{\theta}^{(t-1)}}^T {x}^{(i)} + {\theta_0}^{(t-1)} -
+      {y}^{(i)} \right)
+    \right)$
+  \Until{$\left| J_{\text{ridge}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{ridge}}(\theta^{(t-1)},\theta_0^{(t-1)}) \right| <\epsilon$}
+  \Return{$\theta^{(t)},\theta_0^{(t)}$}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+```
+:::{.study-question-callout}
+Is it okay that $\lambda$ doesn't appear in line 7?
+:::
+
+:::{.study-question-callout}
+Is it okay that the 2's from the gradient definitions don't appear in the algorithm?
 :::
 
 ## Stochastic gradient descent {#sec-sgd}
@@ -153,9 +233,28 @@ $$f(\Theta) = \sum_{i = 1}^n f_i(\Theta)
 $$ where $n$ is the number of data points used in the objective (and this may be different from the number of points available in the whole data set). Here is pseudocode for applying sgd to such an objective $f$; it assumes we know the form of 
 $\nabla_\Theta f_i$ for all $i$ in $1\ldots n$:
 
-::: codebox
-$\Theta^{(0)} \gets \Theta_{\it init}$ $t \gets 1$ $T$ randomly select $i \in \{1, 2, \dots, n\}$ $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta f_i(\Theta^{(t-1)})$ $\Theta^{(t)}$
-:::
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,f,\nabla_{\Theta}f_1,...,\nabla_{\Theta} f_n,T$}
+  \State $\Theta^{(0)} \gets \Theta_{\it init}$ 
+  \For{$t \gets 1$}
+    \State randomly select $i \in \{1, 2, \dots, n\}$
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta f_i(\Theta^{(t-1)})$ 
+  \EndFor
+
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+```
 
 Note that now instead of a fixed value of $\eta$, $\eta$ is indexed by the iteration of the algorithm, $t$. Choosing a good stopping criterion can be a little trickier for sgd than traditional gradient descent. Here we've just chosen to stop after a fixed number of iterations $T$.
 
@@ -169,6 +268,10 @@ For sgd to converge to a local optimum point as $t$ increases, the learning rate
 Why these two conditions? The intuition is that the first condition, on $\sum \eta(t)$, is needed to allow for the possibility of an unbounded potential range of exploration, while the second condition, on $\sum\eta(t)^2$, ensures that the learning rates get smaller and smaller as $t$ increases.
 
 One "legal" way of setting the learning rate is to make $\eta(t) = 1/t$ but people often use rules that decrease more slowly, and so don't strictly satisfy the criteria for convergence.
+
+::: {.study-question-callout}
+If you start a long way from the optimum, would making $\eta(t)$ decrease more slowly tend to make you move more quickly or more slowly to the optimum?
+:::
 
 There are multiple intuitions for why sgd might be a better choice algorithmically than regular gd (which is sometimes called *batch* gd (bgd)):
 
