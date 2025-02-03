@@ -4,7 +4,7 @@ This chapter's HTML notes are in active development. For a more stable version, 
 
 
 
-# Logistic regression {#sec-logistic}
+# Linear Classficiation - Logistic Regression {#sec-logistic}
 
 ## A new hypothesis class: linear logistic classifiers
 
