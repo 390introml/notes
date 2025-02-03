@@ -1,0 +1,270 @@
+# Matrix derivative common cases {.unnumbered #sec-matrix_deriv}
+
+What are some conventions for derivatives of matrices and vectors? It will always work to explicitly write all indices and treat everything as scalars, but we introduce here some shortcuts that are often faster to use and helpful for understanding.
+
+There are at least two consistent but different systems for describing shapes and rules for doing matrix derivatives. In the end, they all are correct, but it is important to be consistent.
+
+We will use what is often called the 'Hessian' or denominator layout, in which we say that for
+
+${\bf x}$ of size $n\times 1$ and ${\bf y}$ of size $m\times 1$, $\partial {\bf y}/\partial {\bf x}$ is a matrix of size $n\times m$ with the $(i, j)$ entry $\partial y_j/\partial x_i$. This denominator layout convention has been adopted by the field of machine learning to ensure that the shape of the gradient is the same as the shape of the shape of the respective derivative. This is somewhat controversial at large, but alas, we shall continue with denominator layout.
+
+The discussion below closely follows the Wikipedia on matrix derivatives.
+
+## The shapes of things
+
+Here are important special cases of the rule above:
+
+-   Scalar-by-scalar: For $x$ of size $1\times 1$ and $y$ of size $1\times 1$, $\partial y/\partial x$ is the (scalar) partial derivative of $y$ with respect to $x$.
+
+-   Scalar-by-vector: For ${\bf x}$ of size $n\times 1$ and $y$ of size $1\times 1$, $\partial y/\partial {\bf x}$ (also written $\nabla_{\bf x}y$, the gradient of $y$ with respect to ${\bf x}$) is a column vector of size $n\times 1$ with the $i^{\rm th}$ entry $\partial y/\partial x_i$:
+
+$$\begin{aligned}
+              \partial y/\partial {\bf x}=
+              \begin{bmatrix}
+                \partial y/\partial x_1 \\ \partial y/\partial x_2 \\ \vdots \\ \partial y/\partial x_n
+              \end{bmatrix}.
+\end{aligned}$$
+
+-   Vector-by-scalar: For $x$ of size $1\times 1$ and ${\bf y}$ of size $m\times 1$, $\partial {\bf y}/\partial x$ is a row vector of size $1 \times m$ with the $j^{\rm th}$ entry $\partial {\bf y}_j/\partial x$:
+
+$$\begin{aligned}
+\partial {\bf y}/\partial x=
+\begin{bmatrix}
+  \partial y_1/\partial x & \partial y_2/\partial x & \cdots & \partial y_m/\partial x
+\end{bmatrix}.
+\end{aligned}$$
+
+-   Vector-by-vector: For ${\bf x}$ of size $n\times 1$ and ${\bf y}$ of size $m\times 1$, $\partial {\bf y}/\partial {\bf x}$ is a matrix of size $n\times m$ with the $(i, j)$ entry $\partial y_j/\partial x_i$:
+
+$$\begin{aligned}
+\partial {\bf y}/\partial {\bf x}=
+\begin{bmatrix}
+  \partial y_1/\partial x_1 & \partial y_2/\partial x_1 & \cdots & \partial y_m/\partial x_1 \\
+  \partial y_1/\partial x_2 & \partial y_2/\partial x_2 & \cdots & \partial y_m/\partial x_2 \\
+  \vdots                    & \vdots                    & \ddots & \vdots                    \\
+  \partial y_1/\partial x_n & \partial y_2/\partial x_n & \cdots & \partial y_m/\partial x_n \\
+\end{bmatrix}.
+\end{aligned}$$
+
+-   Scalar-by-matrix: For ${\bf X}$ of size $n\times m$ and $y$ of size $1\times 1$, $\partial y/\partial {\bf X}$ (also written $\nabla_{\bf X}y$, the gradient of $y$ with respect to ${\bf X}$) is a matrix of size $n\times m$ with the $(i, j)$ entry $\partial y/\partial X_{i, j}$: 
+
+$$\begin{aligned}
+\partial y/\partial {\bf X}=
+\begin{bmatrix}
+  \partial y/\partial X_{1,1} & \cdots & \partial y/\partial X_{1,m} \\
+  \vdots                      & \ddots & \vdots                      \\
+  \partial y/\partial X_{n,1} & \cdots & \partial y/\partial X_{n,m} \\
+\end{bmatrix}.
+\end{aligned}$$
+
+You may notice that in this list, we have not included matrix-by-matrix, matrix-by-vector, or vector-by-matrix derivatives. This is because, generally, they cannot be expressed nicely in matrix form and require higher order objects (e.g., tensors) to represent their derivatives. These cases are beyond the scope of this course.
+
+Additionally, notice that for all cases, you can explicitly compute each element of the derivative object using (scalar) partial derivatives. You may find it useful to work through some of these by hand as you are reviewing matrix derivatives.
+
+## Some vector-by-vector identities
+
+Here are some examples of $\partial {\bf y}/ \partial {\bf x}$. In each case, assume ${\bf x}$ is $n \times 1$, ${\bf y}$ is $m \times 1$, $a$ is a scalar constant, ${\bf a}$ is a vector that does not depend on ${\bf x}$ and ${\bf A}$ is a matrix that does not depend on ${\bf x}$, $u$ and $v$ are scalars that do depend on ${\bf x}$, and ${\bf u}$ and ${\bf v}$ are vectors that do depend on ${\bf x}$. We also have vector-valued functions ${\bf f}$ and ${\bf g}$.
+
+### Some fundamental cases
+
+First, we will cover a couple of fundamental cases: suppose that ${\bf a}$ is an $m \times 1$ vector which is not a function of ${\bf x}$, an $n\times1$ vector. Then,
+
+$$
+\frac{\partial {\bf a}}{\partial {\bf x}} = {\bf 0},
+$${#eq-const} 
+
+is an $n \times m$ matrix of 0s. This is similar to the scalar case of differentiating a constant. Next, we can consider the case of differentiating a vector with respect to itself:
+
+$$
+\frac{\partial {\bf x}}{\partial {\bf x}} = {\bf I}
+$$ 
+
+This is the $n \times n$ identity matrix, with 1's along the diagonal and 0's elsewhere. It makes sense, because $\partial {\bf x}_j / {\bf x}_i$ is 1 for $i = j$ and 0 otherwise. This identity is also similar to the scalar case.
+
+### Derivatives involving a constant matrix
+
+Let the dimensions of ${\bf A}$ be $m \times n$. Then the object ${\bf A}{\bf x}$ is an $m\times 1$ vector. We can then compute the derivative of ${\bf A}{\bf x}$ with respect to ${\bf x}$ as:
+
+$$\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}} = \begin{bmatrix}
+  \partial ({\bf A}{\bf x})_1/\partial x_1 & \partial ({\bf A}{\bf x})_2/\partial x_1 & \cdots & \partial ({\bf A}{\bf x})_m/\partial x_1 \\
+  \partial ({\bf A}{\bf x})_1/\partial x_2 & \partial ({\bf A}{\bf x})_2/\partial x_2 & \cdots & \partial ({\bf A}{\bf x})_m/\partial x_2 \\
+  \vdots                            & \vdots                            & \ddots & \vdots                            \\
+  \partial ({\bf A}{\bf x})_1/\partial x_n & \partial ({\bf A}{\bf x})_2/\partial x_n & \cdots & \partial ({\bf A}{\bf x})_m/\partial x_n \\
+  \end{bmatrix}$$
+
+Note that any element of the column vector ${\bf A}{\bf x}$ can be written as, for $j = 1, \ldots, m$:
+
+$$({\bf A}{\bf x})_j = \sum_{k=1}^n A_{j,k} x_k.$$
+
+Thus, computing the $(i,j)$ entry of $\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}}$ requires computing the partial derivative $\partial ({\bf A}{\bf x})_j/\partial x_i:$
+
+$$\begin{aligned}
+\partial ({\bf A}{\bf x})_j/\partial x_i = \partial \left( \sum_{k=1}^n A_{j,k} x_k \right)/ \partial x_i = A_{j,i}
+\end{aligned}$$
+
+Therefore, the $(i,j)$ entry of $\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}}$ is the $(j,i)$ entry of ${\bf A}$:
+
+$$\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}} = {\bf A}^T$${#eq-Ax}
+
+Similarly, for objects ${\bf x}, {\bf A}$ of the same shape, one can obtain,
+
+$$\frac{\partial {\bf x}^T {\bf A}}{\partial {\bf x}} = {\bf A}
+$${#eq-xTA}
+
+### Linearity of derivatives
+
+Suppose that ${\bf u}, {\bf v}$ are both vectors of size $m \times 1$. Then,
+
+$$\frac{\partial ({\bf u}+ {\bf v})}{\partial {\bf x}} = \frac{\partial
+    {\bf u}}{\partial {\bf x}} + \frac{\partial {\bf v}}{\partial {\bf x}}
+$${#eq-uplusv}
+
+Suppose that $a$ is a scalar constant and ${\bf u}$ is an $m\times 1$ vector that is a function of ${\bf x}$. Then,
+
+$$
+\frac{\partial a {\bf u}}{\partial {\bf x}} = a \frac{\partial {\bf u}}{ \partial {\bf x}}
+$$
+
+One can extend the previous identity to vector- and matrix-valued constants. Suppose that ${\bf a}$ is a vector with shape $m \times 1$ and $v$ is a scalar which depends on ${\bf x}$. Then,
+
+$$\frac{\partial v {\bf a}}{\partial {\bf x}} = \frac{\partial
+    v}{\partial {\bf x}}{\bf a}^T
+$$ 
+
+First, checking dimensions, $\partial v/\partial {\bf x}$ is $n \times 1$ and ${\bf a}$ is $m \times 1$ so ${\bf a}^T$ is $1 \times m$ and our answer is $n \times m$ as it should be. Now, checking a value, element $(i,j)$ of the answer is $\partial v {\bf a}_j / \partial x_i$ = $(\partial v / \partial x_i) {\bf a}_j$ which corresponds to element $(i,j)$ of $(\partial v / \partial {\bf x}){\bf a}^T$.
+
+Similarly, suppose that ${\bf A}$ is a matrix which does not depend on ${\bf x}$ and ${\bf u}$ is a column vector which does depend on ${\bf x}$. Then,
+
+$$
+\frac{\partial {\bf A}{\bf u}}{\partial {\bf x}} = \frac{\partial
+    {\bf u}}{\partial {\bf x}}{\bf A}^T
+$$
+
+### Product rule (vector-valued numerator)
+
+Suppose that $v$ is a scalar which depends on ${\bf x}$, while ${\bf u}$ is a column vector of shape $m\times 1$ and ${\bf x}$ is a column vector of shape $n \times 1$. Then,
+
+$$
+\frac{\partial v {\bf u}}{\partial {\bf x}} = v\frac{\partial
+    {\bf u}}{\partial {\bf x}} + \frac{\partial v}{\partial {\bf x}} {\bf u}^T
+$$
+
+One can see this relationship by expanding the derivative as follows:
+
+$$\begin{aligned}
+  \frac{\partial v {\bf u}}{\partial {\bf x}} =
+  \begin{bmatrix}
+    \partial (v u_1)/\partial x_1 & \partial (v u_2)/\partial x_1 & \cdots & \partial (v u_m)/\partial x_1 \\
+    \partial (v u_1)/\partial x_2 & \partial (v u_2)/\partial x_2 & \cdots & \partial (v u_m)/\partial x_2 \\
+    \vdots                        & \vdots                        & \ddots & \vdots                        \\
+    \partial (v u_1)/\partial x_n & \partial (v u_2)/\partial x_n & \cdots & \partial (v u_m)/\partial x_n \\
+  \end{bmatrix}.
+\end{aligned}
+$$
+
+Then, one can use the product rule for scalar-valued functions, 
+$$
+\begin{aligned}
+  \partial (v u_j)/\partial x_i = v (\partial u_j / \partial x_i) + (\partial v / \partial x_i) u_j,
+\end{aligned}
+$$ to obtain the desired result.
+
+### Chain rule
+
+Suppose that ${\bf g}$ is a vector-valued function with output vector of shape $m \times 1$, and the argument to ${\bf g}$ is a column vector ${\bf u}$ of shape $d\times 1$ which depends on ${\bf x}$. Then, one can obtain the chain rule as,
+
+$$\frac{\partial {\bf g}({\bf u})}{\partial {\bf x}} = \frac{\partial
+    {\bf u}}{\partial {\bf x}}\frac{\partial {\bf g}({\bf u})}{\partial
+    {\bf u}}
+$$ 
+
+Following "the shapes of things," $\partial {\bf u}/ \partial {\bf x}$ is $n \times d$ and $\partial {\bf g}({\bf u}) / \partial {\bf u}$ is $d \times m$, where element $(i,j)$ is $\partial {\bf g}({\bf u})_j / \partial {\bf u}_i$. The same chain rule applies for further compositions of functions: 
+
+$$
+\frac{\partial {\bf f}({\bf g}({\bf u}))}{\partial {\bf x}} = \frac{\partial
+    {\bf u}}{\partial {\bf x}}\frac{\partial {\bf g}({\bf u})}{\partial {\bf u}}
+  \frac{\partial {\bf f}({\bf g})}{\partial {\bf g}}
+$$
+
+## Some other identities
+
+You can get many scalar-by-vector and vector-by-scalar cases as special cases of the rules above, making one of the relevant vectors just be 1 x 1. Here are some other ones that are handy. For more, see the Wikipedia article on Matrix derivatives (for consistency, only use the ones in *denominator layout*).
+
+$$
+\frac{\partial {\bf u}^T {\bf v}}{\partial {\bf x}} = \frac{\partial
+    {\bf u}}{\partial {\bf x}} {\bf v}+ \frac{\partial {\bf v}}{\partial {\bf x}} {\bf u}
+$${#eq-uTv}
+
+$$\frac{\partial {\bf u}^T}{\partial x} = \big(\frac{\partial
+    {\bf u}}{\partial x}\big)^T
+$${#eq-uT}
+
+## Derivation of gradient for linear regression {#app:matrix-gradient}
+
+Applying identities @eq-xTA, @eq-uTv,@eq-uplusv, @eq-Ax, @eq-const 
+
+$$\begin{aligned}
+  \frac{\partial (\tilde{\bf X}\theta - \tilde{\bf Y})^T(\tilde{\bf X}\theta - \tilde{\bf Y})/n}{\partial
+  \theta} & = \frac{2}{n} \frac{\partial(\tilde{\bf X}\theta - \tilde{\bf Y})}{\partial
+  \theta}(\tilde{\bf X}\theta - \tilde{\bf Y})                                           \\
+          & = \frac{2}{n} \big(\frac{\partial\tilde{\bf X}\theta}{\partial
+    \theta}-\frac{\partial \tilde{\bf Y}}{\partial
+  \theta}\big)(\tilde{\bf X}\theta - \tilde{\bf Y})                                      \\
+          & = \frac{2}{n} \big(\tilde{\bf X}^T -{\bf 0}\big)(\tilde{\bf X}\theta - \tilde{\bf Y}) \\
+          & = \frac{2}{n} \tilde{\bf X}^T (\tilde{\bf X}\theta - \tilde{\bf Y})                   \\
+\end{aligned}$$
+
+## Matrix derivatives using Einstein summation {#app:einstein}
+
+*You do not have to read or learn this! But you might find it interesting or helpful.*
+
+Consider the objective function for linear regression, written out as products of matrices: 
+
+$$\begin{aligned}
+J(\theta) = \frac{1}{n} (\tilde{X}\theta - \tilde{Y})^T (\tilde{X}\theta-\tilde{Y})
+\,,
+\end{aligned}
+$$
+
+where $\tilde{X}= X^T$ is $n\times d$, $\tilde{Y}=Y^T$ is $n\times 1$, and $\theta$ is $d\times 1$. How does one show, with no shortcuts, that 
+
+$$\begin{aligned}
+\nabla_{\theta}J = \frac{2}{n} {\tilde{X}^T} {(\tilde{X}\theta - \tilde{Y})} \;\;?
+\end{aligned}
+$$ 
+
+One neat way, which is very explicit, is to simply write all the matrices as variables with row and column indices, e.g., $\tilde{X}_{ab}$ is the row $a$, column $b$ entry of the matrix $\tilde{X}$. Furthermore, let us use the convention that in any product, all indices which appear more than once get summed over; this is a popular convention in theoretical physics, and lets us suppress all the summation symbols which would otherwise clutter the following expresssions. For example, $\tilde{X}_{ab} \theta_b$ would be the implicit summation notation giving the element at the $a^{\rm th}$ row of the matrix-vector product $\tilde{X}\theta$.
+
+Using implicit summation notation with explicit indices, we can rewrite $J(\theta)$ as 
+
+$$\begin{aligned}
+J(\theta) = \frac{1}{n} \left( \tilde{X}_{ab} \theta_b - \tilde{Y}_a \right)  \left( \tilde{X}_{ac}\theta_c - \tilde{Y}_a \right) \,.
+\end{aligned}$$
+
+Note that we no longer need the transpose on the first term, because all that transpose accomplished was to take a dot product between the vector given by the left term, and the vector given by the right term. With implicit summation, this is accomplished by the two terms sharing the repeated index $a$.
+
+Taking the derivative of $J$ with respect to the $d^{\rm th}$ element of $\theta$ thus gives, using the chain rule for (ordinary scalar) multiplication: 
+
+$$\begin{aligned}
+\frac{dJ}{d\theta_d} &=& \frac{1}{n} \left[
+  \tilde{X}_{ab} \delta_{bd} \left( \tilde{X}_{ac}\theta_c-\tilde{Y}_a \right)
+  + \left(\tilde{X}_{ab}\theta_b - \tilde{Y}_a \right) \tilde{X}_{ac} \delta_{cd}
+  \right]
+\\
+&=& \frac{1}{n} \left[
+  \tilde{X}_{ad} \left( \tilde{X}_{ac}\theta_c-\tilde{Y}_a \right)
+  + \left(\tilde{X}_{ab}\theta_b - \tilde{Y}_a \right) \tilde{X}_{ad}
+  \right]
+\\
+&=& \frac{2}{n} \tilde{X}_{ad} \left( \tilde{X}_{ab}\theta_b-\tilde{Y}_a \right)
+\,,
+\end{aligned}$$ 
+where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $\tilde{X}_{ad} \tilde{X}_{ab}$ is not a matrix product of $\tilde{X}$ with $\tilde{X}$. However, taking the transpose $\tilde{X}^T$ switches row and column indices, so $\tilde{X}_{ad} = \tilde{X}^T_{da}$. And $\tilde{X}^T_{da} \tilde{X}_{ab}$ *is* a matrix product of $\tilde{X}^T$ with $\tilde{X}$! Thus, we have that 
+
+$$\begin{aligned}
+\frac{dJ}{d\theta_d} =& \frac{2}{n} \tilde{X}^T_{da} \left( \tilde{X}_{ab}\theta_b-\tilde{Y}_a \right)
+\\
+=& \frac{2}{n} \left[ \tilde{X}^T \left( \tilde{X}\theta-\tilde{Y}\right) \right]_{d}
+\,,
+\end{aligned}
+$$ which is the desired result.

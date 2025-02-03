@@ -26,6 +26,7 @@ book:
     # - mdp.qmd
     # - reinforcement_learning.qmd
     # - non_parametric.qmd
+    - matrix_derivative.qmd
   reader-mode: true
   sharing: [twitter, linkedin]
   sidebar:
