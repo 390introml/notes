@@ -16,16 +16,16 @@ book:
     - index.qmd
     - regression.qmd
     - gradient_descent.qmd
-    - classification.qmd
-    - feature_representation.qmd
-    - neural_networks.qmd
-    - convolutional_neural_networks.qmd
-    - transformers.qmd
-    - autoencoders.qmd
-    - clustering.qmd
-    - mdp.qmd
-    - reinforcement_learning.qmd
-    - non_parametric.qmd
+    # - classification.qmd
+    # - feature_representation.qmd
+    # - neural_networks.qmd
+    # - convolutional_neural_networks.qmd
+    # - transformers.qmd
+    # - autoencoders.qmd
+    # - clustering.qmd
+    # - mdp.qmd
+    # - reinforcement_learning.qmd
+    # - non_parametric.qmd
   reader-mode: true
   sharing: [twitter, linkedin]
   sidebar:
