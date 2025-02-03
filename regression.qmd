@@ -55,7 +55,7 @@ Given a training set $\mathcal{D}_\text{train}$ and a hypothesis $h$ with parame
 
 $$
 \mathcal{E}_\text{train}(h; \Theta) = \frac{1}{n}\sum_{i=1}^n \mathcal{L}(h(x^{(i)}; \Theta), y^{(i)})\;\;.
-$$
+$${#eq-erm}
 
  The training error of $h$ gives us some idea of how well it characterizes the relationship between $x$ and $y$ values in our data, but it isn't the quantity that we *most* care about. What we most care about is *test error*: 
 
