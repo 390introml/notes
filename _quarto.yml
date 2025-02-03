@@ -26,7 +26,9 @@ book:
     # - mdp.qmd
     # - reinforcement_learning.qmd
     # - non_parametric.qmd
+  appendices:
     - matrix_derivative.qmd
+
   reader-mode: true
   sharing: [twitter, linkedin]
   sidebar:
@@ -73,6 +75,9 @@ format:
         - key: alg
           kind: float
           reference-prefix: Algorithm
+        - key: app
+          kind: float
+          reference-prefix: Appendix
     # include-in-header: title-block.html
 
   # pdf:

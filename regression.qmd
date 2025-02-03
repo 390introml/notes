@@ -232,8 +232,10 @@ $$J(\theta) = \frac{1}{n}\underbrace{(\tilde{X}\theta - \tilde{Y})^T}_{1 \times
   \frac{1}{n}\sum_{i=1}^n \left(\left(\sum_{j=1}^d \tilde{X}_{ij}\theta_j
     \right) - \tilde{Y}_i\right)^2$$
  and using facts about matrix/vector calculus, we get 
-$$\nabla_{\theta}J = \frac{2}{n}\underbrace{\tilde{X}^T}_{d \times n}\underbrace{(\tilde{X}\theta - \tilde{Y})}_{n \times 1}\;\;.$$
- See Appendix @sec-matrix_deriv for a nice way to think about finding this derivative.
+$$\nabla_{\theta}J = \frac{2}{n}\underbrace{\tilde{X}^T}_{d \times n}\underbrace{(\tilde{X}\theta - \tilde{Y})}_{n \times 1}\;\;.
+$$
+
+See @sec-matrix-derivative for a nice way to think about finding this derivative.
 
 Setting $\nabla_{\theta}J$ to 0 and solving, we get: 
 

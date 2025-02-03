@@ -1,4 +1,14 @@
-# Matrix derivative common cases {.unnumbered #sec-matrix_deriv}
+<!-- ---
+format:
+  html:
+    number-sections: true
+    numbering:
+      prefix: "Appendix "
+      style: "letters"
+--- -->
+
+
+# Matrix derivative common cases {#sec-matrix-derivative}
 
 What are some conventions for derivatives of matrices and vectors? It will always work to explicitly write all indices and treat everything as scalars, but we introduce here some shortcuts that are often faster to use and helpful for understanding.
 
