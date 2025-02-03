@@ -1,3 +1,7 @@
+:::{.callout-warning}
+The HTML notes are under active development. [Here](https://introml.mit.edu/_static/spring25/notes.pdf) is the link to the older PDF version of the notes. 
+:::
+
 # Introduction {#sec-intro}
 
 The main focus of machine learning (ML) is *making decisions or predictions based on data*. There are a number of other fields with significant overlap in technique, but difference in focus: in economics and psychology, the goal is to discover underlying causal processes and in statistics it is to find a model that fits a data set well. In those fields, the end product is a model. In machine learning, we often fit models, but as a means to the end of making good predictions or decisions.

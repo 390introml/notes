@@ -1,3 +1,8 @@
+:::{.callout-warning}
+The HTML notes are under active development. [Here](https://introml.mit.edu/_static/spring25/notes.pdf) is the link to the older PDF version of the notes. 
+:::
+
+
 # Gradient Descent {#sec-gradient}
 
 In the previous chapter, we showed how to describe an interesting objective function for machine learning, but we need a way to find the optimal $\Theta^* = {\rm arg}\min_{\Theta} J(\Theta)$, particularly when the objective function is not amenable to analytical optimization. For example, this can be the case when $J(\Theta)$ involves a more complex loss function, or more general forms of regularization. It can also be the case when there are simply too many parameters to learn for it to be computationally feasible.

@@ -1,3 +1,7 @@
+:::{.callout-warning}
+The HTML notes are under active development. [Here](https://introml.mit.edu/_static/spring25/notes.pdf) is the link to the older PDF version of the notes. 
+:::
+
 # Regression {#chap-regression}
 
 *Regression* is an important machine-learning problem that provides a good starting point for diving deeply into the field.
