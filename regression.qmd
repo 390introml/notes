@@ -28,7 +28,7 @@ which gives examples of input values $x^{(i)}$ and the output values $y^{(i)}$ t
 $$h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.$$
  This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than to divide the inputs into discrete categories.
 
-Real life rarely gives us vectors of real numbers. The $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$ whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$ (e.g., a person's height or the amount of bass in a song). 
+Real life rarely gives us vectors of real numbers. The $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$ whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$ (e.g., a person's height or the amount of bass in a song).
 
 This process of converting our data into a numerical form is often referred to as *data pre-processing*.  Then $h$ maps $\varphi(x)$ to $\mathbb{R}$. 
 
@@ -77,7 +77,7 @@ $$
 $$
 
 on $n'$ new examples that were not used in the process of finding the hypothesis.
- 
+
 
 :::{.column-margin}
 It might be worthwhile to stare at the two errors and think about what's the difference. For example, notice how $\Theta$ is no longer a variable in the testing error? This is because, in evaluating the testing error, the parameters will have been "picked" or "fixed" already.
@@ -119,22 +119,38 @@ The *loss* measures how unhappy we are about the prediction $h(x^{(i)}; \Theta)$
 
 ## Linear regression
 
-To make this discussion more concrete, we have to provide a hypothesis class and a loss function.
+To make this discussion more concrete, we need to provide a hypothesis class and a loss function.
 
-We will begin by picking a class of hypotheses ${\cal H}$ that we think might provide a good set of possible models of the relationship between $x$ and $y$ in our data. We will start with a very simple class of *linear* hypotheses for regression. It is both simple to study and very powerful, and will serve as the basis for many other important techniques (even neural networks!).
-
-In linear regression, the set ${\cal H}$ of hypotheses has the form 
-$$h(x;\theta, \theta_0) = \theta^Tx + \theta_0
-  \;\;,
+We begin by picking a class of hypotheses $\mathcal{H}$ that might provide a good set of possible models for the relationship between $x$ and $y$ in our data. We start with a very simple class of *linear* hypotheses for regression:
+$$
+h(x; \theta, \theta_0) = \theta^T x + \theta_0 \;\;,
 $${#eq-linear_reg_hypothesis}
 
+where the model parameters are $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$), this corresponds to the familiar slope-intercept form $y = mx + b$ of a *line*. In two dimesions ($d = 2$), this corresponds to a *plane*. In higher dimensions, this model describes a *hyperplane*. This hypothesis class is both simple to study and very powerful, and will serve as the basis for many other important techniques (even neural networks!).
+
  
-where the model parameters are $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$), this corresponds to the familiar slope-intercept form $y = mx + b$ of a *line*. In two dimesions ($d = 2$), this corresponds to a *plane*. In higher dimensions, this model describes a *hyperplane*.
-
-
 We define a *loss function* to describe how to evaluate the quality of the predictions our hypothesis is making, when compared to the "target" $y$ values in the data set. The choice of loss function is part of modeling your domain. In the absence of additional information about a regression problem, we typically use *squared loss*: 
-$$\mathcal{L}(g, a) = (g - a)^2\;\;.$$
- where $g=h(x)$ is our \"guess\" from the hypothesis, and $a$ is the \"actual\" observation (in other words, here $a$ is being used equivalently as $y$). With this choice of squared loss, the average loss as generally defined in @eq-erm will become the so-called *mean squared error (MSE),* which we'll study closely very soon.
+$$
+\mathcal{L}(g, a) = (g - a)^2\;\;.
+$$
+where $g=h(x)$ is our "guess" from the hypothesis, or the hypothesis' prediction, and $a$ is the "actual" observation (in other words, here $a$ is being used equivalently as $y$). With this choice of squared loss, the average loss as generally defined in @eq-erm will become the so-called *mean squared error (MSE)*.
+
+Using this framework, the unregularized objective function becomes:
+
+$$
+J(\theta, \theta_0) = \frac{1}{n}\sum_{i=1}^n\left(\theta^T x^{(i)} + \theta_0 - y^{(i)}\right)^2\;\;.
+$$
+
+
+
+We aim to learn parameters that minimize our objective function:
+
+$$
+\theta^*, \theta_0^* = \mathrm{argmin}_{\theta, \theta_0} J(\theta, \theta_0)\;\;.
+$$
+
+For one-dimensional data ($d = 1$), this corresponds to fitting a line to data. For $d > 1$, this hypothesis represents a $d$-dimensional hyperplane embedded in a $(d + 1)$-dimensional space (the input dimension plus the $y$ dimension).
+
 
 The squared loss penalizes guesses that are too high the same amount as it penalizes guesses that are too low, and has a good mathematical justification in the case that your data are generated from an underlying linear hypothesis with the so-called Gaussian-distributed noise added to the $y$ values. But there are applications in which other losses would be better, and much of the framework we discuss can be applied to different loss functions, although this one has a form that also makes it particularly computationally convenient.
 
