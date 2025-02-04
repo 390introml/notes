@@ -346,8 +346,10 @@ Larger $\lambda$ values pressure $\theta$ values to be near zero.
  
 Note that we don't penalize $\theta_0$; intuitively, $\theta_0$ is what "floats" the regression surface to the right level for the data you have, and so you shouldn't make it harder to fit a data set where the $y$ values tend to be around one million than one where they tend to be around one. The other parameters control the orientation of the regression surface, and we prefer it to have a not-too-crazy orientation.
 
-There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, but it's a little bit more complicated to derive than the solution for ols because $\theta_0$ needs special treatment. See below for derivation, but alas, the solution is: 
-$$\theta_{\text{ridge}} = \left(\tilde{X}^T\tilde{X}+ n\lambda I\right)^{-1}\tilde{X}^T\tilde{Y}
+There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, but it's a little bit more complicated to derive than the solution for ols. See the collaposed box for derivation. But alas, via similar calculus, the solution is: 
+
+$$
+\theta_{\text{ridge}} = \left({X}^T{X}+ n\lambda I\right)^{-1}{X}^T\tilde{Y}
 $${#eq-ridge_regression_solution}
 
 :::{.callout-note collapse="true"}
