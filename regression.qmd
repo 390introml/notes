@@ -258,7 +258,7 @@ $$
 $$
 
 :::{.column-margin}
-See @sec-matrix-derivative if you need some help finding this derivative.
+See @sec-matrix-derivative if you need some help finding this gradient.
 :::
 
 Setting this equal to zero and solving for $\theta$ yields the final closed-form solution:
