@@ -415,9 +415,6 @@ Running the algorithm multiple times controls for possible poor choices of train
 
 One concern is that we might need a lot of data to do this, and in many applications data is expensive or difficult to acquire. We can re-use data with *cross validation* (but it's harder to do theoretical analysis).
 
-![](figures/codebox/linear_classifiers_evaluating_a_learning_algorithm_codebox_1-crop.png){width="80%"}
-
-
 ```pseudocode
 #| html-indent-size: "1.2em"
 #| html-comment-delimiter: "//"
