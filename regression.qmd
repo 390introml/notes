@@ -20,7 +20,7 @@ $$x \rightarrow \boxed{h} \rightarrow y \;\;,$$
 
 Regression is a *supervised learning* problem, in which we are given a training dataset of the form 
 
-$${\cal D}_n= \left\{\left(x^{(1)}, y^{(1)}\right), \dots,
+$$ \mathcal{D}_\text{train}= \left\{\left(x^{(1)}, y^{(1)}\right), \dots,
   \left(x^{(n)}, y^{(n)}\right)\right\}\;\;,$$
 
 
@@ -36,9 +36,6 @@ Then $h$ maps $\varphi(x)$ to $\mathbb{R}$.
 What makes a hypothesis useful? That it works well on *new* data; that is, that it makes good predictions on examples it hasn't seen. 
 
 
-$$
-\mathcal{D}_\text{train} = \left\{\left(x^{(1)}, y^{(1)}\right), \dots, \left(x^{(n)}, y^{(n)}\right)\right\}\;\;,
-$$
 
 :::{.column-margin}
 My favorite analogy is to problem sets.  We evaluate a

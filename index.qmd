@@ -63,9 +63,9 @@ The idea of *supervised* learning is that the learning system is given inputs an
 
 #### Regression
 
-For a regression problem, the training data ${\cal D}_n$ is in the form of a set of $n$ pairs: 
+For a regression problem, the training data $\mathcal{D}_\text{train}$ is in the form of a set of $n$ pairs: 
 
-$${\cal D}_n= \{(x^{(1)},
+$$\mathcal{D}_\text{train}= \{(x^{(1)},
   y^{(1)}), \ldots, (x^{(n)}, y^{(n)})\},
 $$ where $x^{(i)}$ represents an input, most typically a $d$-dimensional vector of real and/or discrete values, and $y^{(i)}$ is the output to be predicted, in this case a real-number. The $y$ values are sometimes called *target values*.
 
@@ -216,7 +216,7 @@ Given a new $x^{(n+1)}$, we would then make the prediction $h(x^{(n+1)}; \Theta)
 The fitting process is often articulated as an optimization problem: Find a value of $\Theta$ that minimizes some criterion involving $\Theta$ and the data. An optimal strategy, if we knew the actual underlying distribution on our data, $\Pr(X,Y)$ would be to predict the value of $y$ that minimizes the *expected loss*, which is also known as the *test error*. If we don't have that actual underlying distribution, or even an estimate of it, we can take the approach of minimizing the *training error*: that is, finding the prediction rule $h$ that minimizes the average loss on our training data set. So, we would seek $\Theta$ that minimizes 
 
 $$\begin{aligned}
-  \mathcal{E}_n(h; \Theta) =  \frac{1}{n}\sum_{i = 1}^n
+  \mathcal{E}_\text{train}(h; \Theta) =  \frac{1}{n}\sum_{i = 1}^n
   \mathcal{L}(h(x^{(i)};\Theta), y^{(i)})\;\;,
 \end{aligned}$$ 
 where the loss function $\mathcal{L}(g, a)$ measures how bad it would be to make a guess of $g$ when the actual value is $a$.
