@@ -2,7 +2,7 @@
 This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
 :::
 
-# Regression {#chap-regression}
+# Regression {#sec-regression}
 
 *Regression* is an important machine-learning problem that provides a good starting point for diving deeply into the field.
 
@@ -29,13 +29,28 @@ $$h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.$$
  This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than to divide the inputs into discrete categories.
 
 Real life rarely gives us vectors of real numbers. The $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$ whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$ (e.g., a person's height or the amount of bass in a song). 
-This process of converting our data into a numerical form is often referred to as *data pre-processing*. 
-Then $h$ maps $\varphi(x)$ to $\mathbb{R}$. 
 
+This process of converting our data into a numerical form is often referred to as *data pre-processing*.  Then $h$ maps $\varphi(x)$ to $\mathbb{R}$. 
 
-What makes a hypothesis useful? That it works well on *new* data; that is, that it makes good predictions on examples it hasn't seen. 
+In much of the following, we'll omit explicit mention of $\varphi$ and assume that the $x^{(i)}$ are in $\mathbb{R}^d$. However, you should always remember that some additional process was almost surely required to go from the actual input examples to their feature representation. We will discuss features more later in the course.
 
+Regression is a *supervised learning* problem, in which we are given a training dataset of the form:
 
+$$
+\mathcal{D}_\text{train} = \left\{\left(x^{(1)}, y^{(1)}\right), \dots, \left(x^{(n)}, y^{(n)}\right)\right\}\;\;,
+$$
+
+which provides examples of input values $x^{(i)}$ and the output values $y^{(i)}$ that should be associated with them.
+
+Because $y$ values are real-valued, our hypotheses will have the form:
+
+$$
+h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.
+$$
+
+This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than dividing the inputs into discrete categories.
+
+What makes a hypothesis useful? That it works well on *new* data—that is, it makes good predictions on examples it hasn't seen.
 
 :::{.column-margin}
 My favorite analogy is to problem sets.  We evaluate a
@@ -43,9 +58,9 @@ My favorite analogy is to problem sets.  We evaluate a
   the exam that were not on the homework (training set).
 :::
 
-But we don't know exactly what data this hypothesis might be tested on when we use it in the real world. So, we have to *assume* a connection between the training data and testing data -- typically, the assumption is that they (the training and testing data) are drawn independently from the same probability distribution.
+However, we don't know exactly what data this hypothesis might be tested on in the real world. So, we must *assume* a connection between the training data and testing data. Typically, the assumption is that they are drawn independently from the same probability distribution.
 
-To make this discussion more concrete, we have to provide a *loss function*, to say how unhappy we are when we guess an output $g$ given an input $x$ for which the desired output was $a$.
+To make this discussion more concrete, we need a *loss function* to express how unhappy we are when we guess an output $g$ given an input $x$ for which the desired output was $a$.
 
 
 Given a training set $\mathcal{D}_\text{train}$ and a hypothesis $h$ with parameters $\Theta$, the *training error* of $h$ can be defined as the average loss on the training data:
@@ -54,16 +69,18 @@ $$
 \mathcal{E}_\text{train}(h; \Theta) = \frac{1}{n}\sum_{i=1}^n \mathcal{L}(h(x^{(i)}; \Theta), y^{(i)})\;\;.
 $${#eq-erm}
 
- The training error of $h$ gives us some idea of how well it characterizes the relationship between $x$ and $y$ values in our data, but it isn't the quantity that we *most* care about. What we most care about is *test error*: 
+The training error of $h$ gives us some idea of how well it characterizes the relationship between $x$ and $y$ values in our data, but it isn't the quantity we *most* care about. What we most care about is *test error*:
 
 
 $$
 \mathcal{E}_\text{test}(h) = \frac{1}{n'}\sum_{i=n+1}^{n+n'} \mathcal{L}(h(x^{(i)}), y^{(i)})\;\;,
 $$
+
+on $n'$ new examples that were not used in the process of finding the hypothesis.
  
 
 :::{.column-margin}
-It might be worthwhile to stare at the two errors and think about what's the difference. For example, notice how $\Theta$ is no long a variable in the testing error? this is because in evaluating the testing error, the parameters will have been "picked"/"fixed" already.
+It might be worthwhile to stare at the two errors and think about what's the difference. For example, notice how $\Theta$ is no longer a variable in the testing error? This is because, in evaluating the testing error, the parameters will have been "picked" or "fixed" already.
 :::
 
 For now, we will try to find a hypothesis with small training error (later, with some added criteria) and try to make some design choices so that it *generalizes well* to new data, meaning that it also has a small *test error*.
@@ -74,7 +91,12 @@ Given data, a loss function, and a hypothesis class, we need a method for findin
 
 We begin by writing down an *objective function* $J(\Theta)$, where $\Theta$ stands for *all* the parameters in our model (i.e., all possible choices over parameters). We often write $J(\Theta; {\cal D})$ to make clear the dependence on the data ${\cal D}$.
 
-The objective function describes how we feel about possible hypotheses $\Theta$: we will generally look for values for parameters $\Theta$ that minimize the objective function: 
+::: {.column-margin}
+Don't be too perturbed by the semicolon where you expected to see a comma! It's a mathematical way of saying that we are mostly interested in this as a function of the arguments before the `;`, but we should remember there's a dependence on the stuff after it as well.
+:::
+
+The objective function describes how we feel about possible hypotheses $\Theta$. We generally look for parameter values $\Theta$ that minimize the objective function:
+
 
 $$
 \Theta^* = \arg\min_{\Theta} J(\Theta)\;\;.
@@ -92,8 +114,8 @@ J(\Theta) = \left(\frac{1}{n} \sum_{i=1}^n
   _\text{non-negative constant} {R(\Theta)}.
 $${#eq-ml_objective_loss}
 
-The *loss* tells us how unhappy we are about the prediction $h(x^{(i)}; \Theta)$ that $\Theta$ makes for $(x^{(i)},
-  y^{(i)})$. Minimizing this loss makes the prediction better. The *regularizer* is an additional term that encourages the prediction to remain general, and the constant $\lambda$ adjusts the balance between reproducing seen examples, and being able to generalize to unseen examples. We will return to discuss this balance, and more about the idea of regularization, in @sec-regularization.
+
+The *loss* measures how unhappy we are about the prediction $h(x^{(i)}; \Theta)$ for the pair $(x^{(i)}, y^{(i)})$. Minimizing this loss improves prediction accuracy. The *regularizer* $R(\Theta)$ is an additional term that encourages the prediction to remain general, and the constant $\lambda$ adjusts the balance between fitting the training examples and generalizing to unseen examples. We will discuss this balance and the idea of regularization further in @sec-regularization.
 
 ## Linear regression
 
