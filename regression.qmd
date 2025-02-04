@@ -182,12 +182,29 @@ A richer class of hypotheses can be obtained by performing a non-linear feature 
 
 Okay! Given the objective in @eq-reg_mse_withconst, how can we find good values of $\theta$ and $\theta_0$? We'll study several general-purpose, efficient, interesting algorithms. But before we do that, let's start with the simplest one we can think of: *guess a whole bunch ($k$) of different values of $\theta$ and $\theta_0$*, see which one has the smallest error on the training set, and return it.
 
-![Random-Linear-Classifier](figures/codebox/linear_classifiers_learning_linear_classifiers_codebox_1-crop.png){width="80%"}
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
 
-<!-- ::: codebox
-For $i$ in $1\dots k$: Randomly generate hypothesis $\theta^{(i)},
-    \theta_0^{(i)}$ Let $i = {\rm arg}\min_{i} J(\theta^{(i)}, \theta_0^{(i)}; {\cal D})$ Return $\theta^{(i)}, \theta_0^{(i)}$
-::: -->
+\begin{algorithm}
+    \caption{Random-Regression}
+    \begin{algorithmic}[1]
+        \REQUIRE Data $\mathcal D$, integer $k$
+        \FOR{$i = 1$ \TO $k$}
+            \STATE Randomly generate hypothesis $\theta{i}, \theta_{0}(i)$
+        \ENDFOR
+        \STATE Let $i = \arg\min_{j} J(\theta{(j)}, \theta_{0}(j); \mathcal D)$
+        \RETURN $\theta(i), \theta_{0}(i)$
+    \end{algorithmic}
+\end{algorithm}
+```
+
+
 
 This seems kind of silly, but it's a learning algorithm, and it's not completely useless.
 
@@ -400,9 +417,29 @@ One concern is that we might need a lot of data to do this, and in many applicat
 
 ![](figures/codebox/linear_classifiers_evaluating_a_learning_algorithm_codebox_1-crop.png){width="80%"}
 
-<!-- ::: codebox
-divide ${\cal D}$ into $k$ chunks ${\cal D}_1, {\cal D}_2, \ldots {\cal D}_k$ (of roughly equal size) $i \gets 1$ $k$ train $h_i$ on ${\cal D}\setminus {\cal D}_i$ (withholding chunk ${\cal D}_i$ as the validation set) compute "test" error $\mathcal{E}_i (h_i)$ on withheld data ${\cal D}_i$ $\frac{1}{k} \sum_{i=1}^k \mathcal{E}_i (h_i)$
-::: -->
+
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+    \caption{Cross-Validate}
+    \begin{algorithmic}[1]
+        \REQUIRE Data $\mathcal D$, integer $k$
+        \STATE Divide $\mathcal D$ into $k$ chunks $\mathcal D_1, \mathcal D_2, \ldots, \mathcal D_k$ (of roughly equal size)
+        \FOR{$i = 1$ \TO $k$}
+            \STATE Train $h_i$ on $\mathcal D \setminus \mathcal D_i$ (withholding chunk $\mathcal D_i$ as the validation set)
+            \STATE Compute "test" error $\mathcal{E}_i(h_i)$ on withheld data $\mathcal D_i$
+        \ENDFOR
+        \RETURN $\frac{1}{k} \sum_{i=1}^k \mathcal{E}_i(h_i)$
+    \end{algorithmic}
+\end{algorithm}
+```
 
 It's very important to understand that (cross-)validation neither delivers nor evaluates a single particular hypothesis $h$. It evaluates the *learning algorithm* that produces hypotheses.
 
