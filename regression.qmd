@@ -380,13 +380,16 @@ We have seen how linear regression is a well-formed optimization problem, which 
 ### Evaluating hypotheses
 
 The performance of a given hypothesis $h$ may be evaluated by measuring *test error* on data that was not used to train it. Given a training set ${\cal D}_n,$ a regression hypothesis $h$, and if we choose squared loss, we can define the OLS *training error* of $h$ to be the mean square error between its predictions and the expected outputs: 
-$$\begin{aligned}
-  \mathcal{E}_n(h) = \frac{1}{n}\sum_{i = 1}^{n} \left[ h(x^{(i)}) - y^{(i)} \right]^2
+$$
+\begin{aligned}
+  \mathcal{E}_{\text{train}}(h) = \frac{1}{n}\sum_{i = 1}^{n} \left[ h(x^{(i)}) - y^{(i)} \right]^2
   \;\;.
-\end{aligned}$$
- Test error captures the performance of $h$ on unseen data, and is the mean square error on the test set, with a nearly identical expression as that above, differing only in the range of index $i$: 
+\end{aligned}
+$$
+
+Test error captures the performance of $h$ on unseen data, and is the mean square error on the test set, with a nearly identical expression as that above, differing only in the range of index $i$: 
 $$\begin{aligned}
-  \mathcal{E}(h) = \frac{1}{n'}\sum_{i = n + 1}^{n + n'} \left[ h(x^{(i)}) - y^{(i)} \right]^2
+    \mathcal{E}_{\text{test}}(h) = \frac{1}{n'}\sum_{i = n + 1}^{n + n'} \left[ h(x^{(i)}) - y^{(i)} \right]^2
 \end{aligned}$$
  on $n'$ new examples that were not used in the process of constructing $h$.
 
@@ -405,14 +408,14 @@ When we increase $\lambda$, we tend to increase structural error but decrease es
 *Note that this section is relevant to learning algorithms generally---we are just introducing the topic here since we now have an algorithm that can be evaluated!*
 
 A *learning algorithm* is a procedure that takes a data set ${\cal D}_n$ as input and returns an hypothesis $h$ from a hypothesis class ${\cal H}$; it looks like 
-$${\cal D}_n \longrightarrow \boxed{\text{learning alg (${\cal H}$)}} \longrightarrow h$$
+$$  \mathcal{D}_{\text{train}} \longrightarrow \boxed{\text{learning alg (${\cal H}$)}} \longrightarrow h$$
  Keep in mind that $h$ has parameters. The learning algorithm itself may have its own parameters, and such parameters are often called *hyperparameters*. The analytical solutions presented above for linear regression, e.g., @eq-ridge_regression_solution, may be thought of as learning algorithms, where $\lambda$ is a hyperparameter that governs how the learning algorithm works and can strongly affect its performance.
 
 How should we evaluate the performance of a learning algorithm? This can be tricky. There are many potential sources of variability in the possible result of computing test error on a learned hypothesis $h$:
 
--   Which particular *training examples* occurred in ${\cal D}_n$
+-   Which particular *training examples* occurred in $\mathcal{D}_{\text{train}}$
 
--   Which particular *testing examples* occurred in ${\cal D}_{n'}$
+-   Which particular *testing examples* occurred in $\mathcal{D}_{\text{test}}$
 
 -   Randomization inside the learning *algorithm* itself
 
