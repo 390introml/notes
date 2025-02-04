@@ -118,36 +118,12 @@ $${#eq-linear_reg_hypothesis}
 where the model parameters are $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$), this corresponds to the familiar slope-intercept form $y = mx + b$ of a *line*. In two dimesions ($d = 2$), this corresponds to a *plane*. In higher dimensions, this model describes a *hyperplane*. This hypothesis class is both simple to study and very powerful, and will serve as the basis for many other important techniques (even neural networks!).
 
  
-We define a *loss function* to describe how to evaluate the quality of the predictions our hypothesis is making, when compared to the "target" $y$ values in the data set. The choice of loss function is part of modeling your domain. In the absence of additional information about a regression problem, we typically use *squared loss*: 
+For now, our objective in linear regression is to find a hypothesis that goes as close as possible, on average, to all of our training data. We define a *loss function* to describe how to evaluate the quality of the predictions our hypothesis is making, when compared to the "target" $y$ values in the data set. The choice of loss function is part of modeling your domain. In the absence of additional information about a regression problem, we typically use *squared loss*: 
 $$
 \mathcal{L}(g, a) = (g - a)^2\;\;.
 $$
 where $g=h(x)$ is our "guess" from the hypothesis, or the hypothesis' prediction, and $a$ is the "actual" observation (in other words, here $a$ is being used equivalently as $y$). With this choice of squared loss, the average loss as generally defined in @eq-erm will become the so-called *mean squared error (MSE)*.
 
-Using this framework, the unregularized objective function becomes:
-
-$$
-J(\theta, \theta_0) = \frac{1}{n}\sum_{i=1}^n\left(\theta^T x^{(i)} + \theta_0 - y^{(i)}\right)^2\;\;.
-$$
-
-
-
-We aim to learn parameters that minimize our objective function:
-
-$$
-\theta^*, \theta_0^* = \mathrm{argmin}_{\theta, \theta_0} J(\theta, \theta_0)\;\;.
-$$
-
-For one-dimensional data ($d = 1$), this corresponds to fitting a line to data. For $d > 1$, this hypothesis represents a $d$-dimensional hyperplane embedded in a $(d + 1)$-dimensional space (the input dimension plus the $y$ dimension).
-
-
-The squared loss penalizes guesses that are too high the same amount as it penalizes guesses that are too low, and has a good mathematical justification in the case that your data are generated from an underlying linear hypothesis with the so-called Gaussian-distributed noise added to the $y$ values. But there are applications in which other losses would be better, and much of the framework we discuss can be applied to different loss functions, although this one has a form that also makes it particularly computationally convenient.
-
-:::{.column-margin}
-We won't get into the details of Gaussian distribution in our class; but it's one of the most important distributions and well-worth studying closely at some point. One obvious fact about Gaussian is that it's symmetric; this is in fact one of the reasons squared loss works well under Gaussian settings, as the loss is also symmetric.
-:::
-
-Our objective in linear regression will be to find a hyperplane that goes as close as possible, on average, to all of our training data.
 
 Applying the general optimization framework to the linear regression hypothesis class of @eq-linear_reg_hypothesis with squared loss and no regularization, our objective is to find values for $\Theta = (\theta, \theta_0)$ that minimize the MSE: 
 $$J(\theta, \theta_0) = \frac{1}{n}\sum_{i =
@@ -156,16 +132,26 @@ $${#eq-reg_mse_withconst}
 
 
 resulting in the solution: 
-$$\theta^*, \theta_0^* = {\rm arg}\min_{\theta, \theta_0} J(\theta,
+$$\theta^*, \theta_0^* = \arg\min_{\theta, \theta_0} J(\theta,
   \theta_0)\;\;.
 $${#eq-olsObjective}
 
 
-For one-dimensional data ($d=1$), this becomes the familiar problem of fitting a line to data. For $d>1$, this hypothesis may be visualized as a $d$-dimensional hyperplane embedded in a $(d+1)$-dimensional space (that consists of the input dimension and the $y$ dimension). For example, in the left plot below, we can see data points with labels $y$ and input dimensions $x_1$ and $x_2$. In the right plot below, we see the result of fitting these points with a two-dimensional plane that resides in three dimensions. We interpret the plane as representing a function that provides a $y$ value for any input $(x_1, x_2)$.
+For one-dimensional data ($d = 1$), this corresponds to fitting a line to data. For $d > 1$, this hypothesis represents a $d$-dimensional hyperplane embedded in a $(d + 1)$-dimensional space (the input dimension plus the $y$ dimension).
+
+:::{.column-margin}
+The squared loss penalizes guesses that are too high the same amount as it penalizes guesses that are too low, and has a good mathematical justification in the case that your data are generated from an underlying linear hypothesis with the so-called Gaussian-distributed noise added to the $y$ values. But there are applications in which other losses would be better, and much of the framework we discuss can be applied to different loss functions, although this one has a form that also makes it particularly computationally convenient.
+
+
+We won't get into the details of Gaussian distribution in our class; but it's one of the most important distributions and well-worth studying closely at some point. One obvious fact about Gaussian is that it's symmetric; this is in fact one of the reasons squared loss works well under Gaussian settings, as the loss is also symmetric.
+:::
+
+
+For example, in the left plot below, we can see data points with labels $y$ and input dimensions $x_1$ and $x_2$. In the right plot below, we see the result of fitting these points with a two-dimensional plane that resides in three dimensions. We interpret the plane as representing a function that provides a $y$ value for any input $(x_1, x_2)$.
 
 ![](figures/regression_ex1_plane1.png){width="90%"}
 
-A richer class of hypotheses can be obtained by performing a non-linear feature transformation before doing the regression, as we will later see (in @sec-features), but it will still end up that we have to solve a linear regression problem.
+A richer class of hypotheses can be obtained by performing a non-linear feature transformation before doing the regression, as we will later see, but it will still end up that we have to solve a linear regression problem.
 
 ## A gloriously simple linear regression algorithm
 
@@ -275,7 +261,7 @@ $$
 See @sec-matrix-derivative if you need some help finding this derivative.
 :::
 
-Setting this equal to zero and solving for $\theta$ yields the final closed for solution:
+Setting this equal to zero and solving for $\theta$ yields the final closed-form solution:
 
 $$
 \theta^* = \left(X^T X\right)^{-1} X^T Y
@@ -286,7 +272,7 @@ and the dimensions work out! So, given our data, we can directly compute the lin
 Now, how do we deal with the offset? We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. This is equivalent to adding a constant term to the hypothesis, and we can now write the hypothesis as
 
 $$
-y = h(x_{\text{aug}}; \theta_{\text{aug}}) = \theta_{\text{aug}}^T x_{\text{aug}}\;\;,
+y = h(x_{\text{aug}}; \theta_{\text{aug}}) = \theta_{\text{aug}}^T x_{\text{aug}}\;\;
 $${#eq-linear_reg_hypothesis_augmented}
 
 :::{.study-question-callout}
