@@ -112,7 +112,7 @@ To make this discussion more concrete, we need to provide a hypothesis class and
 
 We begin by picking a class of hypotheses $\mathcal{H}$ that might provide a good set of possible models for the relationship between $x$ and $y$ in our data. We start with a very simple class of *linear* hypotheses for regression:
 $$
-h(x; \theta, \theta_0) = \theta^T x + \theta_0 \;\;,
+y = h(x; \theta, \theta_0) = \theta^T x + \theta_0 \;\;,
 $${#eq-linear_reg_hypothesis}
 
 where the model parameters are $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$), this corresponds to the familiar slope-intercept form $y = mx + b$ of a *line*. In two dimesions ($d = 2$), this corresponds to a *plane*. In higher dimensions, this model describes a *hyperplane*. This hypothesis class is both simple to study and very powerful, and will serve as the basis for many other important techniques (even neural networks!).
@@ -192,9 +192,6 @@ Okay! Given the objective in @eq-reg_mse_withconst, how can we find good values 
     \end{algorithmic}
 \end{algorithm}
 ```
-
-
-
 This seems kind of silly, but it's a learning algorithm, and it's not completely useless.
 
 
@@ -211,21 +208,22 @@ How do you think increasing the number of guesses $k$ will change the training
 
 ## Analytical solution: ordinary least squares
 
-One very interesting aspect of the problem of finding a linear hypothesis that minimizes mean squared error is that we can find a closed-form formula for the answer! This general problem is often called the *ordinary least squares* (ols)
+One very interesting aspect of the problem of finding a linear hypothesis that minimizes mean squared error is that we can find a closed-form formula for the answer! This general problem is often called the *ordinary least squares* (ols).
 
-Everything is easier to deal with if we assume that all of the the $x^{(i)}$ have been augmented with an extra input dimension (feature) that always has value 1, so that they are in $d+1$ dimensions, and rather than having an explicit $\theta_0$, we let it be the last element of our $\theta$ vector, so that we have, simply, 
-$$y = \theta^T x\;\;.$$
- In this case, the objective becomes 
+Everything is easier to deal with if we first *ignore* the offset $\theta_0$. So, suppose for now, we have, simply, 
+$$
+y = \theta^T x\;\;.
+$${#eq-linear_reg_hypothesis_noconst}
+ 
+:::{.column-margin}
+this corresponds to a hyperplane that goes through the origin.
+:::
+
+In this case, the objective becomes 
 $$J(\theta) = \frac{1}{n}\sum_{i =
     1}^n\left(\theta^Tx^{(i)} - y^{(i)}\right)^2 \;\;.
 $${#eq-reg_mse}
 
-
-:::{.study-question-callout}
-  Stop and prove to yourself that adding that extra feature
-  with value 1 to every input vector and getting rid of the $\theta_0$
-  parameter is equivalent to our original model.
-:::
 
 We approach this just like a minimization problem from calculus homework: take the derivative of $J$ with respect to $\theta$, set it to zero, and solve for $\theta$. There are additional steps required, to check that the resulting $\theta$ is a minimum (rather than a maximum or an inflection point) but we won't work through that here. It is possible to approach this problem by:
 
@@ -250,46 +248,51 @@ $$\nabla_\theta J =
 Work through the next steps and check your answer against ours below.
 :::
 
-We can think of our training data in terms of matrices $X$ and $Y$, where each column of $X$ is an example, and each "column" of $Y$ is the corresponding target output value: 
-$$X = \begin{bmatrix}x_1^{(1)} & \dots & x_1^{(n)} \\\vdots & \ddots &
-               \vdots                        \\x_d^{(1)} & \dots & x_d^{(n)}\end{bmatrix} \;\;\;
-  Y = \begin{bmatrix}y^{(1)} & \dots & y^{(n)}\end{bmatrix}\;\;.$$
+We can think of our training data in terms of matrices $X$ and $Y$, where each row of $X$ is an example, and each row (or rather, element) of $Y$ is the corresponding target output value: 
 
-
-In most textbooks, they think of an individual example $x^{(i)}$ as a row, rather than a column. So that we get an answer that will be recognizable to you, we are going to define a new matrix and vector, $\tilde{X}$ and $\tilde{Y}$, which are just transposes of our $X$ and $Y$, and then work with them: 
-$$\tilde{X}= X^T = \begin{bmatrix}x_1^{(1)} & \dots & x_d^{(1)}\\\vdots & \ddots & \vdots\\x_1^{(n)} & \dots & x_d^{(n)}\end{bmatrix} \;\;
-  \tilde{Y}= Y^T = \begin{bmatrix}y^{(1)}\\\vdots\\y^{(n)}\end{bmatrix} \;\;.$$
-
-
-:::{.study-question-callout}
-  What are the dimensions of $X$ and $Y$?
-:::
-
-
-
-Now we can write 
-$$J(\theta) = \frac{1}{n}\underbrace{(\tilde{X}\theta - \tilde{Y})^T}_{1 \times
-    n}\underbrace{(\tilde{X}\theta - \tilde{Y})}_{n \times 1} =
-  \frac{1}{n}\sum_{i=1}^n \left(\left(\sum_{j=1}^d \tilde{X}_{ij}\theta_j
-    \right) - \tilde{Y}_i\right)^2$$
- and using facts about matrix/vector calculus, we get 
-$$\nabla_{\theta}J = \frac{2}{n}\underbrace{\tilde{X}^T}_{d \times n}\underbrace{(\tilde{X}\theta - \tilde{Y})}_{n \times 1}\;\;.
+$$
+X = \begin{bmatrix}x_1^{(1)} & \dots & x_d^{(1)}\\\vdots & \ddots & \vdots\\x_1^{(n)} & \dots & x_d^{(n)}\end{bmatrix} \;\;
+Y = \begin{bmatrix}y^{(1)}\\\vdots\\y^{(n)}\end{bmatrix} \;\;.
 $$
 
-See @sec-matrix-derivative for a nice way to think about finding this derivative.
+:::{.study-question-callout}
+What are the dimensions of $X$ and $Y$?
+:::
 
-Setting $\nabla_{\theta}J$ to 0 and solving, we get: 
+Now we can write 
+$$J(\theta) = \frac{1}{n} \sum_{i=1}^n (\theta^T x^{(i)} - y^{(i)})^2 =  \frac{1}{n} (X \theta - Y)^T(X \theta - Y).$$
 
-$$\begin{aligned}
-  \frac{2}{n}\tilde{X}^T(\tilde{X}\theta - \tilde{Y}) & = 0                          \\
-  \tilde{X}^T\tilde{X}\theta - \tilde{X}^T \tilde{Y}& = 0                          \\
-  \tilde{X}^T\tilde{X}\theta                    & =  \tilde{X}^T \tilde{Y}\\
-  \theta                            & =  (\tilde{X}^T\tilde{X})^{-1} \tilde{X}^T \tilde{Y}\\
-\end{aligned}$$
+and using facts about matrix/vector calculus, we get 
 
- And the dimensions work out! 
-$$\theta = \underbrace{\left(\tilde{X}^T\tilde{X}\right)^{-1}}_{d \times d}\underbrace{\tilde{X}^T}_{d \times n}\underbrace{\tilde{Y}}_{n \times 1}$$
- So, given our data, we can directly compute the linear regression that minimizes mean squared error. That's pretty awesome!
+$$
+\begin{align*}
+\nabla_{\theta} J(\theta) &= \frac{1}{n} \nabla_{\theta} \left[ (X \theta)^T X \theta - Y^T X \theta - (X \theta)^T Y + Y^T Y  \right] \\
+&= \frac{2}{n} \left( X^T X \theta - X^T Y\right).
+\end{align*}
+$$
+
+:::{.column-margin}
+See @sec-matrix-derivative if you need some help finding this derivative.
+:::
+
+Setting this equal to zero and solving for $\theta$ yields the final closed for solution:
+
+$$
+\theta^* = \left(X^T X\right)^{-1} X^T Y
+$$
+and the dimensions work out! So, given our data, we can directly compute the linear regression that minimizes mean squared error. That's pretty awesome!
+
+
+Now, how do we deal with the offset? We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. This is equivalent to adding a constant term to the hypothesis, and we can now write the hypothesis as
+
+$$
+y = h(x_{\text{aug}}; \theta_{\text{aug}}) = \theta_{\text{aug}}^T x_{\text{aug}}\;\;,
+$${#eq-linear_reg_hypothesis_augmented}
+
+:::{.study-question-callout}
+Stop and prove to yourself that adding that extra feature with value 1 to every input vector and getting rid of the $\theta_0$ parameter, as done in @eq-linear_reg_hypothesis_augmented is equivalent to our original model @eq-linear_reg_hypothesis.
+:::
+
 
 ## Regularization {#sec-regularization}
 
