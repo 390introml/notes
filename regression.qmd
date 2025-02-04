@@ -269,6 +269,10 @@ $${#eq-ols_solution}
 
 and the dimensions work out! So, given our data, we can directly compute the linear regression that minimizes mean squared error. That's pretty awesome!
 
+:::{.column-margin}
+This is a very special case where we can find the solution in closed form. In general, we will need to use iterative optimization algorithms to find the best parameters.
+Also, this process of setting the graident/derivatives to zero and solving for the parameters works out in this problem. But there can be exceptions to this rule, and we will discuss them later in the course.
+:::
 
 Now, how do we deal with the offset? We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. That is, we define columns vectors $x_\text{aug}, \theta_\text{aug} \in \mathbb{R}^{d+1}$ such that,
 
@@ -305,6 +309,7 @@ and the same formula we derived at @eq-ols_solution will still work -- we will j
 :::{.study-question-callout}
 Stop and prove to yourself that adding that extra feature with value 1 to every input vector and getting rid of the $\theta_0$ parameter, as done in @eq-linear_reg_hypothesis_augmented is equivalent to our original model @eq-linear_reg_hypothesis.
 :::
+
 
 
 ## Regularization {#sec-regularization}
