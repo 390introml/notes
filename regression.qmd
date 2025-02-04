@@ -28,35 +28,18 @@ which gives examples of input values $x^{(i)}$ and the output values $y^{(i)}$ t
 $$h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.$$
  This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than to divide the inputs into discrete categories.
 
+:::{.column-margin}
 Real life rarely gives us vectors of real numbers. The $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$ whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$ (e.g., a person's height or the amount of bass in a song).
 
 This process of converting our data into a numerical form is often referred to as *data pre-processing*.  Then $h$ maps $\varphi(x)$ to $\mathbb{R}$. 
 
 In much of the following, we'll omit explicit mention of $\varphi$ and assume that the $x^{(i)}$ are in $\mathbb{R}^d$. However, you should always remember that some additional process was almost surely required to go from the actual input examples to their feature representation. We will discuss features more later in the course.
+:::
 
-Regression is a *supervised learning* problem, in which we are given a training dataset of the form:
-
-$$
-\mathcal{D}_\text{train} = \left\{\left(x^{(1)}, y^{(1)}\right), \dots, \left(x^{(n)}, y^{(n)}\right)\right\}\;\;,
-$$
-
-which provides examples of input values $x^{(i)}$ and the output values $y^{(i)}$ that should be associated with them.
-
-Because $y$ values are real-valued, our hypotheses will have the form:
-
-$$
-h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.
-$$
-
-This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than dividing the inputs into discrete categories.
 
 What makes a hypothesis useful? That it works well on *new* data—that is, it makes good predictions on examples it hasn't seen.
 
-:::{.column-margin}
-My favorite analogy is to problem sets.  We evaluate a
-  student's ability to *generalize* by putting questions on
-  the exam that were not on the homework (training set).
-:::
+
 
 However, we don't know exactly what data this hypothesis might be tested on in the real world. So, we must *assume* a connection between the training data and testing data. Typically, the assumption is that they are drawn independently from the same probability distribution.
 
@@ -78,8 +61,14 @@ $$
 
 on $n'$ new examples that were not used in the process of finding the hypothesis.
 
-
 :::{.column-margin}
+My favorite analogy is to problem sets.  We evaluate a
+  student's ability to *generalize* by putting questions on
+  the exam that were not on the homework (training set).
+:::
+
+
+:::{.callout-note}
 It might be worthwhile to stare at the two errors and think about what's the difference. For example, notice how $\Theta$ is no longer a variable in the testing error? This is because, in evaluating the testing error, the parameters will have been "picked" or "fixed" already.
 :::
 
