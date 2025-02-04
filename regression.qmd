@@ -320,7 +320,7 @@ The objective function of @eq-ml_objective_loss balances (training-data) memoriz
 
 If all we cared about was finding a hypothesis with small loss on the training data, we would have no need for regularization, and could simply omit the second term in the objective. But remember that our ultimate goal is to *perform well on input values that we haven't trained on!* It may seem that this is an impossible task, but humans and machine-learning methods do this successfully all the time. What allows *generalization* to new input values is a belief that there is an underlying regularity that governs both the training and testing data. One way to describe an assumption about such a regularity is by choosing a limited class of possible hypotheses. Another way to do this is to provide smoother guidance, saying that, within a hypothesis class, we prefer some hypotheses to others. The regularizer articulates this preference and the constant $\lambda$ says how much we are willing to trade off loss on the training data versus preference over hypotheses.
 
-For example, consider what happens when $d=2,$ and $x_2$ is highly correlated with $x_1$, meaning that the data look like a line, as shown in the left panel of the figure below. Thus, there isn't a unique best hyperplane. Such correlations happen often in real-life data, because of underlying common causes; for example, across a population, the height of people may depend on both age and amount of food intake in the same way. This is especially the case when there are many feature dimensions used in the regression. Mathematically, this leads to $\tilde{X}^T\tilde{X}$ close to singularity, such that $(\tilde{X}^T\tilde{X})^{-1}$ is undefined or has huge values, resulting in unstable models (see the middle panel of figure and note the range of the $y$ values---the slope is huge!):
+For example, consider what happens when $d=2,$ and $x_2$ is highly correlated with $x_1$, meaning that the data look like a line, as shown in the left panel of the figure below. Thus, there isn't a unique best hyperplane. Such correlations happen often in real-life data, because of underlying common causes; for example, across a population, the height of people may depend on both age and amount of food intake in the same way. This is especially the case when there are many feature dimensions used in the regression. Mathematically, this leads to ${X}^T{X}$ close to singularity, such that $({X}^T{X})^{-1}$ is undefined or has huge values, resulting in unstable models (see the middle panel of figure and note the range of the $y$ values---the slope is huge!):
 
 ![](figures/regression_ex2_plane1.png){width="100%"}
 
@@ -336,17 +336,25 @@ $$R(\Theta) = \left\lVert\Theta\right\rVert^2\;\;.$$
 
 ### Ridge regression {#sec-ridge_regression}
 
-There are some kinds of trouble we can get into in regression problems. What if $\left(\tilde{X}^T\tilde{X}\right)$ is not invertible?
+There are some kinds of trouble we can get into in regression problems. What if $\left({X}^T{X}\right)$ is not invertible?
 
 Another kind of problem is *overfitting*: we have formulated an objective that is just about fitting the data as well as possible, but we might also want to *regularize* to keep the hypothesis from getting *too* attached to the data.
 
-We address both the problem of not being able to invert $(\tilde{X}^T\tilde{X})^{-1}$ and the problem of overfitting using a mechanism called *ridge regression*. We add a regularization term $\|\theta\|^2$ to the ols objective, with a non-negative scalar value $\lambda$ to control the tradeoff between the training error and the regularization term. Here is the ridge regression objective function: 
+We address both the problem of not being able to invert $({X}^T{X})^{-1}$ and the problem of overfitting using a mechanism called *ridge regression*. We add a regularization term $\|\theta\|^2$ to the ols objective, with a non-negative scalar value $\lambda$ to control the tradeoff between the training error and the regularization term. Here is the ridge regression objective function: 
 $$J_{\text{ridge}}(\theta, \theta_0) = \frac{1}{n}\sum_{i = 1}^n\left(\theta^Tx^{(i)} + \theta_0 - y^{(i)}\right)^2 + \lambda\|\theta\|^2$$
- Larger $\lambda$ values pressure $\theta$ values to be near zero. Note that we don't penalize $\theta_0$; intuitively, $\theta_0$ is what "floats" the regression surface to the right level for the data you have, and so you shouldn't make it harder to fit a data set where the $y$ values tend to be around one million than one where they tend to be around one. The other parameters control the orientation of the regression surface, and we prefer it to have a not-too-crazy orientation.
+Larger $\lambda$ values pressure $\theta$ values to be near zero. 
+ 
+Note that we don't penalize $\theta_0$; intuitively, $\theta_0$ is what "floats" the regression surface to the right level for the data you have, and so you shouldn't make it harder to fit a data set where the $y$ values tend to be around one million than one where they tend to be around one. The other parameters control the orientation of the regression surface, and we prefer it to have a not-too-crazy orientation.
 
-There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, but it's a little bit more complicated to derive than the solution for ols because $\theta_0$ needs special treatment. If we decide not to treat $\theta_0$ specially (so we add a 1 feature to our input vectors as discussed above), then we get: 
+There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, but it's a little bit more complicated to derive than the solution for ols because $\theta_0$ needs special treatment. See below for derivation, but alas, the solution is: 
+$$\theta_{\text{ridge}} = \left(\tilde{X}^T\tilde{X}+ n\lambda I\right)^{-1}\tilde{X}^T\tilde{Y}
+$${#eq-ridge_regression_solution}
+
+:::{.callout-note collapse="true"}
+## Derivation of the ridge regression solution
+If we decide not to treat $\theta_0$ specially (so we add a 1 feature to our input vectors as discussed above), then we get: 
 $$\nabla_{\theta}J_\text{ridge} = \frac{2}{n}\tilde{X}^T(\tilde{X}\theta - \tilde{Y}) + 2
-  \lambda \theta\;\;.$$
+  \lambda \theta\;\;.$${#eq-regularized-solution}
 
 
 Setting to 0 and solving, we get: 
@@ -358,13 +366,10 @@ $$\begin{aligned}
   (\tilde{X}^T\tilde{X}+ n \lambda I)\theta                                  & = \tilde{X}^T\tilde{Y}\\
   \theta                                                           & = (\tilde{X}^T\tilde{X}+ n \lambda I)^{-1}\tilde{X}^T\tilde{Y}
 \end{aligned}$$
-
- Whew! So the solution is: 
-$$\theta_{\text{ridge}} = \left(\tilde{X}^T\tilde{X}+ n\lambda I\right)^{-1}\tilde{X}^T\tilde{Y}
-$${#eq-ridge_regression_solution}
+:::
 
 
-Now, why is the term $\left(\tilde{X}^T\tilde{X}+ n\lambda I\right)$ invertible? Explaining this requires some linear algebra. The matrix $\tilde{X}^T\tilde{X}$ is positive semidefinite, which implies that its eigenvalues $\{\gamma_i\}_i$ are greater than or equal to 0. The matrix $\tilde{X}^T\tilde{X}+n\lambda I$ has eigenvalues $\{\gamma_i+n\lambda\}_i$ which are guaranteed to be strictly positive since $\lambda>0$. Recalling that the determinant of a matrix is simply the product of its eigenvalues, we get that $\det(\tilde{X}^T\tilde{X}+ n\lambda I)>0$ and conclude that $\tilde{X}^T\tilde{X}+ n\lambda I$ is invertible.
+One great news is that in @eq-regularized-solution, the matrix we are trying to invert can always be inverted! Why is the term $\left({X}^T{X}+ n\lambda I\right)$ invertible? Explaining this requires some linear algebra. The matrix ${X}^T{X}$ is positive semidefinite, which implies that its eigenvalues $\{\gamma_i\}_i$ are greater than or equal to 0. The matrix ${X}^T{X}+n\lambda I$ has eigenvalues $\{\gamma_i+n\lambda\}_i$ which are guaranteed to be strictly positive since $\lambda>0$. Recalling that the determinant of a matrix is simply the product of its eigenvalues, we get that $\det({X}^T{X}+ n\lambda I)>0$ and conclude that ${X}^T{X}+ n\lambda I$ is invertible.
 
 ## Evaluating learning algorithms {#sec-reg_learn_alg}
 
