@@ -171,9 +171,9 @@ Okay! Given the objective in @eq-reg_mse_withconst, how can we find good values 
     \begin{algorithmic}[1]
         \REQUIRE Data $\mathcal D$, integer $k$
         \FOR{$i = 1$ \TO $k$}
-            \STATE Randomly generate hypothesis $\theta{i}, \theta_{0}(i)$
+            \STATE Randomly generate hypothesis $\theta_{i}, \theta_{0}(i)$
         \ENDFOR
-        \STATE Let $i = \arg\min_{j} J(\theta{(j)}, \theta_{0}(j); \mathcal D)$
+        \STATE Let $i = \arg\min_{j} J(\theta_{(j)}, \theta_{0}(j); \mathcal D)$
         \RETURN $\theta(i), \theta_{0}(i)$
     \end{algorithmic}
 \end{algorithm}
