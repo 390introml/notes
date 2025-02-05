@@ -17,15 +17,15 @@ book:
     - regression.qmd
     - gradient_descent.qmd
     - classification.qmd
-    # - feature_representation.qmd
-    # - neural_networks.qmd
-    # - convolutional_neural_networks.qmd
-    # - transformers.qmd
-    # - autoencoders.qmd
-    # - clustering.qmd
-    # - mdp.qmd
-    # - reinforcement_learning.qmd
-    # - non_parametric.qmd
+    - feature_representation.qmd
+    - neural_networks.qmd
+    - convolutional_neural_networks.qmd
+    - transformers.qmd
+    - autoencoders.qmd
+    - clustering.qmd
+    - mdp.qmd
+    - reinforcement_learning.qmd
+    - non_parametric.qmd
   appendices:
     - matrix_derivative.qmd
 
