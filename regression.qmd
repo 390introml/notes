@@ -194,7 +194,7 @@ How do you think increasing the number of guesses $k$ will change the training
 
 ## Analytical solution: ordinary least squares
 
-One very interesting aspect of the problem of finding a linear hypothesis that minimizes mean squared error is that we can find a closed-form formula for the answer! This general problem is often called the *ordinary least squares* (ols).
+One very interesting aspect of the problem of finding a linear hypothesis that minimizes mean squared error is that we can find a closed-form formula for the answer! This general problem is often called the *ordinary least squares* (OLS).
 
 Everything is easier to deal with if we first *ignore* the offset $\theta_0$. So, suppose for now, we have, simply, 
 $$
@@ -274,7 +274,27 @@ This is a very special case where we can find the solution in closed form. In ge
 Also, this process of setting the graident/derivatives to zero and solving for the parameters works out in this problem. But there can be exceptions to this rule, and we will discuss them later in the course.
 :::
 
-Now, how do we deal with the offset? We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. That is, we define columns vectors $x_\text{aug}, \theta_\text{aug} \in \mathbb{R}^{d+1}$ such that,
+Let's reconsider the offset $\theta_0$. Let $\boldsymbol{1}$ be an $n$-dimensional column vector of all $1$'s.
+Then, we can write our objective function as:
+
+$$J(\theta,\theta_0) = \frac{1}{n} \sum_{i=1}^n (\theta^T x^{(i)} + \theta_0 - y^{(i)})^2 =  \frac{1}{n} (X \theta + \theta_0 \boldsymbol{1} - Y)^T(X \theta + \theta_0 \boldsymbol{1} - Y).$$
+
+We can take the partial derivative of $J(\theta,\theta_0)$ with respect to $\theta_0$, set the result equal to $0$, and solve for $\theta_0$:
+
+$$
+\begin{align*}
+\frac{\partial}{\partial \theta_0} J(\theta, \theta_0) &= \frac{1}{n} \frac{\partial}{\partial \theta_0} \left[ 2 \theta_0 \boldsymbol{1}^T (X \theta) + n \theta_0^2 - 2 \theta_0 \boldsymbol{1}^T Y\right] \\
+&= \frac{1}{n} \left( 2 \boldsymbol{1}^T (X \theta) + 2 n \theta_0 - 2 \boldsymbol{1}^T  \right) \\
+\Rightarrow \theta_0^* &= \frac{1}{n} \boldsymbol{1}^T (Y - X \theta) \\
+&= \frac{1}{n} \sum_{i=1}^n (y^{(i)} - \theta^T x^{(i)}).
+\end{align*}
+$$
+
+By rewriting the result in its finite sum form, we can make sense of the purpose of the offset $\theta_0$:
+$\theta_0$ offsets our learned hyperplane by the average difference between the "guesses" and actual labels.
+
+Now, let's learn $\theta$ and $\theta_0$ simultaneously.
+We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. That is, we define columns vectors $x_\text{aug}, \theta_\text{aug} \in \mathbb{R}^{d+1}$ such that,
 
 $$
 x_{\mathrm{aug}}=\left[\begin{array}{c}
@@ -340,35 +360,100 @@ There are some kinds of trouble we can get into in regression problems. What if 
 
 Another kind of problem is *overfitting*: we have formulated an objective that is just about fitting the data as well as possible, but we might also want to *regularize* to keep the hypothesis from getting *too* attached to the data.
 
-We address both the problem of not being able to invert $({X}^T{X})^{-1}$ and the problem of overfitting using a mechanism called *ridge regression*. We add a regularization term $\|\theta\|^2$ to the ols objective, with a non-negative scalar value $\lambda$ to control the tradeoff between the training error and the regularization term. Here is the ridge regression objective function: 
+We address both the problem of not being able to invert $({X}^T{X})^{-1}$ and the problem of overfitting using a mechanism called *ridge regression*. We add a regularization term $\|\theta\|^2$ to the OLS objective, with a non-negative scalar value $\lambda$ to control the tradeoff between the training error and the regularization term. Here is the ridge regression objective function: 
 $$J_{\text{ridge}}(\theta, \theta_0) = \frac{1}{n}\sum_{i = 1}^n\left(\theta^Tx^{(i)} + \theta_0 - y^{(i)}\right)^2 + \lambda\|\theta\|^2$$
 Larger $\lambda$ values pressure $\theta$ values to be near zero. 
  
 Note that we don't penalize $\theta_0$; intuitively, $\theta_0$ is what "floats" the regression surface to the right level for the data you have, and so you shouldn't make it harder to fit a data set where the $y$ values tend to be around one million than one where they tend to be around one. The other parameters control the orientation of the regression surface, and we prefer it to have a not-too-crazy orientation.
 
-There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, but it's a little bit more complicated to derive than the solution for ols. See the collaposed box for derivation. But alas, via similar calculus, the solution is: 
+There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, but it's a little bit more complicated to derive than the solution for OLS. See the collaposed box for derivation. But alas, via similar calculus, the solution is: 
 
 <!-- TODO: This part is hairy needs rework -->
 $$
-\theta_{\text{ridge}} = \left({X}^T{X}+ n\lambda I\right)^{-1}{X}^T\tilde{Y}
-$${#eq-ridge_regression_solution}
+\theta_{\text{ridge}} = \left({X}^T{X}+ n\lambda I\right)^{-1}{X}^T{Y}
+$${#eq-regularized-solution}
 
 :::{.callout-note collapse="true"}
 ## Derivation of the ridge regression solution
-If we decide not to treat $\theta_0$ specially (so we add a 1 feature to our input vectors as discussed above), then we get: 
-$$\nabla_{\theta}J_\text{ridge} = \frac{2}{n}\tilde{X}^T(\tilde{X}\theta - \tilde{Y}) + 2
-  \lambda \theta\;\;.$${#eq-regularized-solution}
+The full derivation for $\theta^*_\text{ridge},\theta^*_{0,\text{ridge}}$ is tricky and not something that we expect you to memorize! Recall from before, we will define $\boldsymbol{1}$ to be an $n$-dimensional column vector where every element is a 1. Then, we can write out the ridge regression objective function as:
 
+$$
+    J_\text{ridge}(\theta, \theta_0) = \frac{1}{n} (X \theta + \theta_0 \boldsymbol{1} - Y)^T(X \theta + \theta_0 \boldsymbol{1} - Y) + \lambda \theta^T \theta. 
+$$
 
-Setting to 0 and solving, we get: 
-$$\begin{aligned}
-  \frac{2}{n}\tilde{X}^T(\tilde{X}\theta - \tilde{Y}) + 2 \lambda \theta             & = 0                                      \\
-  \frac{1}{n}\tilde{X}^T\tilde{X}\theta - \frac{1}{n}\tilde{X}^T\tilde{Y}+ \lambda \theta & = 0                                      \\
-  \frac{1}{n}\tilde{X}^T\tilde{X}\theta  + \lambda \theta                      & = \frac{1}{n}\tilde{X}^T\tilde{Y}\\
-  \tilde{X}^T\tilde{X}\theta  + n \lambda \theta                               & = \tilde{X}^T\tilde{Y}\\
-  (\tilde{X}^T\tilde{X}+ n \lambda I)\theta                                  & = \tilde{X}^T\tilde{Y}\\
-  \theta                                                           & = (\tilde{X}^T\tilde{X}+ n \lambda I)^{-1}\tilde{X}^T\tilde{Y}
-\end{aligned}$$
+First, let's distribute the terms from this equation and rearrange them:
+
+$$
+\begin{aligned}
+    & = \frac{1}{n} \left( (X \theta)^T (X \theta) + \theta_0(X \theta)^T \boldsymbol{1} - (X \theta)^T Y + \theta_0 \boldsymbol{1}^T (X \theta) \right. \\
+    & \quad \left. + \theta_0^2 \boldsymbol{1}^T \boldsymbol{1} - \theta_0 \boldsymbol{1}^T Y - Y^T X \theta - \theta_0 Y^T \boldsymbol{1} + Y^T Y + n \lambda \theta^T \theta\right) \\ 
+    & = \frac{1}{n} \left( (X \theta)^T (X \theta) + 2\theta_0 \boldsymbol{1}^T X\theta - 2 Y^T X \theta + \theta_0^2 n - 2 \theta_0 \boldsymbol{1}^T Y + Y^T Y + n \lambda \theta^T \theta\right) \\ 
+    & = \frac{1}{n} \left( \theta^T (X^T X + n \lambda \boldsymbol{I}) \theta -2 Y^T X \theta + 2\theta_0 \boldsymbol{1}^T X \theta + \theta_0^2 n - 2 \theta_0\boldsymbol{1}^T Y + Y^T Y \right).
+\end{aligned}
+$$
+
+Note that, $\boldsymbol{1}^T \boldsymbol{1} = \sum_{i=1}^n 1 = n.$
+When our objective is in this form, we can see that we have (1) a quadratic function of $\theta$, (2) a quadratic function of $\theta_0$, and (3) a cross term.
+First, let's take the partial derivative of $J_\text{ridge}$ with respect to $\theta_0$:
+
+$$
+    \frac{\partial J_\text{ridge}(\theta, \theta_0)}{\partial \theta_0} = \frac{2}{n}\left( \boldsymbol{1}^T X \theta - \theta_0 n - \boldsymbol{1}^T Y\right)
+$$
+
+$$\boxed{\Rightarrow \theta_{0, \text{ridge}}^* = \frac{1}{n}\boldsymbol{1}^T \left( X \theta_\text{ridge}^* - Y  \right)} $$ 
+
+This derivation for $\theta_{0,\text{ridge}}$ is consistent with the derivation for the offset in OLS, which makes sense as the 
+regularization term is not a function of the offset.
+
+Now, we can calculate the gradient of $J_\text{ridge}$ with respect to $\theta$:
+
+$$
+\nabla_\theta J_\text{ridge}(\theta,\theta_0) = \frac{2}{n} \left( (X^T X + n \lambda \boldsymbol{I})\theta + \theta_0 X^T\boldsymbol{1} - X^T Y \right),
+$$
+
+and set the gradient equal to $\boldsymbol{0}$ to solve $\theta_\text{ridge}^*$:
+
+$$(X^T X + n \lambda \boldsymbol{I})\theta_\text{ridge}^* + X^T\boldsymbol{1}\theta^*_{0,\text{ridge}} - X^T Y = \boldsymbol{0}.$$ 
+
+At this point, we can plug in $\theta_{0,ridge}^*$ and solve for $\theta^*_\text{ridge}$.
+
+$$ (X^T X + n \lambda \boldsymbol{I})\theta^*_\text{ridge} + X^T\boldsymbol{1} ( \frac{1}{n}\boldsymbol{1}^T \left( X \theta^*_\text{ridge} - Y  \right))  - X^T Y = \boldsymbol{0}$$ 
+
+$$ (X^T X + n \lambda \boldsymbol{I})\theta^*_\text{ridge} + \frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T X \theta^*_\text{ridge} = \frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T Y + X^T Y 
+$$
+
+$$
+\boxed{\theta^*_\text{ridge} = \left(X^T X + n \lambda \boldsymbol{I} + \frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T X \right)^{-1} \left(\frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T Y + X^T Y\right) }
+$$
+
+How should we make sense of this closed-form solution for $\theta^*_\text{ridge}$? 
+Let's take a closer look.
+First, note that,
+$$
+\begin{aligned}
+\frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T X &= \frac{1}{n}\left( \sum_{i=1}^n x^{(i) T}\right)^T \left(\sum_{j=1}^n x^{(j)T}\right), \\
+&= \frac{1}{n} \sum_{i=1}^n\sum_{j=1}^n \left( x^{(i)}x^{(j)T} \right).
+\end{aligned}
+$$
+
+This is the average, uncentered cross-correlation between every pair of feature vectors in the training data set.
+One can use the Central Limit Theorem to show that if we assume that our feature vectors are independently and identically distributed according to a multivariate unit normal distribution,$x^{(i)} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{I}),\forall i=1,\ldots,n$, then $\frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T X \to \boldsymbol{I}$ as $n \to \infty$.
+Next, 
+$$
+\begin{aligned}
+\frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T Y &= \frac{1}{n} \left( \sum_{i=1}^n x^{(i) T}\right)^T \left(\sum_{j=1}^n y^{(j)}\right), \\
+&= \frac{1}{n} \sum_{i=1}^n\sum_{j=1}^n \left( y^{(j)} x^{(i)} \right).
+\end{aligned}
+$$
+
+This is a average of each feature vector weighted by each of the labels in the data set.
+Similarly, if we assume that are labels are independently and identically distributed according to a unit normal distribution, $y^{(i)} \sim \mathcal{N}(0, 1), \forall i=1,\ldots,n,$ then $\frac{1}{n}X^T\boldsymbol{1} \boldsymbol{1}^T Y \to 0$ as $n \to \infty$. 
+
+Making strong assumptions of normally distributed feature vectors and labels is not recommended in the context of machine learning. 
+However, it can help us make sense of these interesting terms.
+Later in the course, we will discuss feature transformations; if we standardize our feature vectors and labels, we can at least ensure zero mean and unit variance.
+
+Finally, with $X^T X + n \lambda \boldsymbol{I},$ we can see where the "ridge" in ridge regression comes from. A constant value is being added along the diagonal of $X^T X$. As explained below, this ensures non-singularity.
 :::
 
 
