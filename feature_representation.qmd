@@ -1,3 +1,8 @@
+:::{.callout-warn}
+This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
+:::
+
+
 # Feature representation {#sec-features}
 
 Linear regression and classification are powerful tools, but in the real world, data often exhibit *non-linear* behavior that cannot immediately be captured by the linear models which we have built so far. For example, suppose the true behavior of a system (with $d=2$) looks like this wavelet:
