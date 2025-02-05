@@ -1,4 +1,4 @@
-:::{.callout-warning}
+:::{.callout-caution}
 This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
 :::
 
@@ -369,6 +369,26 @@ $$\begin{aligned}
   \theta                                                           & = (\tilde{X}^T\tilde{X}+ n \lambda I)^{-1}\tilde{X}^T\tilde{Y}
 \end{aligned}$$
 :::
+
+
+f we do not treat $\theta_0$ specially and instead consider the augmented data matrix $X_\text{aug}$ and parameter vector $\theta_\text{aug}$, then we obtain:
+
+$$J_\text{ridge} (\theta_\text{aug}) = \frac{1}{n} (X_\text{aug} \theta_\text{aug} - Y)^T (X_\text{aug} \theta_\text{aug} - Y) + \lambda \theta_\text{aug}^T \theta_\text{aug}.$$
+
+Taking the gradient of $J_\text{ridge}$ with respect to $\theta_\text{aug}$ yields:
+
+$$\nabla_{\theta_\text{aug}} J_\text{ridge} = \frac{2}{n} (X_\text{aug}^T X_\text{aug} \theta - X_\text{aug}^T Y) + 2 \lambda \theta_\text{aug}. $$
+
+Setting this equal to zero and solving for $\theta_\text{aug}$ yields:
+
+$$\theta_\text{ridge} = (X_\text{aug}^T X_\text{aug} + n \lambda I )^{-1} X_\text{aug}^T Y, $$
+
+$$
+\theta_\text{ridge} = \left( X^T X + \lambda I \right)^{-1} X^T Y
+$$
+
+where $I$ is the identity matrix. This approach ensures that the matrix inversion is stable, even when $X^T X$ is nearly singular.
+
 
 
 One great news is that in @eq-regularized-solution, the matrix we are trying to invert can always be inverted! Why is the term $\left({X}^T{X}+ n\lambda I\right)$ invertible? Explaining this requires some linear algebra. The matrix ${X}^T{X}$ is positive semidefinite, which implies that its eigenvalues $\{\gamma_i\}_i$ are greater than or equal to 0. The matrix ${X}^T{X}+n\lambda I$ has eigenvalues $\{\gamma_i+n\lambda\}_i$ which are guaranteed to be strictly positive since $\lambda>0$. Recalling that the determinant of a matrix is simply the product of its eigenvalues, we get that $\det({X}^T{X}+ n\lambda I)>0$ and conclude that ${X}^T{X}+ n\lambda I$ is invertible.

@@ -1,4 +1,4 @@
-:::{.callout-warning}
+:::{.callout-caution}
 This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
 :::
 
