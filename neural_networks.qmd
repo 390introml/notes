@@ -833,7 +833,7 @@ This section is very strongly influenced
 by Sebastian Ruder's excellent blog posts on the topic:{ruder.io/optimizing-gradient-descent}
 :::
 
-Some common strategies for this include *momentum* ("averaging" recent gradient updates), *Adadelta* (take larger steps in parts of the space where $J(W)$ is nearly flat), and *Adam* (which combines these two previous ideas). Details of these approaches are described in @adaptive-step-size-appendix.
+Some common strategies for this include *momentum* ("averaging" recent gradient updates), *Adadelta* (take larger steps in parts of the space where $J(W)$ is nearly flat), and *Adam* (which combines these two previous ideas). Details of these approaches are described in @sec-adaptive-step-size-appendix.
 
 ## Regularization
 

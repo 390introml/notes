@@ -1,6 +1,6 @@
 # Optimizing Neural Networks {#sec-nn-details}
 
-## Strategies towards adaptive step-size {#adaptive-step-size-appendix}
+## Strategies towards adaptive step-size {#sec-adaptive-step-size-appendix}
 
 ### Running averages
 
