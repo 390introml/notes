@@ -83,7 +83,7 @@ Sorry for changing our notation here.  We were using $d$ as the dimension of the
 
 
 It is parameterized by a vector of *weights* 
-$(w_1, \ldots, w_m) \in \mathbb{R}^m$ and an *offset* or *threshold* $w_0 \in \mathbb{R}$. 
+$(w_1, \ldots, w_m) \in \mathbb{R}^m$, as well as an *offset* $w_0 \in \mathbb{R}$ (also called a *threshold* or *bias* term). 
 
 :::{.column-margin}
 This should remind you of our $\theta$ and $\theta_0$ for linear models.
