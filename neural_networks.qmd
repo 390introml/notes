@@ -23,7 +23,7 @@ By the mid-90s, the enthusiasm waned again, because although we could train non-
 However, during the SVM enthusiasm, several groups kept working on neural networks, and their work, in combination with an increase in available data and computation, has made neural networks rise again. They have become much more reliable and capable, and are now the method of choice in many applications. There are many, many variations of neural networks, which we can't even begin to survey. We will study the core "feed-forward" networks with "back-propagation" training, and then, in later chapters, address some of the major advances beyond this core.
 
 :::{.column-margin}
-The number increases daily, as may be seen on `arxiv.org`.
+The number of neural network variants increases daily, as may be seen on `arxiv.org`.
 :::
 
 We can view neural networks from several different perspectives:
