@@ -83,7 +83,10 @@ Let $h$ be the linear classifier defined by $\theta = \begin{bmatrix} 1 \\ -1 \e
 The diagram below shows the $\theta$ vector (in green) and the separator it defines:
 
 ::: {.imagify width="70%" fig-align="center"}
-\begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
       \draw [thin, gray!40] (-3,-3) grid (4,4);
       \draw [<->] (-3,0) -- (4,0);
       \draw [<->] (0,-3) -- (0,4);
@@ -192,7 +195,10 @@ $$ and is plotted below, as a function of its input $z$. Its output can be inter
 
 :::{.imagify}
 \begin{center}
-\begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \begin{axis}[
         axis lines=middle,
         % axis equal image,
@@ -222,7 +228,10 @@ What does an LLC look like? Let's consider the simple case where $d = 1$, so our
 
 :::{.imagify}
 \begin{center}
-  \begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \begin{axis}[
         axis lines=middle,
         % axis equal image,

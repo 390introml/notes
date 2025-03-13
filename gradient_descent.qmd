@@ -72,7 +72,10 @@ The following plot illustrates a convex function $f(x) = (x - 2)^2$, starting gr
 
 
 ::: imagify
-\begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \begin{axis}[
         axis lines=middle,
         xmin=-1, xmax=6,
@@ -105,7 +108,10 @@ There are two notable exceptions to this common sense expectation: First, gradie
 The plot below shows two different $x_{\it init}$, and how gradient descent started from each point heads toward two different local optimum points.
 
 ::: imagify
-\begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \begin{axis}[
         axis lines=middle,
         xmin=-2, xmax=4,

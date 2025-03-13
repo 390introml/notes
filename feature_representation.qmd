@@ -25,7 +25,10 @@ Let's look at an example data set that starts in 1-D:
 :::{.callout-note}
 ## Example
 :::{.imagify}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+  background rectangle/.style={fill=white},
+  show background rectangle
+]
     % Draw the x-axis
     \draw [<->, gray] (-3,0) -- (3,0) node [black, right] {$x$};
     
@@ -51,7 +54,10 @@ These points are not linearly separable, but consider the transformation $\phi(x
 :::{.callout-note}
 ## Example
 :::{.imagify}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+  background rectangle/.style={fill=white},
+  show background rectangle
+]
   % Draw x-axis
   \draw [<->, gray] (-3,0) -- (3,0) node [black, right] {$x$};
   % Draw y-axis (labeled as x²)
@@ -82,7 +88,10 @@ A linear separator in $\phi$ space is a nonlinear separator in the original spac
 :::{.callout-note}
 ## Example
 :::{.imagify}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+  background rectangle/.style={fill=white},
+  show background rectangle
+]
   % Draw x-axis
   \draw [<->, gray] (-3,0) -- (3,0)
     node [black, right] {$x$};
@@ -160,7 +169,10 @@ D. Melanogaster is a species of fruit fly, used as a simple system in which to s
 :::{.callout-note}
 ## Example
 :::{.imagify}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+  background rectangle/.style={fill=white},
+  show background rectangle
+]
   % Plus sign at (-1,-1)
   \draw[ultra thick] (-1.2,-1) -- (-0.8,-1);  % horizontal stroke
   \draw[ultra thick] (-1,-1.2) -- (-1,-0.8);    % vertical stroke
