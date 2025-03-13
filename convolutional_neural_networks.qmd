@@ -10,11 +10,26 @@ One very important application domain of neural networks, where the methods have
 
 Imagine that you are given the problem of designing and training a neural network that takes an image as input, and outputs a classification, which is positive if the image contains a cat and negative if it does not. An image is described as a two-dimensional array of *pixels*, each of which may be represented by three integer values, encoding intensity levels in red, green, and blue color channels.
 
+::: {.column-margin}
+A *pixel* is a "picture element."
+:::
+
 There are two important pieces of prior structural knowledge we can bring to bear on this problem:
 
 -   **Spatial locality:** The set of pixels we will have to take into consideration to find a cat will be near one another in the image.
 
+:::{.column-margin}
+So, for example, we won't have to consider some combination
+of pixels in the four corners of the image, in order to see if they encode
+cat-ness.
+:::
+
+
 -   **Translation invariance:** The pattern of pixels that characterizes a cat is the same no matter where in the image the cat occurs.
+
+::: {.column-margin}
+Cats don't look different if they're on the left or the right side of the image.
+:::
 
 We will design neural network structures that take advantage of these properties.
 
@@ -169,6 +184,13 @@ as *TensorFlow* and *PyTorch* that make operations on tensors easy.
 Here is a more complex example of two-dimensional filtering. We have two $3 \times 3$ filters in the first layer, $f_1$ and $f_2$. You can think of each one as "looking" for three pixels in a row, $f_1$ vertically and $f_2$ horizontally. Assuming our input image is $n
   \times n$, then the result of filtering with these two filters is an $n
   \times n \times 2$ tensor. Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $n \times  n$ image.
+
+:::{.margin-note}
+When we have a color image as input, we treat it as having three
+channels, and hence as an $n \times n \times 3$ tensor.
+:::
+
+
 
 :::{.imagify}
 \begin{tikzpicture}[scale=0.4, background rectangle/.style={fill=white}, show background rectangle]
