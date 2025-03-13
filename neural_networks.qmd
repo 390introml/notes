@@ -47,7 +47,11 @@ The basic element of a neural network is a "neuron," pictured schematically belo
 
 
 :::{.imagify}
-\begin{tikzpicture}[main node/.style={thick,circle,font=\Large}]
+  \begin{tikzpicture}[
+    main node/.style={thick,circle,font=\Large},
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \node[main node,draw](sum) at (0,0) {$\sum$};
     \node[main node](x1) at (-2,1) {$x_1$};
     \node[main node](dots) at (-2,0) {$\vdots$};
@@ -118,7 +122,11 @@ Although the graph structure of a feed-forward neural network can really be anyt
 A *layer* is a set of units that, as we have just described, are not connected to each other. The layer is called *fully connected* if, as in the diagram below, all of the inputs (i.e., $x_1, x_2, \ldots x_m$ in this case) are connected to every unit in the layer. A layer has input $x \in \mathbb{R}^m$ and output (also known as *activation*) $a \in \mathbb{R}^n$.
 
 :::{.imagify}
-\begin{tikzpicture}[main node/.style={circle}]
+  \begin{tikzpicture}[
+    main node/.style={circle},
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \coordinate (soff) at (0,1.4);
     \node[main node,draw](s1) at ($2*(soff)$) {$\sum$};
     \node[main node,draw](s2) at (soff) {$\sum$};
@@ -196,7 +204,10 @@ It is technically possible to have different activation functions within the sam
 Here's a diagram of a many-layered network, with two blocks for each layer, one representing the linear part of the operation and one representing the non-linear activation function. We will use this structural decomposition to organize our algorithmic thinking and implementation.
 
 :::{.imagify}
-\begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \coordinate (x) at (0,0);
     \node[inner sep=0em] (w1) at (1.7,0)
     {\begin{tabular}{c} $W^1$ \\ $W^1_0$\end{tabular}};
@@ -282,7 +293,10 @@ $$
 $$
 
 :::{.imagify}
-\begin{tikzpicture}
+  \begin{tikzpicture}[
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
       \begin{axis}[
           name=topleft,
           axis lines=middle, axis equal image,
@@ -612,7 +626,11 @@ This general process of computing the gradients of the loss with respect to the 
 The idea is that we first do a *forward pass* to compute all the $a$ and $z$ values at all the layers, and finally the actual loss. Then, we can work backward and compute the gradient of the loss with respect to the weights in each layer, starting at layer $L$ and going back to layer 1.
 
 :::{.imagify}
-\begin{tikzpicture}[scale=.98]
+  \begin{tikzpicture}[
+    scale=.98,
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
     \coordinate (x) at (0,0);
     \node[inner sep=0em] (w1) at (1.7,0)
     {\begin{tabular}{c} $W^1$ \\ $W^1_0$\end{tabular}};
