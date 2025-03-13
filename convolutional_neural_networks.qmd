@@ -20,15 +20,100 @@ We will design neural network structures that take advantage of these properties
 
 ## Filters
 
-We begin by discussing *image filters*. An image filter is a function that takes in a local spatial neighborhood of pixel values and detects the presence of some pattern in that data.
+We begin by discussing *image filters*. 
+
+:::{.column-margin}
+Unfortunately in AI/ML/CS/Math, the word ``filter'' gets used in many ways: in
+  addition to the one we describe here, it can describe a temporal
+  process (in fact, our moving averages are a kind of filter) and even
+  a somewhat esoteric algebraic structure.
+:::
+
+An image filter is a function that takes in a local spatial neighborhood of pixel values and detects the presence of some pattern in that data.
 
 Let's consider a very simple case to start, in which we have a 1-dimensional binary "image" and a filter $F$ of size two. The filter is a vector of two numbers, which we will move along the image, taking the dot product between the filter values and the image values at each step, and aggregating the outputs to produce a new image.
 
-Let $X$ be the original image, of size $d$; then pixel $i$ of the the output image is specified by $$Y_i = F \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution."
+Let $X$ be the original image, of size $d$; then pixel $i$ of the the output image is specified by $$Y_i = F \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
 
-If you are already familiar with what a convolution is, you might notice that this definition corresponds to what is often called a correlation and not to a convolution. Indeed, correlation and convolution refer to different operations in signal processing. However, in the neural networks literature, most libraries implement the correlation (as described in this chapter) but call it convolution. The distinction is not significant; in principle, if convolution is required to solve the problem, the network could learn the necessary weights. For a discussion of the difference between convolution and correlation and the conventions used in the literature you can read Section 9.1 in this excellent book: ` https://www.deeplearningbook.org`.
+:::{.column-margin}
+And filters are also sometimes called *convolutional kernels*.
+:::
+
+If you are already familiar with what a convolution is, you might notice that this definition corresponds to what is often called a correlation and not to a convolution. Indeed, correlation and convolution refer to different operations in signal processing. However, in the neural networks literature, most libraries implement the correlation (as described in this chapter) but call it convolution. The distinction is not significant; in principle, if convolution is required to solve the problem, the network could learn the necessary weights. For a discussion of the difference between convolution and correlation and the conventions used in the literature you can read Section 9.1 in this excellent book: [Deep Learning](https://www.deeplearningbook.org).
 
 Here is a concrete example. Let the filter $F_1 = (-1, +1)$. Then given the image in the first line below, we can convolve it with filter $F_1$ to obtain the second image. You can think of this filter as a detector for "left edges" in the original image---to see this, look at the places where there is a $1$ in the output image, and see what pattern exists at that position in the input image. Another interesting filter is $F_2 =  (-1, +1, -1)$. The third image (the last line below) shows the result of convolving the first image with $F_2$, where we see that the output pixel $i$ corresponds to when the center of $F_2$ is aligned at input pixel $i$.
+
+:::{.study-question-callout}
+Convince yourself that filter $F_2$ can be understood as a detector for isolated positive pixels in the binary image.
+:::
+
+:::{.imagify}
+\begin{tikzpicture}[x=0.7cm, y=0.7cm, step=0.7cm, background rectangle/.style={fill=white},
+    show background rectangle]
+  \newcounter{col}
+  \begin{scope}
+    \draw (0, 0) grid (10, 1);
+    \setcounter{col}{1}
+    \foreach \p in {0,0,1,1,1,0,1,0,0,0} {
+        \edef\x{\value{col} - 0.5}
+        \node[anchor=center] at (\x, 0.5) {\p};
+        \stepcounter{col}
+      }
+    \node[left] at (0,0.5) {Image:};
+    \draw (0, -2) grid (2, -1);
+    \node[left] at (0, -1.5) {$F_1$:};
+    \node[anchor=center] (f11) at (0.5, -1.5) {-1};
+    \node[anchor=center] (f12) at (1.5, -1.5) {+1};
+
+    \coordinate (x1) at (0.5, 0);
+    \coordinate (x2) at (1.5, 0);
+    \draw[->] (x1) -- ++(0,-1);
+    \draw[->] (x2) -- ++(0,-1);
+    \draw[->] (x1)++(0,-2) -- ++(1,-1);
+    \draw[->] (x2)++(0,-2) -- ++(0,-1);
+  \end{scope}
+  \begin{scope}[yshift=-2.8cm]
+    \draw (0, 0) grid (10, 1);
+    \setcounter{col}{1}
+    \foreach \p in {0,0,1,0,0,-1,1,-1,0,0} {
+        \edef\x{\value{col} - 0.5}
+        \node[anchor=center] at (\x, 0.5) {\p};
+        \stepcounter{col}
+      }
+    \node[left] at (0,0.5) {After convolution (with $F_1$):};
+    \draw[very thick] (2, 0) grid (3, 1);
+    \draw[very thick] (6, 0) grid (7, 1);
+  \end{scope}
+  \begin{scope}[yshift=-6.5cm]
+    \draw (0, 0) grid (10, 1);
+    \setcounter{col}{1}
+    \foreach \p in {0,-1,0,-1,0,-2,1,-1,0,0} {
+        \edef\x{\value{col} - 0.5}
+        \node[anchor=center] at (\x, 0.5) {\p};
+        \stepcounter{col}
+      }
+    \node[left] at (0,0.5) {After convolution (with $F_2$):};
+    \draw (0, 2) grid (3, 3);
+    \node[left] at (0, 2.5) {$F_2$};
+    \draw[very thick] (6, 0) grid (7, 1);
+    \node[anchor=center] at (0.5, 2.5) {-1};
+    \node[anchor=center] at (1.5, 2.5) {+1};
+    \node[anchor=center] at (2.5, 2.5) {-1};
+
+    \coordinate (x1) at (0.5, 4);
+    \coordinate (x2) at (1.5, 4);
+    \coordinate (x3) at (2.5, 4);
+    \draw[->] (x1)++(0,-0.5) -- ++(0,-0.5);
+    \draw[->] (x2)++(0,-0.5) -- ++(0,-0.5);
+    \draw[->] (x3)++(0,-0.5) -- ++(0,-0.5);
+    \draw[->] (x1)++(0,-2) -- ++(1,-1);
+    \draw[->] (x2)++(0,-2) -- ++(0,-1);
+    \draw[->] (x3)++(0,-2) -- ++(-1,-1);
+  \end{scope}
+\end{tikzpicture}
+:::
+
+
 
 Two-dimensional versions of filters like these are thought to be found in the visual cortex of all mammalian brains. Similar patterns arise from statistical analysis of natural images. Computer vision people used to spend a lot of time hand-designing *filter banks*. A filter bank is a set of sets of filters, arranged as shown in the diagram below.
 
