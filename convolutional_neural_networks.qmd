@@ -1,5 +1,7 @@
-:::{.callout-warning}
-This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
+:::{.callout-note}
+This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf); convolutional neural networks chapter.
+
+As we phase out the PDF, this page may receive updates not reflected in the static PDF.
 :::
 
 # Convolutional Neural Networks {#sec-cnn}
@@ -409,15 +411,15 @@ $$
 
 -   $\partial Z^1/\partial W^1$ is the $k \times n$ matrix such that $\partial Z_i^1/\partial W_j^1 = X_{i-\lfloor k/2 \rfloor+j-1}$. So, for example, if $i = 10$, which corresponds to column 10 in this matrix, which illustrates the dependence of pixel 10 of the output image on the weights, and if $k = 5$, then the elements in column 10 will be $X_8, X_9, X_{10}, X_{11}, X_{12}$.
 
--   $\partial A^1/\partial Z^1$ is the $n \times n$ diagonal matrix such that 
+- $\partial A^1/\partial Z^1$ is the $n \times n$ diagonal matrix such that 
+
 $$
 \begin{aligned}
 \partial A_i^1/\partial Z_i^1=
-              \begin{cases}
-                1 & \text{if $Z_i^1 > 0$} \\
-                0 & \text{otherwise}
-              \end{cases}
-            
+\begin{cases}
+1 & \text{if $Z_i^1 > 0$}\\
+0 & \text{otherwise}
+\end{cases}            
 \end{aligned}
 $$
 
