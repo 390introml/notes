@@ -40,6 +40,11 @@ book:
     collapse-level: 2
     border: true
     search: true
+    github: false
+    tools:
+      - text: Accessibility
+        href: https://accessibility.mit.edu/
+        icon: universal-access
   # page-footer:
   page-navigation: true
 
