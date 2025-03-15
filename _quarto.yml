@@ -153,6 +153,6 @@ imagify:
   output-folder: _imagify_files
   header-includes: |
     \usepackage{pgfplots}
-    \usetikzlibrary{tikzmark, shapes.geometric, shapes.arrows, fit, bending, calc, backgrounds}
+    \usetikzlibrary{tikzmark, shapes.geometric, shapes.arrows, fit, bending, calc, backgrounds, automata, positioning}
   pdf-engine: pdflatex
 # engine: knitr
