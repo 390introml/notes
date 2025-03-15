@@ -4,7 +4,7 @@ This chapter's HTML notes are in active development. For a more stable version, 
 
 # Markov Decision Processes {#sec-mdps}
 
-So far, most of the learning problems we have looked at have been *supervised*, that is, for each training input $x^{(i)}$, we are told which value $y^{(i)}$ should be the output. From a traditional machine-learning viewpoint, there're two other major groups of learning problems: one is the *unsupervised* learning problems, in which we are given data and no expected outputs, see @sec-clustering and @sec-autoencoders for details.
+So far, most of the learning problems we have looked at have been *supervised*, that is, for each training input $x^{(i)}$, we are told which value $y^{(i)}$ should be the output. From a traditional machine-learning viewpoint, there're two other major groups of learning problems: one is the *unsupervised* learning problems, in which we are given data and no expected outputs, see @sec-autoencoders and @sec-clustering for details.
 
 The other major type is the so-called *Reinforcement learning* (RL) problems. Reinforcement learning differs significantly from supervised learning problems, and we will delve into the details later in in @sec-rl. However, it's worth pointing out one major difference at a very high level: in supervised learning, our goal is to learn a one-time static mapping to make predictions, whereas in RL, the setup requires us to sequentially take actions to maximize cumulative rewards.
 
@@ -15,47 +15,76 @@ This setup change necessitates additional mathematical and algorithmic tools for
 Formally, a Markov decision process is $\langle \mathcal S, \mathcal A, T, R,
   \gamma\rangle$ where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, and:
 
--   $T : \mathcal S \times \mathcal A \times \mathcal S \rightarrow \mathbb{R}$ is a *transition model*, where $$T(s, a, s') = Pr(S_t = s'|S_{t - 1} = s,
-              A_{t - 1} = a)\;\;,$$ specifying a conditional probability distribution;
+-   $T : \mathcal S \times \mathcal A \times \mathcal S \rightarrow \mathbb{R}$ is a *transition model*, where 
+$$
+T(s, a, s') = Pr(S_t = s'|S_{t - 1} = s,
+              A_{t - 1} = a)\;\;,
+$$ 
+specifying a conditional probability distribution;
+
+:::{.column-margin}
+The notation $S_t = s'$ uses a capital letter $S$ to stand for
+          a random variable, and small letter $s$ to stand for a concrete value.
+          So $S_t$ here is a random variable that can take on elements of
+          $\mathcal S$ as values.
+:::
 
 -   $R: \mathcal S \times \mathcal A \rightarrow \mathbb{R}$ is a *reward function*, where $R(s, a)$ specifies an immediate reward for taking action $a$ when in state $s$; and
 
--   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in Section [\[sec-discount\]](#sec-discount){reference-type="ref" reference="sec-discount"}.
+-   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
 
 In this class, we assume the rewards are deterministic functions. Further, in this MDP chapter, we assume the state space and action space are finite (in fact, typically small).
 
-:::: examplebox
-The following description of a simple machine as Markov decision process provides a concrete example of an MDP. The machine has three possible operations (*actions*): "wash", "paint", and "eject" (each with a corresponding button). Objects are put into the machine. Each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: "dirty", "clean", "painted", or "ejected". For each action, this is what is done to the object:
+:::{.callout-note}
+# Example
 
-:
+The following description of a simple machine as Markov decision process provides a concrete example of an MDP.
 
--   If you perform the "wash" operation on any object, whether it's dirty, clean, or painted, it will end up "clean" with probability 0.9 and "dirty" otherwise.
+The machine has three possible operations (*actions*): `wash`, `paint`, and `eject` (each with a corresponding button). Objects are put into the machine, and each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: `dirty`, `clean`, `painted`, or `ejected`.
 
-:
+For each action, this is what is done to the object:
 
--   If you perform the "paint" operation on a clean object, it will become nicely "painted" with probability 0.8. With probability 0.1, the paint misses but the object stays clean, and also with probability 0.1, the machine dumps rusty dust all over the object and it becomes "dirty".
+**Wash**
 
--   If you perform the "paint" operation on a "painted" object, it stays "painted" with probability 1.0.
+- If you perform the `wash` operation on any object—whether it's dirty, clean, or painted—it will end up `clean` with probability 0.9 and `dirty` otherwise.
 
--   If you perform the "paint" operation on a "dirty" part, it stays "dirty" with probability 1.0.
+**Paint**
 
-:
+- If you perform the `paint` operation on a clean object, it will become nicely `painted` with probability 0.8. With probability 0.1, the paint misses but the object stays clean, and with probability 0.1, the machine dumps rusty dust all over the object, making it `dirty`.
+- If you perform the `paint` operation on a `painted` object, it stays `painted` with probability 1.0.
+- If you perform the `paint` operation on a `dirty` object, it stays `dirty` with probability 1.0.
 
--   If you perform an "eject" operation on any part, the part comes out of the machine and this fun game is over. The part remains \"ejected\" regardless of any further action.
+**Eject**
 
-These descriptions specify the transition model $T$, and the transition function for each action can be depicted as a state machine diagram. For example, here is the diagram for "wash":
+- If you perform an `eject` operation on any object, the object comes out of the machine and the process is terminated. The object remains `ejected` regardless of any further actions.
 
-::: center
+These descriptions specify the transition model $T$, and the transition function for each action can be depicted as a state machine diagram. For example, here is the diagram for `wash`:
+
+:::{.imagify}
+\begin{tikzpicture}[-> background rectangle/.style={fill=white}, show background rectangle]
+  \node[state] (dirty) {dirty};
+  \node[state, right of=dirty, xshift=2.5cm] (clean) {clean};
+  \node[state, below of=dirty, yshift=-2.5cm] (painted) {painted};
+  \node[state, below of=clean, yshift=-2.5cm] (ejected) {ejected};
+  \draw (dirty) edge[loop above] node{0.1} (dirty)
+  (dirty) edge[bend left, above] node{0.9} (clean)
+  (clean) edge[loop above] node{0.9} (clean)
+  (clean) edge[bend left, below] node{0.1} (dirty)
+  (painted) edge[left] node{0.1} (dirty)
+  (painted) edge[right] node{~0.9} (clean)
+  (ejected) edge[loop above] node{1.0} (ejected);
+\end{tikzpicture}
 :::
 
-You get reward +10 for ejecting a painted object, reward 0 for ejecting a non-painted object, reward 0 for any action on an \"ejected\" object, and reward -3 otherwise. The MDP description would be completed by also specifying a discount factor.
-::::
+  You get reward +10 for ejecting a painted object, reward 0 for
+  ejecting a non-painted object, reward 0 for any action on an "ejected"
+  object, and reward -3 otherwise.  The MDP description would be
+  completed by also specifying a discount factor.
+:::
 
 A *policy* is a function $\pi$ that specifies what action to take in each state. The policy is what we will want to learn; it is akin to the strategy that a player employs to win a given game. Below, we take just the initial steps towards this eventual goal. We describe how to evaluate how good a policy is, first in the *finite horizon* case @sec-mdp_finite_horizon when the total number of transition steps is finite. In the finite horizon case, we typically denote the policy as $\pi_h(s)$, where $h\in\mathbb N$ is a non-negative integer denoting the number of steps remaining and $s \in \mathcal S$ is the current state. Then we consider the *infinite horizon* case @sec-mdp_infinite_horizon, when you don't know when the game will be over.
 
-### Finite-horizon value functions
-
-[]{#sec-mdp_finite_horizon label="sec-mdp_finite_horizon"}
+### Finite-horizon value functions   {#sec-mdp_finite_horizon}
 
 The goal of a policy is to maximize the expected total reward, averaged over the stochastic transitions that the domain makes. Let's first consider the case where there is a finite *horizon* $H$, indicating the total number of steps of interaction that the agent will have with the mdp.
 
@@ -76,14 +105,24 @@ $$
   \vdots
 \\
 V^h_{\pi}(s) & = R(s, \pi_h(s)) + \gamma \sum_{s'}T(s, \pi_h(s), s')  V^{h - 1}_{\pi}(s')
-\end{aligned}$${#eq-finite_val}
+\end{aligned}$${#eq-finite_value}
 
  The sum over $s'$ is an *expectation*: it considers all possible next states $s'$, and computes an average of their $(h-1)$-horizon values, weighted by the probability that the transition function from state $s$ with the action chosen by the policy $\pi_h(s)$ assigns to arriving in state $s'$, and discounted by $\gamma$.
+
+:::{.study-question-callout}
+What is the value of 
+$$\sum_{s'} T(s, a, s')$$ 
+for any given state–action pair $(s, a)$?
+:::
+
+:::{.study-question-callout}
+Convince yourself that the definitions in Eqs.~\ref{eq:finite_val_0} and~\ref{eq:finite_val_1} are special cases of the more general formulation in Eq.~\ref{eq:finite_value}.
+:::
+
 
 Then we can say that a policy $\pi$ is better than policy $\bar{\pi}$ for horizon $h$ if and only if for all $s \in \mathcal S$, $V_{\pi}^h(s) \geq V_{\bar{\pi}}^h(s)$ and there exists at least one $s \in \mathcal S$ such that $V_{\pi}^h(s) > V_{\bar{\pi}}^h(s)$.
 
 ### Infinite-horizon value functions {#sec-mdp_infinite_horizon}
-
 
 More typically, the actual finite horizon is not known, i.e., when you don't know when the game will be over! This is called the *infinite horizon* version of the problem. How does one evaluate the goodness of a policy in the infinite horizon case?
 
@@ -97,7 +136,8 @@ $$\mathbb{E}\left[\sum_{t = 0}^{h-1} \gamma^t R_t \mid \pi, s_0\right]\;\;,
 $${#eq-exp_finite} 
 where $R_t$ is the reward received at time $t$.
 
-::: examplebox
+:::{.callout-note}
+# Note
 What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates an *expectation*, i.e., an average taken over all the random possibilities which may occur for the argument. Here, the expectation is taken over the *conditional probability* $Pr(R_t = r \mid \pi, s_0)$, where $R_t$ is the random variable for the reward, subject to the policy being $\pi$ and the state being $s_0$. Since $\pi$ is a function, this notation is shorthand for conditioning on all of the random variables implied by policy $\pi$ and the stochastic transitions of the MDP.
 
 A very important point is that $R(s,a)$ is always deterministic (in this class) for any given $s$ and $a$. Here $R_t$ represents the set of all possible $R(s_t,a)$ at time step $t$; this $R_t$ is a random variable because the state we're in at step $t$ is itself a random variable, due to prior stochastic state transitions up to but not including at step $t$ and prior (deterministic) actions dictated by policy $\pi.$
@@ -112,13 +152,22 @@ $${#eq-exp_infinite}
   
 Note that the $t$ indices here are not the number of steps to go, but actually the number of steps forward from the starting state (there is no sensible notion of "steps to go" in the infinite horizon case).
 
-::: examplebox
-Eqs. [\[eq:exp_finite\]](#eq:exp_finite){reference-type="ref" reference="eq:exp_finite"} and [\[eq:exp_infinite\]](#eq:exp_infinite){reference-type="ref" reference="eq:exp_infinite"} are a conceptual stepping stone. Our main objective is to get to Eq. [\[eq:inifite_horiz_value\]](#eq:inifite_horiz_value){reference-type="ref" reference="eq:inifite_horiz_value"}, which can also be viewed as including $\gamma$ in Eq. [\[eq:finite_value\]](#eq:finite_value){reference-type="ref" reference="eq:finite_value"}, with the appropriate definition of the infinite-horizon value.
+:::{.callout-note}
+@eq-exp_finite @eq-exp_infinite are a conceptual stepping stone. Our main objective is to get to @eq-inf_horiz_value, which can also be viewed as including $\gamma$ in @eq-finite_value, with the appropriate definition of the infinite-horizon value.
 :::
 
-There are two good intuitive motivations for discounting. One is related to economic theory and the present value of money: you'd generally rather have some money today than that same amount of money next week (because you could use it now or invest it). The other is to think of the whole process terminating, with probability $1-\gamma$ on each step of the interaction. This value is the expected amount of reward the agent would gain under this terminating model.
+There are two good intuitive motivations for discounting. One is related to economic theory and the present value of money: you'd generally rather have some money today than that same amount of money next week (because you could use it now or invest it). The other is to think of the whole process terminating, with probability $1-\gamma$ on each step of the interaction. (At every
+  step, your expected future lifetime, given that you have survived
+  until now, is $1 / (1 - \gamma)$.) This value is the expected amount of reward the agent would gain under this terminating model.
 
-Let us now evaluate a policy in terms of the expected discounted infinite-horizon value that the agent will get in the mdp if it executes that policy. We define the infinite-horizon value of a state $s$ under policy $\pi$ as $$
+:::{.study-question-callout}
+Verify this fact: if, on every day you wake up, there is a
+  probability of $1 - \gamma$ that today will be your last day, then
+  your expected lifetime is $1 / (1 - \gamma)$ days.
+:::
+
+Let us now evaluate a policy in terms of the expected discounted infinite-horizon value that the agent will get in the mdp if it executes that policy. We define the infinite-horizon value of a state $s$ under policy $\pi$ as 
+$$
 V_{\pi}(s) = \mathbb{E}[R_0 + \gamma R_1 + \gamma^2 R_2 +
     \dots \mid \pi, S_0 = s] = \mathbb{E}[R_0 + \gamma(R_1 + \gamma(R_2 + \gamma
     \dots))) \mid \pi, S_0 = s] \;\;.
@@ -133,9 +182,15 @@ $$\begin{aligned}
   \\
              & = R(s, \pi(s)) + \gamma\sum_{s'}T(s, \pi(s), s')V_{\pi}(s') \; .
 \end{aligned}
-$${#eq-inifite_horiz_value}
+$${#eq-inf_horiz_value}
 
-The equation defined in @eq-inifite_horiz_value is known as the Bellman Equation, which breaks down the value function into the immediate reward and the (discounted) future value function. You could write down one of these equations for each of the $n = |\mathcal S|$ states. There are $n$ unknowns $V_{\pi}(s)$. These are linear equations, and standard software (e.g., using Gaussian elimination or other linear algebraic methods) will, in most cases, enable us to find the value of each state under this policy.
+:::{.column-margin}
+This is *so* cool!  In a discounted model, if you find that you survived this round and landed in some state $s'$, then you have the same expected future lifetime as you did before. So the value
+function that is relevant in that state is exactly the same one as in state $s$.
+:::
+
+
+The equation defined in @eq-inf_horiz_value is known as the Bellman Equation, which breaks down the value function into the immediate reward and the (discounted) future value function. You could write down one of these equations for each of the $n = |\mathcal S|$ states. There are $n$ unknowns $V_{\pi}(s)$. These are linear equations, and standard software (e.g., using Gaussian elimination or other linear algebraic methods) will, in most cases, enable us to find the value of each state under this policy.
 
 ## Finding policies for MDPs {#sec-finding_mdp_policies}
 
@@ -165,11 +220,16 @@ $$\begin{aligned}
   \nonumber                                                                       \\
   Q^h(s, a) & = R(s, a) + \gamma \sum_{s'}T(s, a, s') \max_{a'} Q^{h - 1}(s', a')
 \end{aligned}
-$$ where $(s',a')$ denotes the next time-step state/action pair. We can solve for the values of $Q^h$ with a simple recursive algorithm called *finite-horizon value iteration* that just computes $Q^h$ starting from horizon 0 and working backward to the desired horizon $H$. Given $Q^h$, an optimal $\pi_h^*$ can be found as follows: $$\pi_h^*(s) = \arg\max_{a}Q^h(s, a) \;\;.$$ which gives the *immediate* best action(s) to take when there are $h$ steps left; then $\pi_{h-1}^*(s)$ gives the best action(s) when there are $(h-1)$ steps left, and so on. In the case where there are multiple best actions, we typically can break ties randomly.
+$$ 
+where $(s',a')$ denotes the next time-step state/action pair. We can solve for the values of $Q^h$ with a simple recursive algorithm called *finite-horizon value iteration* that just computes $Q^h$ starting from horizon 0 and working backward to the desired horizon $H$. Given $Q^h$, an optimal $\pi_h^*$ can be found as follows: $$\pi_h^*(s) = \arg\max_{a}Q^h(s, a) \;\;.$$ which gives the *immediate* best action(s) to take when there are $h$ steps left; then $\pi_{h-1}^*(s)$ gives the best action(s) when there are $(h-1)$ steps left, and so on. In the case where there are multiple best actions, we typically can break ties randomly.
 
 Additionally, it is worth noting that in order for such an optimal policy to be computed, we assume that the reward function $R(s,a)$ is bounded on the set of all possible (state, action) pairs. Furthermore, we will assume that the set of all possible actions is finite.
 
-::: examplebox
+:::{.study-question-callout}
+The optimal value function is unique, but the optimal policy is not.  Think of a situation in which there is more than one optimal policy.
+:::
+
+:::{.callout-note}
 **Dynamic programming** (somewhat counter-intuitively, dynamic programming is neither really "dynamic" nor a type of "programming" as we typically understand it) is a technique for designing efficient algorithms. Most methods for solving MDPs or computing value functions rely on dynamic programming to be efficient. The *principle of dynamic programming* is to compute and store the solutions to simple sub-problems that can be re-used later in the computation. It is a very important tool in our algorithmic toolbox.
 
 Let's consider what would happen if we tried to compute $Q^4(s, a)$ for all $(s, a)$ by directly using the definition:
