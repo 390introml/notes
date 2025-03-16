@@ -776,7 +776,7 @@ Because neural networks are just parametric functions, we can optimize loss with
 
 ### Batches
 
-Assume that we have an objective of the form $$J(W) = \sum_{i = 1}^n \mathcal{L}(h(x^{(i)}; W),  y^{(i)})\;\;,$$ where $h$ is the function computed by a neural network, and $W$ stands for all the weight matrices and vectors in the network.
+Assume that we have an objective of the form $$J(W) = \frac{1}{n}\sum_{i = 1}^n \mathcal{L}(h(x^{(i)}; W),  y^{(i)})\;\;,$$ where $h$ is the function computed by a neural network, and $W$ stands for all the weight matrices and vectors in the network.
 
 Recall that, when we perform *batch* (or the vanilla) gradient descent, we use the update rule 
 $$
