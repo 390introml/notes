@@ -337,7 +337,7 @@ One potential concern about max-pooling layers is that they actually don't compl
 
 Here is the form of a typical convolutional network:
 
-![The "depth" dimension in the layers shown as cuboids corresponds to the number of channels in the output tensor. (Figure source: https://www.mathworks.com/solutions/deep-learning/convolutional-neural-network.html)](figures/cnn.jpg){width=80%}
+![The "depth" dimension in the layers shown as cuboids corresponds to the number of channels in the output tensor. (Figure source: Mathworks)](figures/cnn.jpg){width=80%}
 
 At the end of each filter layer, we typically apply a ReLU activation function. There may be multiple filter plus ReLU layers. Then we have a max pooling layer. Then we have some more filter + ReLU layers. Then we have max pooling again. Once the output is down to a relatively small size, there is typically a last fully-connected layer, leading into an activation function such as softmax that produces the final output. The exact design of these structures is an art---there is not currently any clear theoretical (or even systematic empirical) understanding of how these various design choices affect overall performance of the network.
 
