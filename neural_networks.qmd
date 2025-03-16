@@ -523,6 +523,7 @@ $${#eq-gradloss}
 There are lots of weights in a neural network, which means we need to compute a lot of gradients. Luckily, as we can see, the gradients associated with weights in earlier layers depend on the same terms as the gradients associated with weights in later layers. This means we can reuse terms and save ourselves some computation!
 :::
 
+where
 $$
 \begin{aligned}
   \frac{\partial \text{loss}}{\partial Z^l}
@@ -537,8 +538,10 @@ $$
 \end{aligned}
 $${#eq-gradz_intermediate}
 
+or equivalently,
 $$
 \begin{aligned}
+\frac{\partial \text{loss}}{\partial Z^l}
   &= \frac{\partial A^l}{\partial Z^l}
   \cdot W^{l+1}
   \cdots
