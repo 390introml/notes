@@ -53,7 +53,7 @@ Let's consider a very simple case to start, in which we have a 1-dimensional bin
 Let $X$ be the original image, of size $d$; then pixel $i$ of the the output image is specified by $$Y_i = F \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
 
 :::{.column-margin}
-And filters are also sometimes called *convolutional kernels*.
+Filters are also sometimes called *convolutional kernels*.
 :::
 
 If you are already familiar with what a convolution is, you might notice that this definition corresponds to what is often called a correlation and not to a convolution. Indeed, correlation and convolution refer to different operations in signal processing. However, in the neural networks literature, most libraries implement the correlation (as described in this chapter) but call it convolution. The distinction is not significant; in principle, if convolution is required to solve the problem, the network could learn the necessary weights. For a discussion of the difference between convolution and correlation and the conventions used in the literature you can read Section 9.1 in this excellent book: [Deep Learning](https://www.deeplearningbook.org).
