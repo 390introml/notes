@@ -455,12 +455,12 @@ Logistic regression, implemented using batch or stochastic gradient descent, is 
 
 ### Convexity of the NLL Loss Function
 
-Much like the squared-error loss function that we saw for linear regression, the NLL loss function for linear logistic regression is a convex function (below is a proof if you're interested). This means that running gradient descent with a reasonable set of hyperparameters will behave nicely.
+Much like the squared-error loss function that we saw for linear regression, the NLL loss function for linear logistic regression is a convex function of the parameters $\theta$ and $\theta_0$ (below is a proof if you're interested). This means that running gradient descent with a reasonable set of hyperparameters will behave nicely.
 
 :::{.callout-note collapse="true"}
 ## Proof of convexity of the NLL loss function
 
-We will use the following facts to demonstrate that the NLL loss function is a convex function:
+We will use the following facts to demonstrate that the NLL loss function for linear logistic regression is a convex function of the parameters $\theta$ and $\theta_0$:
 
 -   if the derivative of a function of a scalar argument is monotonically increasing, then it is a convex function,
 
@@ -468,15 +468,15 @@ We will use the following facts to demonstrate that the NLL loss function is a c
 
 -   a convex function of an affine function is a convex function.
 
-Let $z=\theta^T x + \theta_0$; $z$ is an affine function of $\theta$ and $\theta_0$. It therefore suffices to show that the functions $f_1(z) = - \log (\sigma(z))$ and $f_2 (z) = -\log (1 - \sigma(z))$ are convex with respect to $z$.
+Let $z=\theta^T x + \theta_0$; $z$ is an affine function of $\theta$ and $\theta_0$. It therefore suffices to show that the functions $f_1(z) \coloneqq -\log \sigma(z)$ and $f_2 (z) \coloneqq -\log (1 - \sigma(z))$ are convex with respect to $z$.
 
 First, we can see that since, 
 $$
 \begin{aligned}
-\frac{d}{dz} f_1(z) & = \frac{d}{dz} \left[ -\log (1/(1 + \exp (-z))) \right], \\
-                        & = \frac{d}{dz} \left[ \log (1 + \exp (-z)) \right],      \\
-                        & = - \exp (-z) / (1 + \exp (-z)),                         \\
-                        & = -1 + \sigma(z),
+\frac{d}{dz} f_1(z) & = \frac{d}{dz} [ -\log \sigma(z) ], \\
+                        & = - \frac{1}{\sigma(z)} \left( \frac{d}{dz} \sigma(z) \right),      \\
+                        & = - \frac{1}{\sigma(z)} (\sigma(z) (1-\sigma(z))),                         \\
+                        & = \sigma(z) - 1,
 \end{aligned}
 $$ 
 
@@ -485,8 +485,10 @@ the derivative of the function $f_1 (z)$ is a monotonically increasing function 
 Second, we can see that since, 
 $$
 \begin{aligned}
-    \frac{d}{dz} f_2(z) & = \frac{d}{dz} \left[ -\log (\exp(-z)/(1 + \exp (-z))) \right], \\
-                        & = \frac{d}{dz} \left[ \log (1 + \exp (-z)) + z \right],         \\
+    \frac{d}{dz} f_2(z) & = \frac{d}{dz} \left[ -\log (1-\sigma(z)) \right], \\
+                        & = - \frac{1}{1-\sigma(z)} \left( \frac{d}{dz} \left[ 1 - \sigma(z) \right] \right),         \\
+                        & = \frac{1}{1-\sigma(z)} \left( \frac{d}{dz} \sigma(z) \right),         \\
+                        & = \frac{1}{1-\sigma(z)} (\sigma(z)(1-\sigma(z))),         \\
                         & = \sigma(z),
 \end{aligned}
 $$ the derivative of the function $f_2(z)$ is also monotonically increasing and therefore $f_2$ is a convex function.
