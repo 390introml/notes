@@ -58,53 +58,28 @@ What we present below is the so-called ``dot-product attention'' mechanism; ther
 
 It might help our understanding of the "attention" mechanism to think about a dictionary look-up scenario. Consider a dictionary with keys $k$ mapping to some values $v(k)$. For example, let $k$ be the name of some foods, such as `pizza`, `apple`, `sandwich`, `donut`, `chili`, `burrito`, `sushi`, `hamburger`, $\ldots$. The corresponding values may be information about the food, such as where it is available, how much it costs, or what its ingredients are.
 
-Suppose that instead of looking up foods by a specific name, we wanted to query by cuisine, e.g., "`mexican`" foods. Clearly, we cannot simply look for the word "`mexican`" among the dictionary keys, since that word is not a food. What does work is to utilize again the idea of finding "similarity\" between vector embeddings of the query and the keys. The end result we'd hope to get, is a probability distribution over the foods, $p(k|q)$ indicating which are best matches for a given query $q$. With such a distribution, we can look for keys that are semantically close to the given query.
+Suppose that instead of looking up food information by a specific name, we want to query by cuisine, e.g., "`mexican`" foods. Clearly, we cannot simply look for the word "`mexican`" among the dictionary keys, since that word is not a food. What does work is to utilize again the idea of finding "similarity\" between vector embeddings of the query and the keys. Roughly, we first embed both the query "`mexican`" and the dictionary entries (such as `pizza`, `apple`, `sandwich`) into a same embedding space, where semantically related words are close to each other. This enables us to retrieve relevant entries based on semantic similarity rather than exact string matching.
 
-More concretely, to get such distribution, we follow these steps: First, embed the word we are interested in ("`mexican`" in our example) into a so-called query vector, denoted simply as $q \in \mathbb{R}^{d_k \times 1}$ where $d_k$ is the embedding dimension.
+Formally, we follow these steps: First, embed the word we are interested in ("`mexican`" in our example) into a so-called query vector, denoted simply as $q \in \mathbb{R}^{d_k \times 1}$ where $d_k$ is the embedding dimension.
 
-Next, suppose our given dictionary has $n$ number of entries/entries, we embed each one of these into a so-called key vector. In particular, for each of the $j^{th}$ entry in the dictionary, we produce a $k_j \in \mathbb{R}^{d_k\times 1}$ key vector, where $j=1,2,3, \dots, n.$
+Next, suppose our given dictionary has $n$ number of entries/entries, we embed each one of these into a so-called key vector. In particular, for the $j$th entry in the dictionary, we produce a $k_j \in \mathbb{R}^{d_k\times 1}$ key vector, where $j=1,2,3, \dots, n.$
 
-We can then obtain the desired probability distribution using a softmax (@sec-classification, @sec-neural_networks) applied to the inner-product between the key and query:
+We can then apply a softmax (@sec-classification, @sec-neural_networks) to the inner-product between the key and query:
 
-$$p(k|q) = \text{softmax}\left(
-  [q^T k_1; q^T k_2; q^T k_3; \dots, q^T k_n]
+$$\text{softmax}\left(
+  \alpha = [q^T k_1; q^T k_2; q^T k_3; \dots, q^T k_n]\in\mathbb{R}^{d_n}
   \right)$$
 
-This vector-based lookup mechanism has come to be known as "attention" in the sense that $p(k|q)$ is a conditional probability distribution that says how much attention should be given to the key $k_j$ for a given query $q$.
+The raw inner-product $q^T k_j$ represents how similar the query is to the j-th dictionary entry. However, on their own, these scores are not directly interpretable—they can be any real number, positive or negative, and don’t have any clear scale. That’s why we apply the softmax function, which transforms the raw scores into a vector of normalized weights. $\alpha$ is usually referred to as the "attention weights", since the $j$th element in $\alpha$ (denoted as $\alpha_j$) states how much attention should be given to the key $k_j$ for a given query $q$. With the attention weight $\alpha$, we can calculate the "attention output" 
 
-In other words, the conditional probability distribution $p(k | q)$ gives the "attention weights," and the weighted average value 
 $$
 \begin{aligned}
-  \sum_j p(k_j|q)\ v_j
+  \sum_j \alpha_j \ v_j
 \end{aligned}
-$$ is the "attention output."
-
-The meaning of this weighted average value may be ambiguous when the values are just words. However, the attention output really becomes meaningful when the values are projected in some semantic embedding space (and such projections are typically done in transformers via learned embedding weights).
-
-The same weighted-sum idea generalizes to multiple query, key, and values. In particular, suppose there are $n_q$ number of queries, $n_k$ number of keys (and therefore $n_k$ number of values), one can compute an attention matrix
-
-$$\begin{aligned}
-\alpha = \begin{bmatrix}
-    \text{softmax}\left( \begin{bmatrix}
-                           q_1^\top k_1 & q_1^\top k_2 & \cdots & q_1^\top k_{n_k}
-                         \end{bmatrix} / \sqrt{d_k} \right) \\
-    \text{softmax}\left( \begin{bmatrix}
-                           q_2^\top k_1 & q_2^\top k_2 & \cdots & q_2^\top k_{n_k}
-                         \end{bmatrix} / \sqrt{d_k} \right) \\
-    \vdots &                                                                     \\
-    \text{softmax}\left( \begin{bmatrix}
-                           q_{n_q}^\top k_1 & q_{n_q}^\top k_2 & \cdots & q_{n_q}^\top k_{n_k}
-                         \end{bmatrix} / \sqrt{d_k} \right)
-  \end{bmatrix}
-\end{aligned}$$[]{#eq-xfm_softmax}
-
-Here, $\text{softmax}_j$ is a softmax over the $n_k$-dimensional vector indexed by $j$, so in @eq-xfm_softmax this means a softmax computed over keys. In this equation, the normalization by $\sqrt{d_k}$ is done to reduce the magnitude of the dot product, which would otherwise grow undesirably large with increasing $d_k,$ making it difficult for (overall) training.
-
-Let $\alpha_{ij}$ be the entry in $i$th row and $j$th column in the attention matrix $\alpha$. Then $\alpha_{ij}$ helps answer the question \"which tokens $x^{(j)}$ help the most with predicting the corresponding output token $y^{(i)}$?\" The attention output is given by a weighted sum over the values:
-
 $$
-{y}^{(i)} = \sum_{j=1}^n  \alpha_{ij}v_{j}
-$$
+
+The meaning of this weighted average value may be ambiguous when the values are just words. However, the attention output really becomes meaningful when the values are projected in some semantic embedding space as the query and keys (and such projections are typically done in transformers via learned embedding weights).
+
 
 ### Self Attention
 
