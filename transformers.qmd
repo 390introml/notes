@@ -110,10 +110,23 @@ $$
 
 Self-attention is an attention mechanism where the keys, values, and queries are all generated from the same input.
 
-At a very high level, typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in data (a sequence of tokens) $X\in \mathbb{R}^{n\times d}$ and for each token $x^{(i)}\in \mathbb{R}^{d\times 1}$, it computes (via learned projection, to be discussed in @sec-learnedembedding), a query $q_i \in \mathbb{R}^{d_q\times 1}$, key $k_{i} \in \mathbb{R}^{d_k\times 1}$, and value $v_{i} \in \mathbb{R}^{d_v\times 1}$. In practice, $d_q=d_k=d_v$ and we often denote all three embedding dimension via a unified $d_k.$
+At a very high level, typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in $n$ tokens, each having feature dimension $d$, so that they can be collectively written as $X\in \mathbb{R}^{n\times d}$. For each token $x^{(i)}\in \mathbb{R}^{d\times 1}$, self-attention computes (via learned projection, to be discussed in @sec-learnedembedding), a query $q_i \in \mathbb{R}^{d_q\times 1}$, key $k_{i} \in \mathbb{R}^{d_k\times 1}$, and value $v_{i} \in \mathbb{R}^{d_v\times 1}$. Thus, overall, we will have $n$ queries, $n$ keys, and $n$ values. In practice, $d_q=d_k=d_v$ and we often denote all three embedding dimension via a unified $d_k.$ 
 
-The self-attention layer then takes in these query, key, and values, and compute a self-attention matrix $$
-\begin{aligned}
+Let's consider what self-attention does for a specific query $q_i$. It first calculates the attention weights:
+
+$$\alpha^{(i)} = \text{softmax}\left(
+  [q_i^T k_1; q_i^T k_2; q_i^T k_3; \dots, q_i^T k_n] / \sqrt{d_k}
+  \right) \in\mathbb{R}^{n\times 1}$$
+
+In this equation, the normalization by $\sqrt{d_k}$ is done to reduce the magnitude of the dot product, which would otherwise grow undesirably large with increasing $d_k,$ making it difficult for (overall) training. Then the attention output is calculated as a weighted sum:
+
+$$
+{y}^{(i)} = \sum_{j=1}^n  \alpha^{(i)}_j v_{j}
+$$where $\alpha^{(i)}_j$ is the $j$th element in $\alpha^{(i)}$.
+
+The above computation is repeated independently for every query $q_i$, resulting in a new output vector $y^{(i)}$ for each token input $x^{(i)}$. By stacking these computations together, we can express the full attention matrix $\alpha \in \mathbb{R}^{n \times n}$ as follows:
+
+$$\begin{aligned}
 \alpha = \begin{bmatrix}
     \text{softmax}\left( \begin{bmatrix}
                            q_1^\top k_1 & q_1^\top k_2 & \cdots & q_1^\top k_{n}
@@ -129,14 +142,14 @@ The self-attention layer then takes in these query, key, and values, and compute
 \end{aligned}
 $${#eq-self_softmax}
 
-Comparing this self-attention matrix with the attention matrix described in @eq-xfm_softmax, we notice the only difference lies in the dimensions: since in self-attention, the query, key, and value all come from the same input, we have $n_q=n_k=n_v$, and we often denote all three with a unified $n$.
 
-The self-attention output is then given by a weighted sum over the values: 
+Each row \alpha^{(i)} of this matrix corresponds to the attention weights computed for query q_i over all keys. The full output of the self-attention layer can then be written compactly as:
 
-$$\begin{aligned}
-  {y}^{(i)} = \sum_{j=1}^n  \alpha_{ij} v_{j}
-\end{aligned}
-$${#eq-self_attention_output}
+$$
+Y=\alpha V
+$$
+where $V\in \mathbb{R}^{n \times d_k}$ is the matrix of value vectors stacked row-wise, and $Y \in \mathbb{R}^{n \times d_k}$ is the output.
+
 
 This diagram below shows (only) the middle input token generating a query that is then combined with the keys computed with all tokens to generate the attention weights via a softmax. The output of the softmax is then combined with values computed from all tokens, to generate the attention output corresponding to the middle input token. Repeating this for each input token then generates the output.
 
@@ -145,7 +158,24 @@ This diagram below shows (only) the middle input token generating a query that i
 
 Note that the size of the output is the same as the size of the input. Also, observe that there is no apparent notion of ordering of the input words in the depicted structure. Positional information can be added by encoding a number for token (giving say, the token's position relative to the start of the sequence) into the vector embedding of each token. And note that a given query need not pay attention to all other tokens in the input; in this example, the token used for the query is not used for a key or value.
 
-More generally, a *mask* may be applied to limit which tokens are used in the attention computation. For example, one common mask limits the attention computation to tokens that occur previously in time to the one being used for the query. This prevents the attention mechanism from "looking ahead" in scenarios where the transformer is being used to generate one token at a time.
+More generally, a *mask* may be applied to limit which tokens are used in the attention computation. For example, one common mask limits the attention computation to tokens that occur previously in time to the one being used for the query. This prevents the attention mechanism from "looking ahead" in scenarios where the transformer is being used to generate one token at a time. To enforce this constraint, we apply a causal mask. This is done by introducing a mask matrix $M \in \mathbb{R}^{n \times n}$ that restricts attention to only current and previous positions. A typical causal mask is a lower-triangular matrix:
+
+$$
+M = 
+\begin{bmatrix}
+  1 & 0 & 0 & \cdots & 0 \\
+  1 & 1       & 0 & \cdots & 0 \\
+  1 & 1       & 1       & \cdots & 0 \\
+  \vdots & \vdots & \vdots & \ddots & \vdots \\
+  1 & 1       & 1       & \cdots & 1
+\end{bmatrix}
+
+Then we mask out the attention matrix by element-wise multiplication and use it to calculate the final attention output:
+
+$$
+\alpha^\prime=M \ddot \alpha, Y= \alpha^\prime V
+$$Essentially, the lower-triangular property of $M$ ensures that the attention operation for the $j$-th query only considers tokens $0,1,...,j$.
+
 
 Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
 
