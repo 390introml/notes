@@ -53,17 +53,44 @@ After four iterations of cluster assignment + update means in our example, the k
 
 It seems to converge to something reasonable! Now let's write out the algorithm in complete detail:
 
-::: codebox
-$\mu, y \gets$ random initialization $t \gets 1$ $\tau$ $y_{\texttt{old}} = y$ $i \gets 1$ $n$ $y^{(i)} = \arg\min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2$ $j \gets 1$ $k$ $\mu^{(j)} = \frac{1}{N_j} \sum_{i=1}^n \mathbb{1}(y^{(i)} = j) x^{(i)}$ $\mathbb{1}(y = y_{\texttt{old}})$ break []{#alg:termination label="alg:termination"} $\mu, y$
-:::
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+\begin{algorithm}
+  \begin{algorithmic}[1]
+    \Procedure{KMeans}{$k, \tau, \{x^{(i)}\}_{i=1}^n$}
+      \State Initialize centroids $\mu^{(1)},\dots,\mu^{(k)}$ and assignments $y^{(1)},\dots,y^{(n)}$ randomly
+      \For{$t = 1$ \textbf{to} $\tau$}
+        \State $y_{\mathrm{old}} \gets y$
+        \For{$i = 1$ \textbf{to} $n$}
+          \State $y^{(i)} \gets \arg\min_{j\in\{1,\dots,k\}} \bigl\lVert x^{(i)} - \mu^{(j)}\bigr\rVert^2$
+        \EndFor
+        \For{$j = 1$ \textbf{to} $k$}
+          \State $N_j \gets \sum_{i=1}^n \mathbb{1}\bigl(y^{(i)}=j\bigr)$
+          \State $\mu^{(j)} \gets \frac{1}{N_j}\sum_{i=1}^n \mathbb{1}\bigl(y^{(i)}=j\bigr)\,x^{(i)}$
+        \EndFor
+        \If{$y = y_{\mathrm{old}}$}
+          \State \textbf{break} \Comment{convergence}
+        \EndIf
+      \EndFor
+      \State \Return $\mu, y$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+```
 
-The for-loop over the $n$ datapoints assigns each datapoint to the nearest cluster center. The for-loop over the k clusters updates the cluster center to be the mean of all datapoints currently assigned to that cluster. As suggested above, it can be shown that this algorithm reduces the loss in Eq. [\[eqn:kmeans_obj\]](#eqn:kmeans_obj){reference-type="ref" reference="eqn:kmeans_obj"} on each iteration, until it converges to a local minimum of the loss.
+The for-loop over the $n$ datapoints assigns each datapoint to the nearest cluster center. The for-loop over the k clusters updates the cluster center to be the mean of all datapoints currently assigned to that cluster. As suggested above, it can be shown that this algorithm reduces the loss in @eq-kmeans_obj on each iteration, until it converges to a local minimum of the loss.
 
 It's like classification except it *picked* what the classes are rather than being given examples of what the classes are.
 
 ### Using gradient descent to minimize k-means objective
 
-We can also use gradient descent to optimize the k-means objective. To show how to apply gradient descent, we first rewrite the objective as a differentiable function *only of* $\mu$: $$L(\mu) = \sum_{i=1}^n \min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;\;.$$ $L(\mu)$ is the value of the k-means loss given that we pick the *optimal* assignments of the datapoints to cluster means (that's what the $\min_j$ does). Now we can use the gradient $\frac{\partial L(\mu)}{\partial \mu}$ to find the values for $\mu$ that achieve minimum loss when cluster assignments are optimal. Finally, we read off the optimal cluster assignments, given the optimized $\mu$, just by assigning datapoints to their nearest cluster mean: $$y^{(i)} = \arg\min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;\;.$$ This procedure yields a local minimum of Eq. [\[eqn:kmeans_obj\]](#eqn:kmeans_obj){reference-type="ref" reference="eqn:kmeans_obj"}, as does the standard k-means algorithm we presented (though they might arrive at different solutions). It might not be the global optimum since the objective is not convex (due to $\min_j$, as the minimum of multiple convex functions is not necessarily convex).
+We can also use gradient descent to optimize the k-means objective. To show how to apply gradient descent, we first rewrite the objective as a differentiable function *only of* $\mu$: $$L(\mu) = \sum_{i=1}^n \min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;\;.$$ $L(\mu)$ is the value of the k-means loss given that we pick the *optimal* assignments of the datapoints to cluster means (that's what the $\min_j$ does). Now we can use the gradient $\frac{\partial L(\mu)}{\partial \mu}$ to find the values for $\mu$ that achieve minimum loss when cluster assignments are optimal. Finally, we read off the optimal cluster assignments, given the optimized $\mu$, just by assigning datapoints to their nearest cluster mean: $$y^{(i)} = \arg\min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;\;.$$ This procedure yields a local minimum of @eq-kmeans_obj, as does the standard k-means algorithm we presented (though they might arrive at different solutions). It might not be the global optimum since the objective is not convex (due to $\min_j$, as the minimum of multiple convex functions is not necessarily convex).
 
 ### Importance of initialization
 
@@ -85,12 +112,12 @@ Alternatively, you may be wondering: why bother picking a single k? Wouldn't it 
 
 ### k-means in feature space
 
-Clustering algorithms group data based on a notion of *similarity*, and thus we need to define a *distance metric* between datapoints. This notion will also be useful in other machine learning approaches, such as nearest-neighbor methods that we see in Chapter [\[chap-nonparametric\]](#sec-nonparametric){reference-type="ref" reference="chap-nonparametric"}. In k-means and other methods, our choice of distance metric can have a big impact on the results we will find.
+Clustering algorithms group data based on a notion of *similarity*, and thus we need to define a *distance metric* between datapoints. This notion will also be useful in other machine learning approaches, such as nearest-neighbor methods that we see in @sec-nonparametric. In k-means and other methods, our choice of distance metric can have a big impact on the results we will find.
 
 Our k-means algorithm uses the Euclidean distance, i.e., $\left\Vert
   x^{(i)} - \mu^{(j)} \right\Vert$, with a loss function that is the square of this distance. We can modify k-means to use different distance metrics, but a more common trick is to stick with Euclidean distance but measured in a *feature space*. Just like we did for regression and classification problems, we can define a feature map from the data to a nicer feature representation, $\phi(x)$, and then apply k-means to cluster the data in the feature space.
 
-As a simple example, suppose we have two-dimensional data that is very stretched out in the first dimension and has less dynamic range in the second dimension. Then we may want to scale the dimensions so that each has similar dynamic range, prior to clustering. We could use standardization, like we did in Chapter [\[chap-features\]](#sec-features){reference-type="ref" reference="chap-features"}.
+As a simple example, suppose we have two-dimensional data that is very stretched out in the first dimension and has less dynamic range in the second dimension. Then we may want to scale the dimensions so that each has similar dynamic range, prior to clustering. We could use standardization, like we did in @sec-features.
 
 If we want to cluster more complex data, like images, music, chemical compounds, etc., then we will usually need more sophisticated feature representations. One common practice these days is to use feature representations learned with a neural network. For example, we can use an autoencoder to compress images into feature vectors, then cluster those feature vectors.
 
