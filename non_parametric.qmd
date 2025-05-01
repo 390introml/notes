@@ -1,8 +1,8 @@
-:::{.callout-warning}
-This chapter's HTML notes are in active development. For a more stable version, you can access the PDF notes [here](https://introml.mit.edu/_static/spring25/notes.pdf).
+:::{.callout-note}
+This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf); non-parametric models chapter.
+
+As we phase out the PDF, this page may receive updates not reflected in the static PDF.
 :::
-
-
 
 # Non-parametric methods {#sec-nonparametric}
 
