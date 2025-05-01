@@ -211,7 +211,7 @@ In the two-class case (with labels 0 and 1), all of the splitting criteria menti
 
 There used to be endless haggling about which impurity function one should use. It seems to be traditional to use *entropy* to select which node to split while growing the tree, and *misclassification error* in the pruning criterion.
 
-### {#sec-np_bagging}
+### Bagging {#sec-np_bagging}
 
 One important limitation or drawback in conventional trees is that they can have high estimation error: small changes in the data can result in very big changes in the resulting tree.
 
