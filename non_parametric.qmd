@@ -86,7 +86,7 @@ We'll concentrate on the CART/ID3 ("classification and regression trees" and "it
 
 As a concrete example, consider the following images:
 
-![](figures/dt_points.png) ![](figures/dt_soln.png)
+![](figures/dt_points.png){width="45%"} ![](figures/dt_soln.png){width="43.5%"}
 
 The left image depicts a set of labeled data points in a two-dimensional feature space. The right shows a partition into regions by a decision tree, in this case having no classification errors in the final partitions.
 
