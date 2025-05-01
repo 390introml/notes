@@ -72,13 +72,6 @@ Tree methods differ by:
 
 One advantage of tree models is that they are easily interpretable by humans. This is important in application domains, such as medicine, where there are human experts who often ultimately make critical decisions and who need to feel confident in their understanding of recommendations made by an algorithm. Below is an example decision tree, illustrating how one might be able to understand the decisions made by the tree.
 
-:::: examplebox
-**Example:** Here is a sample tree (reproduced from Breiman, Friedman, Olshen, Stone (1984)):
-
-::: center
-:::
-::::
-
 These methods are most appropriate for domains where the input space is not very high-dimensional and where the individual input features have some substantially useful information individually or in small groups. Trees would not be good for image input, but might be good in cases with, for example, a set of meaningful measurements of the condition of a patient in the hospital, as in the example above.
 
 We'll concentrate on the CART/ID3 ("classification and regression trees" and "iterative dichotomizer 3", respectively) family of algorithms, which were invented independently in the statistics and the artificial intelligence communities. They work by greedily constructing a partition, where the splits are *axis aligned* and by fitting a *constant* model in the leaves. The interesting questions are how to select the splits and how to control complexity. The regression and classification versions are very similar.
@@ -126,26 +119,21 @@ Here is the pseudocode. In what follows, $k$ is the largest leaf size that we wi
 #| html-no-end: false
 #| pdf-placement: "htb!"
 #| pdf-line-number: true
-#| label: buildtree
 \begin{algorithm}
-\begin{algorithmic}[1]
-\Procedure{BuildTree}{$I, k$}
-  \If{$|I| \leq k$}
-    \State $\hat{y} \gets \frac{1}{|I|}\sum_{i \in I} y^{(i)}$
-    \Return $\text{Leaf}(\text{value} = \hat{y})$
-  \Else
-    \ForAll{split dimension $j$, split value $s$}
-      \State $I^+_{j,s} \gets \{i \in I \mid x_j^{(i)} \geq s\}$
-      \State $I^-_{j,s} \gets \{i \in I \mid x_j^{(i)} < s\}$
-      \State $\hat{y}^+_{j,s} \gets \frac{1}{|I^+_{j,s}|}\sum_{i \in I^+_{j,s}} y^{(i)}$
-      \State $\hat{y}^-_{j,s} \gets \frac{1}{|I^-_{j,s}|}\sum_{i \in I^-_{j,s}} y^{(i)}$
-      \State $E_{j,s} \gets \sum_{i \in I^+_{j,s}} (y^{(i)} - \hat{y}^+_{j,s})^2 \; + \; \sum_{i \in I^-_{j,s}} (y^{(i)} - \hat{y}^-_{j,s})^2$
-    \EndFor
-    \State $(j^*, s^*) \gets \arg\min_{j,s} E_{j,s}$
-    \State \Return $\text{Node}\bigl(j^*, s^*, \text{BuildTree}(I^-_{j^*,s^*}, k), \text{BuildTree}(I^+_{j^*,s^*}, k)\bigr)$
-  \EndIf
-\EndProcedure
-\end{algorithmic}
+  \begin{algorithmic}[1]
+    \Procedure{RandomForest}{$B, m, n$}
+      \For{$b = 1$ \textbf{to} $B$}
+        \State Draw a bootstrap sample $\mathcal{D}_b$ of size $n$ from $\mathcal{D}$
+        \State Grow tree $T_b$ on $\mathcal{D}_b$:
+        \While{there are splittable nodes}
+          \State Select $m$ variables at random from the $d$ total variables
+          \State Pick the best variable and split point among those $m$
+          \State Split the current node
+        \EndWhile
+      \EndFor
+      \State \Return $\{T_b\}_{b=1}^B$
+    \EndProcedure
+  \end{algorithmic}
 \end{algorithm}
 ```
 
@@ -232,9 +220,34 @@ Random forests are collections of trees that are constructed to be de-correlated
 
 In what follows, $B$, $m$, and $n$ are hyperparameters of the algorithm.
 
-::: codebox
-$b = 1, \ldots, B$ Draw a bootstrap sample ${\cal D}_b$ of size $n$ from ${\cal D}$ Grow a tree $T_b$ on data ${\cal D}_b$ by recursively: Select $m$ variables at random from the $d$ variables Pick the best variable and split point among the $m$ variables Split the node tree $T_b$
-:::
+
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+#| label: Random Forest
+\begin{algorithm}
+  \begin{algorithmic}[1]
+    \Procedure{RandomForest}{$\mathcal{D}, B, m, n$}
+      \For{$b = 1, \ldots, B$}
+        \State Draw a bootstrap sample $\mathcal{D}_b$ of size $n$ from $\mathcal{D}$
+        \State Grow tree $T_b$ on data $\mathcal{D}_b$ recursively:
+        \begin{itemize}
+          \item Select $m$ variables at random from the $d$ available variables
+          \item Pick the best variable and split point among the $m$ variables
+          \item Split the node into child nodes
+        \end{itemize}
+      \EndFor
+      \State \Return ensemble of trees $\{T_b\}_{b=1}^{B}$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+```
+
 
 Given the ensemble of trees, vote to make a prediction on a new $x$.
 
