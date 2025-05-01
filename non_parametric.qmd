@@ -72,12 +72,13 @@ Tree methods differ by:
 
 One advantage of tree models is that they are easily interpretable by humans. This is important in application domains, such as medicine, where there are human experts who often ultimately make critical decisions and who need to feel confident in their understanding of recommendations made by an algorithm. Below is an example decision tree, illustrating how one might be able to understand the decisions made by the tree.
 
-:::: examplebox
-**Example:** Here is a sample tree (reproduced from Breiman, Friedman, Olshen, Stone (1984)):
+:::{.callout-note}
+#Example
+Here is a sample tree (reproduced from Breiman, Friedman, Olshen, Stone (1984)):
 
-::: center
+![](figures/tree-example.png){width="70%"}
+
 :::
-::::
 
 These methods are most appropriate for domains where the input space is not very high-dimensional and where the individual input features have some substantially useful information individually or in small groups. Trees would not be good for image input, but might be good in cases with, for example, a set of meaningful measurements of the condition of a patient in the hospital, as in the example above.
 
