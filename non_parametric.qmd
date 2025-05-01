@@ -232,9 +232,31 @@ Random forests are collections of trees that are constructed to be de-correlated
 
 In what follows, $B$, $m$, and $n$ are hyperparameters of the algorithm.
 
-::: codebox
-$b = 1, \ldots, B$ Draw a bootstrap sample ${\cal D}_b$ of size $n$ from ${\cal D}$ Grow a tree $T_b$ on data ${\cal D}_b$ by recursively: Select $m$ variables at random from the $d$ variables Pick the best variable and split point among the $m$ variables Split the node tree $T_b$
-:::
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+\begin{algorithm}
+  \begin{algorithmic}[1]
+    \Procedure{RandomForest}{$B, m, n$}
+      \For{$b = 1$ \textbf{to} $B$}
+        \State Draw a bootstrap sample $\mathcal{D}_b$ of size $n$ from $\mathcal{D}$
+        \State Grow tree $T_b$ on $\mathcal{D}_b$:
+        \While{there are splittable nodes}
+          \State Select $m$ variables at random from the $d$ total variables
+          \State Pick the best variable and split point among those $m$
+          \State Split the current node
+        \EndWhile
+      \EndFor
+      \State \Return $\{T_b\}_{b=1}^B$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+```
 
 Given the ensemble of trees, vote to make a prediction on a new $x$.
 
