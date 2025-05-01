@@ -49,9 +49,8 @@ This same algorithm works for regression *and* classification!
 
 The nearest neighbor prediction function can be described by dividing the space up into regions whose closest point is each individual training point as shown below :
 
-::: center
-![](figures/voronoi.png)
-:::
+
+![](figures/voronoi.png){width="70%"}
 
 In each region, we predict the associated $y$ value.
 
@@ -86,9 +85,7 @@ We'll concentrate on the CART/ID3 ("classification and regression trees" and "it
 
 As a concrete example, consider the following images:
 
-::: center
 ![](figures/dt_points.png) ![](figures/dt_soln.png)
-:::
 
 The left image depicts a set of labeled data points in a two-dimensional feature space. The right shows a partition into regions by a decision tree, in this case having no classification errors in the final partitions.
 
@@ -195,8 +192,10 @@ Analogous to how for regression we choose the dimension $j$ and split $s$ that m
           & \qquad + \text{(fraction of points in right data set)} \cdot H(I_{j,s}^+) \nonumber             \\
           & = (1-\hat{P}_{m,j,s}) H(I_{j,s}^-) + \hat{P}_{m,j,s} H(I_{j,s}^+) \nonumber \\
           & = \frac{|I^-_{j,s}|}{N_m} \cdot H(I_{j,s}^-) + \frac{|I^+_{j,s}|}{N_m} \cdot H(I_{j,s}^+)\; .
-\end{aligned}$$ Choosing the split that minimizes the entropy of the children is equivalent to maximizing the *information gain* of the test $x_j = s$, defined by $$\begin{aligned}
-  \proc{infoGain}(x_j = s, I_m) & = & H(I_m) -
+\end{aligned}$$ 
+
+Choosing the split that minimizes the entropy of the children is equivalent to maximizing the *information gain* of the test $x_j = s$, defined by $$\begin{aligned}
+  \text{infoGain}(x_j = s, I_m) & = & H(I_m) -
   \left(\frac{|I^-_{j,s}|}{N_m} \cdot H(I_{j,s}^-) + \frac{|I^+_{j,s}|}{N_m} \cdot H(I_{j,s}^+)\right)
 \end{aligned}$$
 
@@ -206,9 +205,8 @@ In the two-class case (with labels 0 and 1), all of the splitting criteria menti
   \end{cases} \; .$$ The respective impurity curves are shown below, where $p =
   \hat{P}_{m,0}$; the vertical axis plots $Q_m(T)$ for each of the three criteria.
 
-::: center
 ![](figures/impurity.png)
-:::
+
 
 There used to be endless haggling about which impurity function one should use. It seems to be traditional to use *entropy* to select which node to split while growing the tree, and *misclassification error* in the pruning criterion.
 
