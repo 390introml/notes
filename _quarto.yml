@@ -27,7 +27,7 @@ book:
     - mdp.qmd
     - reinforcement_learning.qmd
     - non_parametric.qmd
-    - clustering.qmd
+    # - clustering.qmd
   appendices:
     - matrix_derivative.qmd
     - neural_network_appendix.qmd
