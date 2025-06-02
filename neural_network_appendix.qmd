@@ -4,7 +4,7 @@
 
 ### Running averages
 
-We'll start by looking at the notion of a *running average*. It's a computational strategy for estimating a possibly weighted average of a sequence of data. Let our data sequence be \(c_1, c_2, \ldots\); then we define a sequence of running average values, \(C_0, C_1, C_2, \ldots\) using the equations
+We'll start by looking at the notion of a *running average*. It's a computational strategy for estimating a possibly weighted average of a sequence of data. Let our data sequence be $c_1, c_2, \ldots$; then we define a sequence of running average values, $C_0, C_1, C_2, \ldots$ using the equations
 
 $$
 \begin{aligned}
@@ -13,7 +13,7 @@ $$
 \end{aligned}
 $$
 
-where \(\gamma_t \in (0,1)\). If \(\gamma_t\) is a constant, then this is a *moving* average, in which
+where $\gamma_t \in (0,1)$. If $\gamma_t$ is a constant, then this is a *moving* average, in which
 
 $$
 \begin{aligned}
@@ -23,9 +23,9 @@ $$
 \end{aligned}
 $$
 
-So, you can see that inputs \(c_t\) closer to the end of the sequence have more effect on \(C_T\) than early inputs.
+So, you can see that inputs $c_t$ closer to the end of the sequence have more effect on $C_T$ than early inputs.
 
-If, instead, we set \(\gamma_t = \frac{t-1}{t}\), then we get the actual average.
+If, instead, we set $\gamma_t = \frac{t-1}{t}$, then we get the actual average.
 
 :::{.study-question-callout}
 Prove to yourself that the previous assertion holds.
@@ -33,7 +33,7 @@ Prove to yourself that the previous assertion holds.
 
 ### Momentum
 
-Now, we can use methods that are a bit like running averages to describe strategies for computing \(\eta\). The simplest method is *momentum*, in which we try to “average” recent gradient updates, so that if they have been bouncing back and forth in some direction, we take out that component of the motion. For momentum, we have
+Now, we can use methods that are a bit like running averages to describe strategies for computing $\eta$. The simplest method is *momentum*, in which we try to "average" recent gradient updates, so that if they have been bouncing back and forth in some direction, we take out that component of the motion. For momentum, we have
 
 $$
 \begin{aligned}
@@ -43,7 +43,7 @@ $$
 \end{aligned}
 $$
 
-This doesn't quite look like an adaptive step size. But what we can see is that, if we let \(\eta = \eta'(1-\gamma)\), then the rule looks exactly like doing an update with step size \(\eta'\) on a moving average of the gradients with parameter \(\gamma\):
+This doesn't quite look like an adaptive step size. But what we can see is that, if we let $\eta = \eta'(1-\gamma)$, then the rule looks exactly like doing an update with step size $\eta'$ on a moving average of the gradients with parameter $\gamma$:
 
 $$
 \begin{aligned}
@@ -57,7 +57,7 @@ $$
 Prove to yourself that these formulations are equivalent.
 :::
 
-We will find that \(V_t\) will be bigger in dimensions that consistently have the same sign for \(\nabla_W\) and smaller for those that don't. Of course we now have *two* parameters to set (\(\eta\) and \(\gamma\)), but the hope is that the algorithm will perform better overall, so it will be worth trying to find good values for them. Often \(\gamma\) is set to be something like \(0.9\).
+We will find that $V_t$ will be bigger in dimensions that consistently have the same sign for $\nabla_W$ and smaller for those that don't. Of course we now have *two* parameters to set ($\eta$ and $\gamma$), but the hope is that the algorithm will perform better overall, so it will be worth trying to find good values for them. Often $\gamma$ is set to be something like $0.9$.
 
 ::: {.example}
 ![Momentum](figures/momentum.png){scale=0.7}
@@ -66,12 +66,12 @@ The red arrows show the update after each successive step of mini-batch gradient
 :::
 
 :::{.study-question-callout}
-If you set \(\gamma = 0.1\), would momentum have more of an effect or less of an effect than if you set it to \(0.9\)?
+If you set $\gamma = 0.1$, would momentum have more of an effect or less of an effect than if you set it to $0.9$?
 :::
 
 ### Adadelta
 
-Another useful idea is this: we would like to take larger steps in parts of the space where \(J(W)\) is nearly flat (because there's no risk of taking too big a step due to the gradient being large) and smaller steps when it is steep. We'll apply this idea to each weight independently, and end up with a method called *adadelta*, which is a variant on *adagrad* (for adaptive gradient). Even though our weights are indexed by layer, input unit, and output unit, for simplicity here, just let \(W_j\) be any weight in the network (we will do the same thing for all of them).
+Another useful idea is this: we would like to take larger steps in parts of the space where $J(W)$ is nearly flat (because there's no risk of taking too big a step due to the gradient being large) and smaller steps when it is steep. We'll apply this idea to each weight independently, and end up with a method called *adadelta*, which is a variant on *adagrad* (for adaptive gradient). Even though our weights are indexed by layer, input unit, and output unit, for simplicity here, just let $W_j$ be any weight in the network (we will do the same thing for all of them).
 
 $$
 \begin{aligned}
@@ -81,7 +81,7 @@ $$
 \end{aligned}
 $$
 
-The sequence \(G_{t,j}\) is a moving average of the square of the \(j\)th component of the gradient. We square it in order to be insensitive to the sign—we want to know whether the magnitude is big or small. Then, we perform a gradient update to weight \(j\), but divide the step size by \(\sqrt{G_{t,j}+\epsilon}\), which is larger when the surface is steeper in direction \(j\) at point \(W_{t-1}\) in weight space; this means that the step size will be smaller when it's steep and larger when it's flat.
+The sequence $G_{t,j}$ is a moving average of the square of the $j$th component of the gradient. We square it in order to be insensitive to the sign—we want to know whether the magnitude is big or small. Then, we perform a gradient update to weight $j$, but divide the step size by $\sqrt{G_{t,j}+\epsilon}$, which is larger when the surface is steeper in direction $j$ at point $W_{t-1}$ in weight space; this means that the step size will be smaller when it's steep and larger when it's flat.
 
 ### Adam
 
@@ -91,7 +91,7 @@ Adam has become the default method of managing step sizes in neural networks.
 Although, interestingly, it may actually violate the convergence conditions of SGD: [arxiv.org/abs/1705.08292](https://arxiv.org/abs/1705.08292)
 :::
 
-It combines the ideas of momentum and adadelta. We start by writing moving averages of the gradient and squared gradient, which reflect estimates of the mean and variance of the gradient for weight \(j\):
+It combines the ideas of momentum and adadelta. We start by writing moving averages of the gradient and squared gradient, which reflect estimates of the mean and variance of the gradient for weight $j$:
 
 $$
 \begin{aligned}
@@ -101,7 +101,7 @@ $$
 \end{aligned}
 $$
 
-A problem with these estimates is that, if we initialize \(m_0 = v_0 = 0\), they will always be biased (slightly too small). So we will correct for that bias by defining
+A problem with these estimates is that, if we initialize $m_0 = v_0 = 0$, they will always be biased (slightly too small). So we will correct for that bias by defining
 
 $$
 \begin{aligned}
@@ -111,39 +111,39 @@ $$
 \end{aligned}
 $$
 
-Note that \(B_1^t\) is \(B_1\) raised to the power \(t\), and likewise for \(B_2^t\). To justify these corrections, note that if we were to expand \(m_{t,j}\) in terms of \(m_{0,j}\) and \(g_{0,j}, g_{1,j}, \dots, g_{t,j}\), the coefficients would sum to 1. However, the coefficient behind \(m_{0,j}\) is \(B_1^t\) and since \(m_{0,j} = 0\), the sum of coefficients of nonzero terms is \(1-B_1^t\); hence the correction. The same justification holds for \(v_{t,j}\).
+Note that $B_1^t$ is $B_1$ raised to the power $t$, and likewise for $B_2^t$. To justify these corrections, note that if we were to expand $m_{t,j}$ in terms of $m_{0,j}$ and $g_{0,j}, g_{1,j}, \dots, g_{t,j}$, the coefficients would sum to 1. However, the coefficient behind $m_{0,j}$ is $B_1^t$ and since $m_{0,j} = 0$, the sum of coefficients of nonzero terms is $1-B_1^t$; hence the correction. The same justification holds for $v_{t,j}$.
 
 :::{.study-question-callout}
-Define \(\hat{m}_{t,j}\) directly as a moving average of \(g_{t,j}\). What is the decay (\(\gamma\) parameter)?
+Define $\hat{m}_{t,j}$ directly as a moving average of $g_{t,j}$. What is the decay ($\gamma$ parameter)?
 :::
 
-Even though we now have a step size for each weight, and we have to update various quantities on each iteration of gradient descent, it's relatively easy to implement by maintaining a matrix for each quantity (\(m^{\ell}_t\), \(v^{\ell}_t\), \(g^{\ell}_t\), \({g^{2}_t}^{\ell}\)) in each layer of the network.
+Even though we now have a step size for each weight, and we have to update various quantities on each iteration of gradient descent, it's relatively easy to implement by maintaining a matrix for each quantity ($m^{\ell}_t$, $v^{\ell}_t$, $g^{\ell}_t$, ${g^{2}_t}^{\ell}$) in each layer of the network.
 
 ## Batch Normalization Details {#sec-batch-norm-appendix}
 
-Let's think of the batch-normalization layer as taking \(Z^l\) as input and producing an output \(\widehat{Z}^l\). But now, instead of thinking of \(Z^l\) as an \(n^l \times 1\) vector, we have to explicitly think about handling a mini-batch of data of size \(K\) all at once, so \(Z^l\) will be an \(n^l \times K\) matrix, and so will the output \(\widehat{Z}^l\).
+Let's think of the batch-normalization layer as taking $Z^l$ as input and producing an output $\widehat{Z}^l$. But now, instead of thinking of $Z^l$ as an $n^l \times 1$ vector, we have to explicitly think about handling a mini-batch of data of size $K$ all at once, so $Z^l$ will be an $n^l \times K$ matrix, and so will the output $\widehat{Z}^l$.
 
-Our first step will be to compute the *batchwise* mean and standard deviation. Let \(\mu^l\) be the \(n^l \times 1\) vector where
+Our first step will be to compute the *batchwise* mean and standard deviation. Let $\mu^l$ be the $n^l \times 1$ vector where
 
 $$
 \mu^l_i = \frac{1}{K}\sum_{j=1}^K Z^l_{ij},
 $$
 
-and let \(\sigma^l\) be the \(n^l \times 1\) vector where
+and let $\sigma^l$ be the $n^l \times 1$ vector where
 
 $$
 \sigma^l_i = \sqrt{\frac{1}{K}\sum_{j=1}^K \Bigl(Z^l_{ij} - \mu^l_i\Bigr)^2}.
 $$
 
-The basic normalized version of our data would be a matrix, element \((i,j)\) of which is
+The basic normalized version of our data would be a matrix, element $(i,j)$ of which is
 
 $$
 \overline{Z}^l_{ij} = \frac{Z^l_{ij} - \mu^l_i}{\sigma^l_i+\epsilon},
 $$
 
-where \(\epsilon\) is a very small constant to guard against division by zero.
+where $\epsilon$ is a very small constant to guard against division by zero.
 
-However, if we let these be our \(\widehat{Z}^l\) values, we really are forcing something too strong on our data—our goal was to normalize across the data batch, but not necessarily force the output values to have exactly mean 0 and standard deviation 1. So, we will give the layer the opportunity to shift and scale the outputs by adding new weights to the layer. These weights are \(G^l\) and \(B^l\), each of which is an \(n^l \times 1\) vector. Using the weights, we define the final output to be
+However, if we let these be our $\widehat{Z}^l$ values, we really are forcing something too strong on our data—our goal was to normalize across the data batch, but not necessarily force the output values to have exactly mean 0 and standard deviation 1. So, we will give the layer the opportunity to shift and scale the outputs by adding new weights to the layer. These weights are $G^l$ and $B^l$, each of which is an $n^l \times 1$ vector. Using the weights, we define the final output to be
 
 $$
 \widehat{Z}^l_{ij} = G^l_i\, \overline{Z}^l_{ij} + B^l_i.
@@ -151,10 +151,10 @@ $$
 
 That's the forward pass. Whew!
 
-Now, for the backward pass, we have to do two things: given \(\frac{\partial L}{\partial \widehat{Z}^l}\),
+Now, for the backward pass, we have to do two things: given $\frac{\partial L}{\partial \widehat{Z}^l}$,
 
-- Compute \(\frac{\partial L}{\partial Z^l}\) for back-propagation, and  
-- Compute \(\frac{\partial L}{\partial G^l}\) and \(\frac{\partial L}{\partial B^l}\) for gradient updates of the weights in this layer.
+- Compute $\frac{\partial L}{\partial Z^l}$ for back-propagation, and  
+- Compute $\frac{\partial L}{\partial G^l}$ and $\frac{\partial L}{\partial B^l}$ for gradient updates of the weights in this layer.
 
 Schematically, we have
 
@@ -162,13 +162,13 @@ $$
 \frac{\partial L}{\partial B} = \frac{\partial L}{\partial \widehat{Z}}\, \frac{\partial \widehat{Z}}{\partial B}.
 $$
 
-It's hard to think about these derivatives in matrix terms, so we'll see how it works for the components. \(B_i\) contributes to \(\widehat{Z}_{ij}\) for all data points \(j\) in the batch. So,
+It's hard to think about these derivatives in matrix terms, so we'll see how it works for the components. $B_i$ contributes to $\widehat{Z}_{ij}$ for all data points $j$ in the batch. So,
 
 $$
 \frac{\partial L}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}.
 $$
 
-Similarly, \(G_i\) contributes to \(\widehat{Z}_{ij}\) for all data points \(j\) in the batch. Thus,
+Similarly, $G_i$ contributes to $\widehat{Z}_{ij}$ for all data points $j$ in the batch. Thus,
 
 $$
 \frac{\partial L}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \overline{Z}_{ij}.
@@ -198,7 +198,7 @@ $$
 \frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}} = \Bigl(\delta_{jk} - \frac{\partial \mu_i}{\partial Z_{ij}}\Bigr)\frac{1}{\sigma_i} - \frac{Z_{ik}-\mu_i}{\sigma_i^2}\, \frac{\partial \sigma_i}{\partial Z_{ij}},
 $$
 
-where \(\delta_{jk} = 1\) if \(j=k\) and 0 otherwise. We need two more pieces:
+where $\delta_{jk} = 1$ if $j=k$ and 0 otherwise. We need two more pieces:
 
 $$
 \frac{\partial \mu_i}{\partial Z_{ij}} = \frac{1}{K}, \qquad
