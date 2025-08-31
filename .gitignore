@@ -308,3 +308,5 @@ TSWLatexianTemp*
 #*Notes.bib
 
 /.quarto/
+
+**/*.quarto_ipynb
