@@ -1,9 +1,3 @@
-:::{.callout-warning}
-We had legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf) that used mixed conventions for data matrices: "each row as a data point" and "each column as a data point". 
-
-We are standardizing to "each row as a data point." Thus, $X$ aligns with $\tilde{X}$ in the PDF notes if you've read those. If you spot inconsistencies or experience any confusion, please raise an issue. Thanks!
-:::
-
 # Regression {#sec-regression}
 
 *Regression* is an important machine-learning problem that provides a good starting point for diving deeply into the field.
