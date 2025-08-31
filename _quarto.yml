@@ -5,7 +5,7 @@ project:
 
 book:
   title: 6.390 - Intro to Machine Learning
-  subtitle: Course Notes
+  # subtitle: Course Notes
   repo-url: https://github.com/390introml/notes
   repo-branch: main
   repo-actions: [edit, issue]
