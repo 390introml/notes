@@ -16,7 +16,7 @@ There is an enormous and fascinating literature on the mathematical and algorith
 You might want to consider studying optimization someday! It's one of the fundamental tools enabling machine learning, and it's a beautiful and deep field.
 :::
 
-Intuitively, in one or two dimensions, we can easily think of $J(\Theta)$ as defining a surface over $\Theta$; that same idea extends to higher dimensions. Now, our objective is to find the $\Theta$ value at the lowest point on that surface. One way to think about gradient descent is to start at some arbitrary point on the surface, see which direction the "hill" slopes downward most steeply, take a small step in that direction, determine the next steepest descent direction, and take another small step, and so on.
+Intuitively, in one or two dimensions, we can easily think of $J(\Theta)$ as defining a surface over $\Theta$; that same idea extends to higher dimensions. Now, our objective is to find the $\Theta$ value at the lowest point on that surface. One way to think about gradient descent is to start at some arbitrary point on the surface, see which direction the "hill" slopes downward most steeply, take a small step in that direction, determine the next steepest descent direction, take another small step, and so on.
 
 Below, we explicitly give gradient descent algorithms for one-  and multidimensional objective functions (@sec-gd_onedim and @sec-gd). We then illustrate the application of gradient descent to a loss function which is not merely mean squared loss (@sec-gd_ridge). And we present an important method known as *stochastic gradient descent* (@sec-sgd), which is especially useful when datasets are too large for descent in a single batch, and has some important behaviors of its own.
 
@@ -289,20 +289,20 @@ Most objective functions in machine learning can end up being written as an aver
 
 Let's assume our objective has the form 
 
-$$f(\Theta) = \frac{1}{n}\sum_{i = 1}^n f_i(\Theta)
+$$J(\Theta) = \frac{1}{n}\sum_{i = 1}^n J_i(\Theta)
   \;\;,
 $$ 
 where $n$ is the number of data points used in the objective (and this may be different from the number of points available in the whole data set). 
 
 :::{.column-margin}
-Sometimes you will see the objective written as a sum instead of an average. In the "sum" convention, the $\frac{1}{n}$ normalizing constant is getting "absorbed" into individual $f_i$.
+Sometimes you will see the objective written as a sum instead of an average. In the "sum" convention, the $\frac{1}{n}$ normalizing constant is getting "absorbed" into individual $J_i$.
 $$
-f(\Theta) = \sum_{i = 1}^n f_i(\Theta)\;\;.
+J(\Theta) = \sum_{i = 1}^n J_i(\Theta)\;\;.
 $$ 
 :::
 
-Here is pseudocode for applying SGD to such an objective $f$; it assumes we know the form of 
-$\nabla_\Theta f_i$ for all $i$ in $1\ldots n$:
+Here is pseudocode for applying SGD to such an objective $J$; it assumes we know the form of 
+$\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
 
 ```pseudocode
 #| html-indent-size: "1.2em"
@@ -315,11 +315,11 @@ $\nabla_\Theta f_i$ for all $i$ in $1\ldots n$:
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,f,\nabla_{\Theta}f_1,...,\nabla_{\Theta} f_n,T$}
+\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,J,\nabla_{\Theta}J_1,...,\nabla_{\Theta} J_n,T$}
   \State $\Theta^{(0)} \gets \Theta_{\it init}$ 
   \For{$t \gets 1$}
     \State randomly select $i \in \{1, 2, \dots, n\}$
-    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta f_i(\Theta^{(t-1)})$ 
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta J_i(\Theta^{(t-1)})$ 
   \EndFor
 
 \EndProcedure
@@ -348,6 +348,6 @@ There are multiple intuitions for why SGD might be a better choice algorithmical
 
 -   BGD typically requires computing some quantity over every data point in a data set. SGD may perform well after visiting only some of the data. This behavior can be useful for very large data sets -- in runtime and memory savings.
 
--   If your $f$ is actually non-convex, but has many shallow local optimum points that might trap BGD, then taking *samples* from the gradient at some point $\Theta$ might "bounce" you around the landscape and away from the local optimum points.
+-   If your $J$ is actually non-convex, but has many shallow local optimum points that might trap BGD, then taking *samples* from the gradient at some point $\Theta$ might "bounce" you around the landscape and away from the local optimum points.
 
--   Sometimes, optimizing $f$ really well is not what we want to do, because it might overfit the training set; so, in fact, although SGD might not get lower training error than BGD, it might result in lower test error.
+-   Sometimes, optimizing $J$ really well is not what we want to do, because it might overfit the training set; so, in fact, although SGD might not get lower training error than BGD, it might result in lower test error.
