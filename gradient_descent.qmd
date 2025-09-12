@@ -16,7 +16,7 @@ There is an enormous and fascinating literature on the mathematical and algorith
 You might want to consider studying optimization someday! It's one of the fundamental tools enabling machine learning, and it's a beautiful and deep field.
 :::
 
-Intuitively, in one or two dimensions, we can easily think of $J(\Theta)$ as defining a surface over $\Theta$; that same idea extends to higher dimensions. Now, our objective is to find the $\Theta$ value at the lowest point on that surface. One way to think about gradient descent is to start at some arbitrary point on the surface, see which direction the "hill" slopes downward most steeply, take a small step in that direction, determine the next steepest descent direction, and take another small step, and so on.
+Intuitively, in one or two dimensions, we can easily think of $J(\Theta)$ as defining a surface over $\Theta$; that same idea extends to higher dimensions. Now, our objective is to find the $\Theta$ value at the lowest point on that surface. One way to think about gradient descent is to start at some arbitrary point on the surface, see which direction the "hill" slopes downward most steeply, take a small step in that direction, determine the next steepest descent direction, take another small step, and so on.
 
 Below, we explicitly give gradient descent algorithms for one-  and multidimensional objective functions (@sec-gd_onedim and @sec-gd). We then illustrate the application of gradient descent to a loss function which is not merely mean squared loss (@sec-gd_ridge). And we present an important method known as *stochastic gradient descent* (@sec-sgd), which is especially useful when datasets are too large for descent in a single batch, and has some important behaviors of its own.
 
