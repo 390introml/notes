@@ -286,12 +286,6 @@ $$J(\Theta) = \frac{1}{n}\sum_{i = 1}^n J_i(\Theta)
 $$ 
 where $n$ is the number of data points used in the objective (and this may be different from the number of points available in the whole data set). 
 
-:::{.column-margin}
-Sometimes you will see the objective written as a sum instead of an average. In the "sum" convention, the $\frac{1}{n}$ normalizing constant is getting "absorbed" into individual $J_i$.
-$$
-J(\Theta) = \sum_{i = 1}^n J_i(\Theta)\;\;.
-$$ 
-:::
 
 Here is pseudocode for applying SGD to such an objective $J$; it assumes we know the form of 
 $\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
