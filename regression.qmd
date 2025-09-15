@@ -507,9 +507,9 @@ One concern is that we might need a lot of data to do this, and in many applicat
         \STATE Divide $\mathcal D$ into $k$ chunks $\mathcal D_1, \mathcal D_2, \ldots, \mathcal D_k$ (of roughly equal size)
         \FOR{$i = 1$ \TO $k$}
             \STATE Train $h_i$ on $\mathcal D \setminus \mathcal D_i$ (withholding chunk $\mathcal D_i$ as the validation set)
-            \STATE Compute "test" error $\mathcal{E}_i(h_i)$ on withheld data $\mathcal D_i$
+            \STATE Compute chunk-i validation error $\mathcal{E}_i(h_i)$ on withheld data $\mathcal D_i$
         \ENDFOR
-        \RETURN $\frac{1}{k} \sum_{i=1}^k \mathcal{E}_i(h_i)$
+        \RETURN validation error $\frac{1}{k} \sum_{i=1}^k \mathcal{E}_i(h_i)$
     \end{algorithmic}
 \end{algorithm}
 ```
