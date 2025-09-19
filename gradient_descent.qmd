@@ -14,9 +14,9 @@ Below, we explicitly give gradient descent algorithms for one-  and multidimensi
 
 ## Gradient descent in one dimension {#sec-gd_onedim}
 
-We start by considering gradient descent in one dimension. Assume $\Theta \in \mathbb{R}$, and that we know both $J(\Theta)$ and its first derivative with respect to $\Theta$, $J'(\Theta)$. Here is pseudocode for gradient descent on an arbitrary function $f$. Along with $f$ and its gradient $\nabla_{\Theta}f$ (which, in the case of a scalar $\Theta$, is the same as its derivative $f'$), we have to specify some hyper-parameters. These hyper-parameters include the initial value for parameter $\Theta$, a *step-size* hyper-parameter $\eta$, and an *accuracy* hyper-parameter $\epsilon$.
+We start by considering gradient descent in one dimension. Assume $\Theta \in \mathbb{R}$, and that we know both $J(\Theta)$ and its first derivative with respect to $\Theta$, $J'(\Theta)$. Here is pseudocode for gradient descent on an arbitrary function $f$. Along with $f$ and its gradient $\nabla_{\Theta}f$ (which, in the case of a scalar $\Theta$, is the same as its derivative $f'$), we have to specify some hyper-parameters. These hyper-parameters include the initial value for parameter $\Theta$, a *learning rate* hyper-parameter $\eta$, and an *accuracy* hyper-parameter $\epsilon$.
 
-The hyper-parameter $\eta$ is often called *learning rate* when gradient descent is applied in machine learning. For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudocode below; and we'll see adaptive (non-constant) step sizes soon. What's important to notice, though, is that even when $\eta$ is constant, the actual magnitude of the change to $\Theta$ may not be constant, as that change depends on the magnitude of the gradient itself too.
+For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudocode below; and we'll see adaptive (non-constant) learning rates soon. What's important to notice, though, is that even when $\eta$ is constant, the actual magnitude of the change to $\Theta$ may not be constant, as that change depends on the magnitude of the gradient itself too.
 
 ```pseudocode
 #| html-indent-size: "1.2em"
@@ -46,7 +46,7 @@ Note that this algorithm terminates when the derivative of the function $f$ is s
 
 -   Stop after a fixed number of iterations $T$, i.e., when $t = T$. Practically, this is the most common choice.
 
--   Stop when the change in the value of the parameter $\Theta$ is sufficiently small, i.e., when $\left| \Theta^{(t)} - \Theta^{(t-1)} \right| < \epsilon$.
+-   Stop when the change in the value of the parameter $\Theta$ is sufficiently small, i.e., when $\left| \Theta^{(t)} - \Theta^{(t-1)} \right| < \epsilon$.
 
 
 :::{.study-question-callout}
@@ -59,7 +59,7 @@ Consider all of the potential stopping criteria for `1D-Gradient-Descent`, both 
 
 However, we must be careful when choosing the learning rate to prevent slow convergence, non-converging oscillation around the minimum, or divergence.
 
-The following plot illustrates a convex function $f(x) = (x - 2)^2$, starting gradient descent at $x_\textrm{init} = 4.0$ with a step-size of $1/2$. It is very well-behaved!
+The following plot illustrates a convex function $f(x) = (x - 2)^2$, starting gradient descent at $x_\textrm{init} = 4.0$ with a learning rate of $1/2$. It is very well-behaved!
 
 
 
