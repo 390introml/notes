@@ -257,7 +257,7 @@ $\mathbb{R}^d  \rightarrow \{+1, 0\}$ or to some other discrete set. So, then, i
 
 Given an LLC, with an output value in $(0, 1)$, what should we do if we are forced to make a prediction in $\{+1, 0\}$? A default answer is to predict $+1$ if $\sigma(\theta^T x + \theta_0) > 0.5$ and $0$ otherwise. The value $0.5$ is sometimes called a *prediction threshold*.
 
-In fact, for different problem settings, we might prefer to pick a different prediction threshold. The field of *decision theory* considers how to make this choice. For example, if the consequences of predicting $+1$ when the answer should be $-1$ are much worse than the consequences of predicting $-1$ when the answer should be $+1$, then we might set the prediction threshold to be greater than $0.5$.
+In fact, for different problem settings, we might prefer to pick a different prediction threshold. The field of *decision theory* considers how to make this choice. For example, if the consequences of predicting $+1$ when the answer should be $0$ are much worse than the consequences of predicting $0$ when the answer should be $+1$, then we might set the prediction threshold to be greater than $0.5$.
 
 :::{.study-question-callout}
 Using a prediction threshold of 0.5, for what values of $x$ do each of the LLCs shown in the figure above predict $+1$?
