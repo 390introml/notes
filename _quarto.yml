@@ -32,6 +32,7 @@ book:
     - matrix_derivative.qmd
     - neural_network_appendix.qmd
     - nutshell.qmd
+    - backprop.qmd
 
   reader-mode: true
   sharing: [twitter, linkedin]
