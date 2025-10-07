@@ -39,7 +39,36 @@ $$
 z = w^\top x + w_0, \qquad g = f(z).
 $$
 
-Here $x$ is the input vector, $w$ is the weight vector, $w_0$ is the offset, $z$ is a scalar and $f$ is an activation function. The loss is $\mathcal{L}(g,y)$.
+Here $x \in \mathbb{R}^d$ is the input vector, $w \in \mathbb{R}^d$ is the weight vector, $w_0$ is the offset, $z$ is a scalar and $f$ is an activation function. The loss is $\mathcal{L}(g,y)$.
+
+:::{.imagify}
+\begin{tikzpicture}[
+    main node/.style={thick,circle,font=\Large},
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
+    \node[main node,draw](sum) at (0,0) {$\sum$};
+    \node[main node](x1) at (-2,1) {$x_1$};
+    \node[main node](dots) at (-2,0) {$\vdots$};
+    \node[main node](xm) at (-2,-1) {$x_m$};
+    \coordinate (w0) at (0,-1.5);
+    \node[main node, draw] (f) at (2,0) {$f(\cdot)$};
+    \node[main node] (y) at (4,0) {$a$};
+
+    \draw[->, above right] (x1) -- node {$w_1$} (sum);
+    \draw (dots) -- node {} (sum);
+    \draw[->, below right] (xm) -- node {$w_m$} (sum);
+    \draw[above right] (w0) node {$w_0$} --  (sum) ;
+    \draw[->, above] (sum) -- node (z) {$z$} (f);
+    \draw[->, above] (f) -- (y);
+
+    \node[black!70] (pre) at ($(z) + (0,1)$) {pre-activation};
+    \node[black!70] (out) at ($(y) + (0,1)$) {output};
+
+    \draw[->,black!70] (pre) -- (z);
+    \draw[->,black!70] (out) -- (y);
+  \end{tikzpicture}
+:::
 
 Before computing the derivatives, it helps to build some intuition:
 
@@ -93,6 +122,70 @@ $$
 We want gradients of $\mathcal{L}(g,y)$ with respect to $W^1, W_0^1, w^2, w_0^2$.  
 Here $w^2$ is a vector and $w_0^2$ is a scalar, written this way to emphasize continuity with the single-neuron case. In general, of course, a network can have multiple output neurons.
 
+:::{.imagify}
+\begin{tikzpicture}[
+  main node/.style={circle},
+  background rectangle/.style={fill=white},
+  show background rectangle
+]
+  % Input nodes
+  \coordinate (x) at (-2,0);
+  \coordinate (xoff) at (0,1);
+  \node[main node](x1) at ($(x) + 1.5*(xoff)$) {$x_1$};
+  \node[main node](x2) at ($(x) + .5*(xoff)$) {$x_2$};
+  \node[main node](xdots) at ($(x) - .5*(xoff)$) {$\vdots$};
+  \node[main node](xm) at ($(x) - 1.5*(xoff)$) {$x_m$};
+
+  % Hidden layer (single-layer network)
+  \coordinate (soff) at (0,1.4);
+  \node[main node,draw](s1) at ($2*(soff)$) {$\sum$};
+  \node[main node,draw](s2) at (soff) {$\sum$};
+  \node[main node,draw](s3) at (0,0) {$\sum$};
+  \node[main node](sdots) at ($(0,0)-(soff)$) {$\vdots$};
+  \node[main node,draw](sn) at ($(0,0)-2*(soff)$) {$\sum$};
+
+  % Activation layer
+  \coordinate (foff) at (1.5,0);
+  \node[main node, draw](f1) at ($(s1) + (foff)$) {$f^1$};
+  \node[main node, draw](f2) at ($(s2) + (foff)$) {$f^1$};
+  \node[main node, draw](f3) at ($(s3) + (foff)$) {$f^1$};
+  \node[main node] at ($(sdots) + (foff)$) {$\vdots$};
+  \node[main node, draw](fn) at ($(sn) + (foff)$) {$f^1$};
+
+  % Single output neuron
+  \node[main node, draw](sout) at ($(s3) + 3*(foff)$) {$\sum$};
+  \node[main node, draw](fout) at ($(sout) + (foff)$) {$f^2$};
+  \node[main node](y) at ($(fout) + (foff)$) {$g$};
+
+  % Connections from inputs to hidden layer
+  \foreach \b in {(s1), (s2), (s3), (sn)}
+    \foreach \a in {(x1), (x2), (xm)}
+      \draw[->] \a -- \b;
+
+  % Hidden layer to activation
+  \foreach \x/\y in {(s1)/(f1), (s2)/(f2), (s3)/(f3), (sn)/(fn)}
+    \draw[->] \x -- \y;
+
+  % Activations to single output neuron
+  \foreach \a in {(f1), (f2), (f3), (fn)}
+    \draw[->] \a -- (sout);
+
+  % Output connections
+  \draw[->] (sout) -- (fout);
+  \draw[->] (fout) -- (y);
+
+  % Weight label
+  \node[main node, below left] (weights1) at ($(xm)!0.5!(sn)$) {$W^1,W^1_0$};
+  \node[main node, below right] (weights2) at ($(fn)!0.5!(sout)$) {$w^2,w^2_0$};
+
+  % pre- and post- activation labels
+  \node[main node, below] (Z1) at ($(sn)!0.5!(fn)$) {$Z^1$};
+  \node[main node, right=1cm of Z1] (A1) {$A^1$};
+  \node[main node, below] (z2) at ($(sout)!0.5!(fout)$) {$z^2$};
+
+\end{tikzpicture}
+:::
+
 We have already worked through the gradients of the loss with respect to $w^2$ and $w_0^2$:
 
 $$
@@ -138,14 +231,14 @@ Carrying out the derivatives gives:
 $$
 \begin{align*}
 \frac{\partial \mathcal{L}}{\partial W^1}
-&= A^0 \Big( \underbrace{{f^1}'(Z^1) \odot \big(w^2 {f^2}'(z^2) \tfrac{\partial \mathcal L}{\partial g}\big)}_{\tfrac{\partial \mathcal L}{\partial Z^1}}\Big)^T
+&= A^0 \Big( \underbrace{{f^1}'(Z^1) \big(w^2 {f^2}'(z^2) \tfrac{\partial \mathcal L}{\partial g}\big)}_{\tfrac{\partial \mathcal L}{\partial Z^1}}\Big)^T
 \end{align*}
 $$
 
 $$
 \begin{align*}
 \frac{\partial \mathcal{L}}{\partial W^1_0}
-&= \underbrace{{f^1}'(Z^1) \odot \big(w^2 {f^2}'(z^2) \tfrac{\partial \mathcal L}{\partial g}\big)}_{\tfrac{\partial \mathcal L}{\partial Z^1}}
+&= \underbrace{{f^1}'(Z^1) \big(w^2 {f^2}'(z^2) \tfrac{\partial \mathcal L}{\partial g}\big)}_{\tfrac{\partial \mathcal L}{\partial Z^1}}
 \end{align*}
 $$
 
@@ -208,22 +301,21 @@ Putting this together, we arrive at the general **back-propagation recursion**:
 
 $$
 \frac{\partial \mathcal{L}}{\partial Z^l}
-= {f^l}'(Z^l) \odot \Big(W^{l+1}\frac{\partial \mathcal{L}}{\partial Z^{l+1}}\Big).
+= {f^l}'(Z^l) \Big(W^{l+1}\frac{\partial \mathcal{L}}{\partial Z^{l+1}}\Big).
 $$
 
 This rule is the heart of back-propagation: once the sensitivity
 $\tfrac{\partial \mathcal{L}}{\partial Z^{l+1}}$ is known for layer $l{+}1$,
 we can compute $\tfrac{\partial \mathcal{L}}{\partial Z^l}$ for the previous layer
 by (1) multiplying by the next layer’s weights, and (2) applying the derivative of
-the activation function elementwise.
+the activation function.
 
 **Shape check:**
 
 - $W^{l+1}\in\mathbb{R}^{d_l \times d_{l+1}}$,  
 - $\tfrac{\partial \mathcal{L}}{\partial Z^{l+1}}\in\mathbb{R}^{d_{l+1}\times 1}$,  
 - so $W^{l+1}\tfrac{\partial \mathcal{L}}{\partial Z^{l+1}} \in\mathbb{R}^{d_l\times 1}$.  
-
-Multiplying elementwise with ${f^l}'(Z^l)\in\mathbb{R}^{d_l\times 1}$ keeps the shape consistent.
+- ${f^l}'(Z^l)\in\mathbb{R}^{d_l\times d_l}$ keeps the shape consistent.
 
 For a general neural network with $L$ layers, the same reasoning applies.
 
@@ -235,7 +327,7 @@ $$
 **Start at the output:**
 $$
 \frac{\partial \mathcal{L}}{\partial Z^L}
-= {f^L}'(Z^L)\odot \frac{\partial \mathcal{L}}{\partial g}, 
+= {f^L}'(Z^L) \frac{\partial \mathcal{L}}{\partial g}, 
 $$
 $$
 \frac{\partial \mathcal{L}}{\partial W^L}
@@ -255,7 +347,7 @@ $$
 2. Apply the elementwise activation derivative:
    $$
    \frac{\partial \mathcal{L}}{\partial Z^l}
-   = {f^l}'(Z^l)\odot \frac{\partial \mathcal{L}}{\partial A^l}.
+   = {f^l}'(Z^l) \frac{\partial \mathcal{L}}{\partial A^l}.
    $$
 3. Compute parameter gradients:
    $$
@@ -288,4 +380,90 @@ $$
 $$
 
 **Shape check:** Each $\tfrac{\partial \mathcal{L}^{(i)}}{\partial W^l}$ has the same dimensions as $W^l$ ($d_{l-1}\times d_l$), so averaging preserves the shape.
+
+## Reflecting on backpropagation
+
+This general process of computing the gradients of the loss with respect to the weights is called *error back-propagation*.
+
+:::{.column-margin}
+\note{We could call this
+  ``blame propagation''.  Think of $\text{loss}$ as how mad we
+  are about the prediction just made.  Then $\partial
+    \text{loss}/ \partial A^L$ is how much we blame $A^L$ for the loss.
+  The last module has to take in $\partial \text{loss}/ \partial A^L$
+  and compute $\partial \text{loss}/ \partial Z^L$, which is how much
+  we blame $Z^L$ for the loss.  The next module (working backwards)
+  takes in $\partial \text{loss}/ \partial Z^L$ and computes $\partial
+    \text{loss}/ \partial A^{L-1}$.  So every module is accepting its
+  blame for the loss, computing how much of it to allocate to each of
+  its inputs, and passing the blame back to them.}
+:::
+
+
+The idea is that we first do a *forward pass* to compute all the $a$ and $z$ values at all the layers, and finally the actual loss. Then, we can work backward and compute the gradient of the loss with respect to the weights in each layer, starting at layer $L$ and going back to layer 1.
+
+:::{.imagify}
+  \begin{tikzpicture}[
+    scale=.98,
+    background rectangle/.style={fill=white},
+    show background rectangle
+  ]
+    \coordinate (x) at (0,0);
+    \node[inner sep=0em] (w1) at (1.7,0)
+    {\begin{tabular}{c} $W^1$ \\ $W^1_0$\end{tabular}};
+    \node[inner sep=1em] (f1) at ($2*(w1)$) {$f^1$};
+    \node[inner sep=0em] (w2) at ($3*(w1)$)
+    {\begin{tabular}{c} $W^2$ \\ $W^2_0$\end{tabular}};
+    \node[inner sep=1em] (f2) at ($4*(w1)$) {$f^2$};
+    \node (dots) at ($5*(w1)$) {$\cdots$};
+    \node[inner sep=0em] (wL) at ($6*(w1)$)
+    {\begin{tabular}{c} $W^L$ \\ $W^L_0$\end{tabular}};
+    \node[inner sep=1em] (fL) at ($7*(w1)$) {$f^L$};
+    \node (loss) at ($8*(w1)$) {Loss};
+    \coordinate (y) at ($8*(w1) + (0,1.5)$);
+
+    \draw[->] (x) -- node[above] {$X = A^0$} (w1);
+    \draw[->] (w1) -- node[above] {$Z^1$} (f1);
+    \draw[->] (f1) -- node[above] {$A^1$} (w2);
+    \draw[->] (w2) -- node[above] {$Z^2$} (f2);
+    \draw[->] (f2) -- node[above] {$A^2$} (dots);
+    \draw[->] (dots) -- node[above] {$A^{L-1}$} (wL);
+    \draw[->] (wL) -- node[above] {$Z^L$} (fL);
+    \draw[->] (fL) -- node[above] {$A^L$} (loss);
+    \draw[->] (y) -- node[right] {$y$} ($(loss)+(0,.65)$);
+
+    %\draw[->,yshift=0.5cm] (loss.west) to [out=150,in=30] (fL.east);
+    \foreach \s/\e/\t in {loss/fL/A^L,
+    fL/wL/Z^L,
+    wL/dots/A^{L-1},
+    dots/f2/A^2,
+    f2/w2/Z^2,
+    w2/f1/A^1,
+    f1/w1/Z^1}{
+    \path[->] ($(\s.west) - (0,.5)$) edge[out=210,in=-30] node[below]
+      {$\frac{\partial \text{loss}}{\partial \t}$}
+    ($(\e.east) - (0,.5)$);
+    }
+    \foreach \point in {w1, f1, w2, f2, wL, fL}{
+        \draw ($(\point) + (-.3,-.5)$) rectangle ($(\point) + (.3,.5)$);
+      }
+    \draw ($(loss) + (-.4,-.5)$) rectangle ($(loss) + (.4,.5)$);
+  \end{tikzpicture}
+:::
+
+If we view our neural network as a sequential composition of modules (in our work so far, it has been an alternation between a linear transformation with a weight matrix, and a component-wise application of a non-linear activation function), then we can define a simple API for a module that will let us compute the forward and backward passes, as well as do the necessary weight updates for gradient descent. Each module has to provide the following "methods." We are already using letters $a, x, y, z$ with particular meanings, so here we will use $u$ as the vector input to the module and $v$ as the vector output:
+
+-   forward: $u \rightarrow v$
+
+-   backward: $u, v, \partial L /
+              \partial v \rightarrow \partial L / \partial u$
+
+:::{.column-margin}
+Notice that the backward pass does not output $\partial v / \partial u$, even though the forward pass maps from $u$ to $v$. In the backward pass, we are always directly computing and ``passing around'' gradients of the loss.
+:::
+
+-   weight grad: $u, \partial L / \partial v \rightarrow \partial L
+              / \partial W$ only needed for modules that have weights $W$
+
+In homework we will ask you to implement these modules for neural network components, and then use them to construct a network and train it as described in the next section.
 
