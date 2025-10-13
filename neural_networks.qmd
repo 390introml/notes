@@ -1,9 +1,3 @@
-:::{.callout-note}
-This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf);  neural networks chapter.
-
-As we phase out the PDF, this page may receive updates not reflected in the static PDF.
-:::
-
 # Neural Networks {#sec-neural_networks}
 
 You've probably been hearing a lot about "neural networks." Now that we have several useful machine-learning concepts (hypothesis classes, classification, regression, gradient descent, regularization, etc.), we are well equipped to understand neural networks in detail.
