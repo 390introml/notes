@@ -174,7 +174,7 @@ Two-dimensional versions of filters like these are thought to be found in the vi
 :::
 
 
-All of the filters in the first group are applied to the original image; if there are $k$ such filters, then the result is $k$ new images, which are called *channels*. Now imagine stacking all these new images up so that we have a cube of data, indexed by the original row and column indices of the image, as well as by the channel. The next set of filters in the filter bank will generally be *three-dimensional*: each one will be applied to a sub-range of the row and column indices of the image and to all of the channels.
+All of the filters in the first group are applied to the original image; if there are $k$ such filters, then the result is $k$ new images, which are called *channels*. Now imagine stacking all these new images up so that we have a cube of data, indexed by the channel, as well as by the original row and column indices of the image. The next set of filters in the filter bank will generally be *three-dimensional*: each one will be applied to a sub-range of the row and column indices of the image and to all of the channels.
 
 These 3D chunks of data are called *tensors*. The algebra of tensors is fun, and a lot like matrix algebra, but we won't go into it in any detail.
 
@@ -184,12 +184,12 @@ as *TensorFlow* and *PyTorch* that make operations on tensors easy.
 :::
 
 Here is a more complex example of two-dimensional filtering. We have two $3 \times 3$ filters in the first layer, $f_1$ and $f_2$. You can think of each one as "looking" for three pixels in a row, $f_1$ vertically and $f_2$ horizontally. Assuming our input image is $n
-  \times n$, then the result of filtering with these two filters is an $n
-  \times n \times 2$ tensor. Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $n \times  n$ image.
+  \times n$, then the result of filtering with these two filters is an $2 \times n
+  \times n$ tensor (Channel $\times$ Height $\times$ Width). Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $1 \times n \times  n$ image.
 
 :::{.margin-note}
 When we have a color image as input, we treat it as having three
-channels, and hence as an $n \times n \times 3$ tensor.
+channels, and hence as an $3 \times n \times n$ tensor.
 :::
 
 
@@ -281,16 +281,15 @@ For simplicity, we are assuming that  all images and filters are square (having 
 
 -   *number* of filters $m^l$;
 
--   *size* of one filter is $k^l \times k^l \times m^{l-1}$ plus $1$ bias value (for this one filter);
+-   *size* of one filter is $m^{l-1} \times k^l \times k^l$ plus $1$ bias value (for this one filter);
 
 -   *stride* $s^l$ is the spacing at which we apply the filter to the image; in all of our examples so far, we have used a stride of 1, but if we were to "skip" and apply the filter only at odd-numbered indices of the image, then it would have a stride of two (and produce a resulting image of half the size);
 
--   *input tensor size* $n^{l-1} \times n^{l-1} \times m^{l-1}$
+-   *input tensor size* $m^{l-1} \times n^{l-1} \times n^{l-1}$
 
--   *padding*: $p^l$ is how many extra pixels -- typically with value 0 -- we add around the edges of the input. For an input of size $n^{l-1} \times n^{l-1} \times m^{l-1}$, our new effective input size with padding becomes $(n^{l-1} + 2 \cdot p^l) \times (n^{l-1} + 2 \cdot p^l) \times m^{l-1}$.
+-   *padding*: $p^l$ is how many extra pixels -- typically with value 0 -- we add around the edges of the input. For an input of size $m^{l-1} \times n^{l-1} \times n^{l-1}$, our new effective input size with padding becomes $m^{l-1} \times (n^{l-1} + 2 \cdot p^l) \times (n^{l-1} + 2 \cdot p^l)$.
 
-This layer will produce an output tensor of size $n^l \times n^l \times
-  m^l$, where $n^l = \lceil (n^{l-1} + 2 \cdot p^l - (k^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $m^l$ different $k^l \times k^l \times m^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
+This layer will produce an output tensor of size $m^l \times n^l \times n^l$, where $n^l = \lceil (n^{l-1} + 2 \cdot p^l - (k^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $m^l$ different $m^{l-1} \times k^l \times k^l$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
 
 :::{.column-margin}
 Recall that $\lceil \cdot \rceil$ is the \emph{ceiling} function; it returns the smallest
@@ -325,7 +324,7 @@ Usually, we apply max pooling with the following traits:
 
 As a result of applying a max pooling layer, we don't keep track of the precise location of a pattern. This helps our filters to learn to recognize patterns independent of their location.
 
-Consider a max pooling layer where both the strides and $k$ are set to be 2. This would map a $64 \times 64 \times 3$ image to a $32 \times 32 \times 3$ image. Note that max pooling layers do not have additional bias or offset values.
+Consider a max pooling layer where both the strides and $k$ are set to be 2. This would map a $3 \times 64 \times 64$ image to a $3 \times 32 \times 32$ image. Note that max pooling layers do not have additional bias or offset values.
 
 ::: {.study-question-callout}
 Maximilian Poole thinks it would be a good idea to add two max pooling layers of size $k$, one right after the other, to their network. What single layer would be equivalent?
@@ -349,7 +348,7 @@ Well, technically the derivative does not exist at every point, both because of 
 
 ## Backpropagation in a simple CNN
 
-Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $n \times 1 \times 1$, and a single filter $W^1$ of size $k \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $W^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
+Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $1 \times n \times 1$, and a single filter $W^1$ of size $1 \times k \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $W^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
 
 :::{.imagify}
 \begin{tikzpicture}[scale=0.5, background rectangle/.style={fill=white},
