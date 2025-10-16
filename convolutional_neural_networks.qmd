@@ -1,9 +1,3 @@
-:::{.callout-note}
-This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf); convolutional neural networks chapter.
-
-As we phase out the PDF, this page may receive updates not reflected in the static PDF.
-:::
-
 # Convolutional Neural Networks {#sec-cnn}
 
 So far, we have studied what are called *fully connected* neural networks, in which all of the units at one layer are connected to all of the units in the next layer. This is a good arrangement when we don't know anything about what kind of mapping from inputs to outputs we will be asking the network to learn to approximate. But if we *do* know something about our problem, it is better to build it into the structure of our neural network. Doing so can save computation time and significantly diminish the amount of training data required to arrive at a solution that generalizes robustly.
