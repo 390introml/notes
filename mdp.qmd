@@ -1,10 +1,3 @@
-:::{.callout-note}
-This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf); markov decision processes chapter.
-
-As we phase out the PDF, this page may receive updates not reflected in the static PDF.
-:::
-
-
 # Markov Decision Processes {#sec-mdps}
 
 Consider a robot learning to navigate through a maze, a game-playing AI developing strategies through self-play, or a self-driving car making driving decisions in real-time. These problems share a common challenge: the agent must make a sequence of decisions where each choice affects future possibilities and rewards. Unlike static prediction tasks where we learn a one-time mapping from inputs to outputs, these problems require reasoning about the consequences of actions over time.
