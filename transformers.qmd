@@ -221,9 +221,9 @@ $$
 
 The output of the $i$-th head is $Z^{h}$: ${Z}^h = \text{Attention}(Q^{h}, K^{h}, V^{h})\in\mathbb{R}^{n\times d_k}$. After computing all $h$ heads, we concatenate their outputs and apply a final linear projection:
 $$
-\text{MultiHead}(X) = \text{Concat}(Z^1, \dots, Z^H) (W^O)^T
+\text{MultiHead}(X) = \text{Concat}(Z^1, \dots, Z^H) W^O
 $$
-where the concatenation operation concatenates $Z^h$ horizontally, yielding a matrix of size $n\times Hd_k$, and $W^O \in \mathbb{R}^{d\times Hd_k}$ is a final linear projection matrix.
+where the concatenation operation concatenates $Z^h$ horizontally, yielding a matrix of size $n\times Hd_k$, and $W^O \in \mathbb{R}^{Hd_k \times d}$ is a final linear projection matrix.
 
 ## Transformers Architecture Details {#sec-transformers-arch-details}
 
