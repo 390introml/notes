@@ -132,19 +132,19 @@ q_1^\top \\
 q_2^\top \\
 \vdots \\
 q_n^\top
-\end{bmatrix} \in \mathbb{R}^{n \times d}, \quad
+\end{bmatrix} \in \mathbb{R}^{n \times d_k}, \quad
 K = \begin{bmatrix}
 k_1^\top \\
 k_2^\top \\
 \vdots \\
 k_n^\top
-\end{bmatrix} \in \mathbb{R}^{n \times d}, \quad
+\end{bmatrix} \in \mathbb{R}^{n \times d_k}, \quad
 V = \begin{bmatrix}
 v_1^\top \\
 v_2^\top \\
 \vdots \\
 v_n^\top
-\end{bmatrix} \in \mathbb{R}^{n \times d_v}
+\end{bmatrix} \in \mathbb{R}^{n \times d_k}
 \end{aligned}
 $$It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. Now, the the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
 
@@ -209,7 +209,7 @@ Human language can be very nuanced. There are many properties of language that c
 
 To address this limitation, the idea of multi-head attention is introduced. Instead of relying on just one attention head (i.e., a single set of $\{Q, K, V\}$ matrices), the model uses multiple attention heads, each with its own independently learned set of $\{Q, K, V\}$ matrices. This allows each head to attend to different parts of the input tokens and to model different types of semantic relationships. For instance, one head might focus on syntactic structure and another on verb tense or sentiment. These different “perspectives” are then concatenated and projected to produce a richer, more expressive representation of the input.
 
-Now, we introduce the formal math notations. Let us denote the number of head as $H$. For the $h$th head, the input $X \in \mathbb{R}^{n \times d}$ is linearly projected into query, key, and value matrices using the projection matrices $W_q^{h}\in\mathbb{R}^{d\times d_q}$, $W_k^{h}\in\mathbb{R}^{d\times d_k}$, and $W_v^{h}\in\mathbb{R}^{d\times d_v}$ (recall that usually $d_q=d_k=d_v$):
+Now, we introduce the formal math notations. Let us denote the number of head as $H$. For the $h$th head, the input $X \in \mathbb{R}^{n \times d}$ is linearly projected into query, key, and value matrices using the projection matrices $W_q^{h}\in\mathbb{R}^{d\times d_k}$, $W_k^{h}\in\mathbb{R}^{d\times d_k}$, and $W_v^{h}\in\mathbb{R}^{d\times d_k}$:
 
 $$
 \begin{aligned}
