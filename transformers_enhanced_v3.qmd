@@ -1,0 +1,849 @@
+# Transformers {#sec-transformers}
+
+Transformers are a very recent family of architectures that were originally introduced in the field of natural language processing (NLP) in 2017, as an approach to process and understand human language. Since then, they have revolutionized not only NLP but also other domains such as image processing and multi-modal generative AI. Their scalability and parallelizability have made them the backbone of large-scale foundation models, such as GPT, BERT, and Vision Transformers (ViT), powering many state-of-the-art applications.
+
+## Why Transformers?
+
+Before transformers, sequence modeling relied primarily on **Recurrent Neural Networks (RNNs)** and **Long Short-Term Memory (LSTM)** networks. Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents), and RNNs briefly dominated the field for their ability to process sequential information. However, these architectures had fundamental limitations that transformers were designed to overcome.
+
+### Limitations of RNNs and LSTMs
+
+**1. Sequential Processing Bottleneck**
+
+RNNs process sequences token-by-token in a strictly sequential manner, making parallelization impossible. Training time scales linearly with sequence length ($O(n)$ sequential steps), and modern GPU parallelism cannot be leveraged during training.
+
+**2. Vanishing and Exploding Gradients**
+
+Gradients decay exponentially over long distances, making it difficult to learn dependencies beyond ~100 tokens in practice. Information from early tokens fades by the time later tokens are processed. LSTMs partially address this with gating mechanisms but don't fully solve it.
+
+**3. Fixed-Size Hidden State Bottleneck**
+
+RNNs must compress the entire sequence history into a single fixed-size vector (typically 256-1024 dimensions), creating an information bottleneck for long sequences. The model must "forget" early information to make room for new information.
+
+### The Transformer Breakthrough (Vaswani et al., 2017)
+
+The original "Attention Is All You Need" paper introduced transformers with three key innovations that addressed these limitations:
+
+**1. Parallel Processing of Sequences**
+
+Transformers process all tokens simultaneously rather than sequentially. All positions are computed in parallel during training, efficiently leveraging GPU/TPU parallelism, reducing training time from days to hours for equivalent model capacity.
+
+**2. Direct Global Connections via Attention**
+
+Any token can directly attend to any other token in the sequence with no need to propagate information through intermediate steps. This eliminates gradient decay over distance, and long-range dependencies are learned as easily as short-range ones.
+
+**3. Dynamic, Unbounded Context**
+
+Attention provides context that grows with the sequence, with no fixed-size bottleneck. Attention weights adapt dynamically to each specific input, and the model decides what information is relevant rather than being forced to compress.
+
+### Transformer Evolution: 2017 to Present
+
+Since their introduction, transformers have rapidly evolved and scaled:
+
+```
+2017: Transformer - Original architecture (Vaswani et al.)
+      "Attention Is All You Need"
+      ↓
+2018: BERT - Encoder-only for understanding tasks
+      GPT - Decoder-only for generation
+      ↓
+2019: GPT-2 (1.5B parameters)
+      XLNet, RoBERTa, DistilBERT, T5
+      ↓
+2020: GPT-3 (175B parameters)
+      Scaling laws demonstrated
+      ↓
+2021: Vision Transformers (ViT), CLIP
+      Transformers expand beyond NLP
+      ↓
+2022-2023: ChatGPT, GPT-4, Claude, LLaMA, Mistral
+      Instruction-tuned models, RLHF
+      ↓
+2024-Present: Multimodal models, efficient variants
+      Flash Attention, longer context windows
+```
+
+### Impact Across Domains
+
+Transformers have revolutionized fields beyond natural language processing:
+
+- **Natural Language**: Machine translation, text generation, question answering, summarization
+- **Computer Vision**: Vision Transformers (ViT) for image classification, DALL-E for image generation
+- **Multi-modal AI**: CLIP (text+image), Flamingo (text+image+video), GPT-4 Vision
+- **Scientific Computing**: AlphaFold for protein structure prediction, molecular property prediction
+- **Audio Processing**: Whisper for speech recognition, MusicLM for music generation
+- **Code Generation**: GitHub Copilot, Code Llama for programming assistance
+
+:::{.column-margin}
+The key insight is that transformers process all items in a sequence in a *parallel* fashion (like CNNs), while maintaining the ability to model long-range dependencies that sequential models struggled with.
+:::
+
+Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make Transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
+
+## Transformers Overview {#sec-transformers-overview}
+
+
+Transformers are powerful neural architectures designed primarily for sequential data, such as text. At their core, transformers are typically auto-regressive, meaning they generate sequences by predicting each token sequentially, conditioned on previously generated tokens. This auto-regressive property ensures that the transformer model inherently captures temporal dependencies, making them especially suited for language modeling tasks like text generation and completion.
+
+Suppose our training data contains this sentence: "To date, the cleverest thinker was Issac." The transformer model will learn to predict the next token in the sequence, given the previous tokens. For example, when predicting the token "cleverest," the model will condition its prediction on the tokens "To," "date," and "the." This process continues until the entire sequence is generated.
+![](figures/auto-regressive.gif)
+
+The animation above illustrates the auto-regressive nature of transformers.
+
+Below is another example. Suppose the sentence is the 2nd law of robotics: "A robot must obey the orders given it by human beings..." The training objective of a transformer would be to make each token's prediction, conditioning on previously generated tokens, forming a step-by-step probability distribution over the vocabulary.
+![](figures/auto-regressive.png)
+
+The transformer architecture processes inputs by applying multiple identical building blocks stacked in layers. Each block performs a transformation that progressively refines the internal representation of the data.
+
+Specifically, each block consists of two primary sub-layers: an attention layer @sec-self-attention and a feed-forward network (or multi-layer perceptron) @sec-neural_networks. Attention layers mix information across different positions (or \"chunks\") in the sequence, allowing the model to effectively capture dependencies regardless of distance. Meanwhile, the feed-forward network significantly enhances the expressiveness of these representations by applying non-linear transformations independently to each position.
+
+A notable strength of transformers is their capacity for parallel processing. Transformers process entire sequences simultaneously rather than sequentially token-by-token. This parallelization significantly boosts computational efficiency and makes it feasible to train larger and deeper models.
+
+In this overview, we emphasize the auto-regressive nature of transformers, their layered approach to transforming representations, the parallel processing advantage, and the critical role of the feed-forward layers in enhancing their expressive power.
+
+There are additional essential components and enhancements—such as causal attention mechanisms and positional encoding—that further empower transformers. We'll explore these \"bells and whistles\" in greater depth in subsequent discussions.
+
+
+## Embedding and Representations {#sec-embeddings}
+
+We start by describing how language is commonly represented, then we provide a brief explanation of why it can be useful to predict subsequent items (e.g., words/tokens) in a sequence.
+
+As a reminder, two key components of any ML system are: (1) the representation of the data; and (2) the actual modelling to perform some desired task. Computers, by default, have no natural way of representing human language. Modern computers are based on the Von Neumann architecture and are essentially very powerful calculators, with no natural understanding of what any particular string of characters means to us humans. Considering the rich complexities of language (e.g., humor, sarcasm, social and cultural references and implications, slang, homonyms, etc), you can imagine the innate difficulties of appropriately representing languages, along with the challenges for computers to then model and "understand" language.
+
+The field of NLP aims to represent words with vectors of floating-point numbers (aka word embeddings) such that they capture semantic meaning. More precisely, the degree to which any two words are related in the 'real-world' to us humans should be reflected by their corresponding vectors (in terms of their numeric values). So, words such as 'dog' and 'cat' should be represented by vectors that are more similar to one another than, say, 'cat' and 'table' are.
+
+To measure how similar any two word embeddings are (in terms of their numeric values) it is common to use some similarity as the metric, e.g. the dot-product similarity we saw in @sec-autoencoders.
+
+Thus, one can imagine plotting every word embedding in $d$-dimensional space and observing natural clusters to form, whereby similar words (e.g., synonyms) are located near each other. The problem of determining how to parse (aka tokenize) individual words is known as *tokenization*. This is an entire topic of its own, so we will not dive into the full details here. However, the high-level idea of tokenization is straightforward: the individual inputs of data that are represented and processed by a model are referred to as tokens. And, instead of processing each word as a whole, words are typically split into smaller, meaningful pieces (akin to syllables). For example, the word "evaluation" may be input into a model as 3 individual tokens (eval + ua + tion). Thus, when we refer to tokens, know that we're referring to these sub-word units.
+For any given application/model, all of the language data must be predefined by a finite vocabulary of valid tokens (typically on the order of 40,000 distinct tokens).
+
+:::{.column-margin}
+How can we define an optimal vocabulary of such tokens? How many distinct tokens should we have in our vocabulary? How should we handle digits or other punctuation? How does this work for non-English languages, in particular, script-based languages where word boundaries are less obvious (e.g., Chinese or Japanese)? All of these are open NLP research problems receiving increased attention lately.
+:::
+
+
+## Query, Key, Value, and Self-Attention {#sec-qkv}
+
+Attention mechanisms efficiently process global information by selectively focusing on the most relevant parts of the input. Given an input sentence, each token is processed sequentially to predict subsequent tokens. As more context (previous tokens) accumulates, this context ideally becomes increasingly beneficial—provided the model can appropriately utilize it. Transformers employ a mechanism known as **attention**, which enables models to identify and prioritize contextually relevant tokens.
+
+For example, consider the partial sentence: "Anqi forgot ___". At this point, the model has processed tokens "Anqi" and "forgot," and aims to predict the next token. Numerous valid completions exist, such as articles ("the," "an"), prepositions ("to," "about"), or possessive pronouns ("her," "his," "their"). A well-trained model should assign higher probabilities to contextually relevant tokens, such as "her," based on the feminine-associated name "Anqi." Attention mechanisms guide the model to selectively focus on these relevant contextual cues using query, key, and value vectors.
+
+### Query, Key, and Value Vectors
+
+Our goal is for each input token to learn how much attention it should give to every other token in the sequence. To achieve this, we introduce three types of learned vectors for each token:
+
+**Query vectors** ($q_i$): Used by a token to "probe" or assess other tokens—including itself—to determine relevance. Each token's query vector is computed by multiplying the input token $x_i$ (a $d$-dimensional vector) by a learnable query weight matrix $W_q$ (of dimension $d \times d_k$, where $d_k$ is a hyperparameter typically chosen such that $d_k < d$):
+
+$$
+q_i = W_q^T x_i
+$$
+
+**Key vectors** ($k_i$): Used by tokens to "answer" queries about their relevance. Each key vector is computed similarly using a learnable key weight matrix $W_k$:
+
+$$
+k_i = W_k^T x_i
+$$
+
+The attention mechanism calculates similarity using the dot product, which efficiently measures vector similarity. The attention scores are computed as:
+
+$$
+a_i = \text{softmax}\left(\frac{[q_i^T k_1, q_i^T k_2, \dots, q_i^T k_n]}{\sqrt{d_k}}\right)^T \in \mathbb{R}^{1\times n}
+$$
+
+The vector $a_i$ (softmax'd attention scores) quantifies how much attention token $q_i$ should pay to each token in the sequence, normalized so that elements sum to 1. Normalizing by $\sqrt{d_k}$ prevents large dot-product magnitudes, stabilizing training.
+
+**Value vectors** ($v_i$): Provide distinct representations for contribution to attention outputs. Each token's value vector is computed with another learnable matrix $W_v$:
+
+$$
+v_i = W_v^T x_i
+$$
+
+Finally, attention outputs are computed as weighted sums of value vectors, using the softmax'd attention scores:
+
+$$
+z_i = \sum_{j=1}^n a_{ij} v_j \in \mathbb{R}^{d_k}
+$$
+
+This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating context from across the sequence, weighted by learned attention.
+
+### Self-attention Layer {#sec-self-attention}
+
+Self-attention is an attention mechanism where the keys, values, and queries are all generated from the same input. A typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in $n$ tokens, each having feature dimension $d$, and through many layers of transformation outputs a sequence of $n$ tokens, each still $d$-dimensional.
+
+#### A Single Self-attention Head
+
+The layer takes in $n$ tokens, collectively written as $X\in \mathbb{R}^{n\times d}$, where the $i$-th row stores the $i$-th token $x_i\in\mathbb{R}^{1\times d}$. For each token $x^i$, self-attention computes query $q_i \in \mathbb{R}^{d_k}$, key $k_{i} \in \mathbb{R}^{d_k}$, and value $v_{i} \in \mathbb{R}^{d_k}$ via learned projection matrices.
+
+We can calculate all outputs using matrix form. The query matrix $Q\in\mathbb{R}^{n\times d_k}$, key matrix $K\in\mathbb{R}^{n\times d_k}$, and value matrix $V\in\mathbb{R}^{n\times d_k}$ are:
+
+$$
+\begin{aligned}
+Q &= \begin{bmatrix}
+q_1^\top \\
+q_2^\top \\
+\vdots \\
+q_n^\top
+\end{bmatrix} \in \mathbb{R}^{n \times d}, \quad
+K = \begin{bmatrix}
+k_1^\top \\
+k_2^\top \\
+\vdots \\
+k_n^\top
+\end{bmatrix} \in \mathbb{R}^{n \times d}, \quad
+V = \begin{bmatrix}
+v_1^\top \\
+v_2^\top \\
+\vdots \\
+v_n^\top
+\end{bmatrix} \in \mathbb{R}^{n \times d_v}
+\end{aligned}
+$$
+
+The full attention matrix $A \in \mathbb{R}^{n \times n}$ is computed as:
+
+$$
+A = \text{softmax}_{row}\left(\frac{QK^\top}{\sqrt{d_k}}\right)
+$$
+
+where the Softmax operation is applied in a row-wise manner. The $i$th row of $A$ corresponds to the softmax'd attention scores computed for query $q_i$ over all keys. The full output of the self-attention layer is:
+
+$$
+Z =
+\begin{bmatrix}
+z_1^\top \\
+z_2^\top \\
+\vdots \\
+z_n^\top
+\end{bmatrix}
+= AV
+\in \mathbb{R}^{n \times d_k}
+$$
+
+You will also see this compact notation in the literature:
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}_{row}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
+$$
+
+:::{.callout-note}
+## Implementation Note
+
+
+```{mermaid}
+%%| fig-cap: "Attention mechanism step-by-step computational flow"
+%%| label: fig-attention-computation
+
+flowchart TD
+    Start[Input Sequence X]
+
+    Step1[Linear Projections]
+    Start --> Step1
+
+    Q[Query Matrix Q = XW_Q]
+    K[Key Matrix K = XW_K]
+    V[Value Matrix V = XW_V]
+
+    Step1 --> Q
+    Step1 --> K
+    Step1 --> V
+
+    Step2[Compute Attention Scores]
+    Q --> Step2
+    K --> Step2
+
+    Formula1["Scores = Q × K^T / √d_k"]
+    Step2 --> Formula1
+
+    Step3[Apply Softmax]
+    Formula1 --> Step3
+
+    Formula2["Attention Weights = softmax(Scores)"]
+    Step3 --> Formula2
+
+    Step4[Weighted Sum]
+    Formula2 --> Step4
+    V --> Step4
+
+    Output["Output = Attention × V"]
+    Step4 --> Output
+
+    style Start fill:#e1f5ff
+    style Output fill:#ffe1f5
+    style Formula1 fill:#fff4e1
+    style Formula2 fill:#fff4e1
+    style Q fill:#d4edda
+    style K fill:#d4edda
+    style V fill:#d4edda
+```
+
+Implementing the `Head` class involves computing exactly this operation: projecting inputs to Q, K, V using learned matrices (`Wq`, `Wk`, `Wv`), computing attention scores, applying softmax, and returning the weighted sum of values. Understanding this matrix formulation is essential for implementing transformers efficiently.
+:::
+
+![**Visualizing Self-Attention**: This diagram shows how a single attention head computes attention scores between tokens. Each token generates a query, key, and value, and attention scores determine how much each token should focus on other tokens in the sequence.](figures/felix_hill_selfattention.png){width=80%}
+
+
+### Computational Complexity of Attention
+
+The efficiency of attention comes with a computational cost. Understanding this cost is crucial for working with transformers at scale.
+
+**Time Complexity**: For a sequence of length $n$ with embedding dimension $d$:
+
+- Computing $Q = XW_q$, $K = XW_k$, $V = XW_v$: $O(n \cdot d \cdot d_k) \approx O(n \cdot d^2)$ operations
+- Computing attention scores $QK^T$: $O(n^2 \cdot d_k) \approx O(n^2 \cdot d)$ operations
+- Applying attention to values $AV$: $O(n^2 \cdot d_k) \approx O(n^2 \cdot d)$ operations
+- **Total**: $O(n^2 \cdot d + n \cdot d^2)$, dominated by the $O(n^2 \cdot d)$ term for long sequences
+
+**Memory Complexity**: The attention mechanism requires storing:
+
+- Attention matrix $A$: $O(n^2)$ memory
+- This quadratic scaling becomes the bottleneck for very long sequences
+
+**Concrete Example**: For GPT-2 ($d=768$):
+
+- Sequence length $n=512$: attention matrix has $512^2 = 262{,}144$ entries
+- Sequence length $n=2048$: attention matrix has $2{,}048^2 = 4{,}194{,}304$ entries (16× larger!)
+
+This quadratic scaling is why transformers historically struggled with long sequences. Modern variants like Flash Attention and other efficient attention mechanisms aim to reduce this $O(n^2)$ bottleneck.
+
+**Comparison with Other Architectures**:
+
+| Architecture | Time Complexity | Memory | Parallelizable |
+|--------------|----------------|---------|----------------|
+| RNN/LSTM | $O(n \cdot d^2)$ | $O(d)$ | No (sequential) |
+| Transformer | $O(n^2 \cdot d + n \cdot d^2)$ | $O(n^2 + n \cdot d)$ | Yes (full parallel) |
+| CNN (1D) | $O(n \cdot k \cdot d^2)$ | $O(n \cdot d)$ | Yes (parallel) |
+
+Where $k$ is the kernel size for CNNs. Notice that:
+
+- RNNs are linear in sequence length but cannot parallelize
+- Transformers are quadratic in sequence length but fully parallelize
+- The tradeoff: transformers sacrifice memory/compute for parallelism
+
+This is why transformers revolutionized NLP despite higher computational costs—modern GPUs/TPUs can exploit the parallelism to train much faster than sequential RNN alternatives.
+
+:::{.callout-note}
+## Implementation Note
+Implementing a small transformer demonstrates the attention mechanism's computational cost. Even for a simple task with $n=6$ tokens, the attention mechanism computes a $6 \times 6 = 36$ attention matrix. Observe how this scales with longer sequences.
+:::
+
+
+### Multi-head Self-attention
+
+Human language can be very nuanced. There are many properties of language that collectively contribute to a human's understanding of any given sentence. For example, words have different tenses (past, present, future, etc), genders, abbreviations, slang references, implied words or meanings, cultural references, situational relevance, etc. While the attention mechanism allows us to appropriately focus on tokens in the input sentence, it's unreasonable to expect a single set of $\{Q,K,V\}$ matrices to fully represent – and for a model to capture – the meaning of a sentence with all of its complexities.
+
+To address this limitation, the idea of multi-head attention is introduced. Instead of relying on just one attention head (i.e., a single set of $\{Q, K, V\}$ matrices), the model uses multiple attention heads, each with its own independently learned set of $\{Q, K, V\}$ matrices. This allows each head to attend to different parts of the input tokens and to model different types of semantic relationships. For instance, one head might focus on syntactic structure and another on verb tense or sentiment. These different "perspectives" are then concatenated and projected to produce a richer, more expressive representation of the input.
+
+Let us denote the number of heads as $H$. For the $h$th head, the input $X \in \mathbb{R}^{n \times d}$ is linearly projected into query, key, and value matrices using the projection matrices $W_q^{h}\in\mathbb{R}^{d\times d_q}$, $W_k^{h}\in\mathbb{R}^{d\times d_k}$, and $W_v^{h}\in\mathbb{R}^{d\times d_v}$ (recall that usually $d_q=d_k=d_v$):
+
+$$
+\begin{aligned}
+Q^{h} &= X W_q^{h} \\
+K^{h} &= X W_k^{h} \\
+V^{h} &= X W_v^{h}
+\end{aligned}
+$$
+
+The output of the $h$-th head is ${Z}^h = \text{Attention}(Q^{h}, K^{h}, V^{h})\in\mathbb{R}^{n\times d_k}$. After computing all $H$ heads, we concatenate their outputs and apply a final linear projection:
+$$
+\text{MultiHead}(X) = \text{Concat}(Z^1, \dots, Z^H) (W^O)^T
+$$
+where the concatenation operation concatenates $Z^h$ horizontally, yielding a matrix of size $n\times Hd_k$, and $W^O \in \mathbb{R}^{d\times Hd_k}$ is a final linear projection matrix.
+
+#### What Do Different Heads Learn?
+
+Empirical analysis of trained transformers reveals that different attention heads specialize in distinct linguistic patterns:
+
+**Syntactic patterns**:
+
+- Some heads attend to previous/next tokens (local context)
+- Others attend to syntactic parents (dependency parsing)
+- Specific heads track subject-verb agreement across long distances
+
+**Semantic patterns**:
+
+- Certain heads focus on co-reference (pronouns to their antecedents)
+- Others attend to related concepts (e.g., "Paris" attends to "France")
+- Some heads specialize in named entities
+
+**Example from GPT-2** (Clark et al., 2019):
+
+- Head 5-6: Attends to immediate previous token
+- Head 8-11: Attends to period/comma (sentence boundaries)
+- Head 10-7: Attends to objects of verbs
+
+This emergent specialization isn't explicitly programmed—it arises naturally during training as the model learns to predict the next token.
+
+![**Multi-Head Attention**: Different attention heads learn to focus on different aspects of the input. This visualization shows how multiple heads capture diverse patterns simultaneously—some focusing on syntax (green arrows), others on semantics (blue arrows), enabling the model to build rich, multifaceted representations.](figures/felix_hill_multihead.png){width=80%}
+
+
+
+```{mermaid}
+%%| fig-cap: "Multi-head attention architecture with parallel heads"
+%%| label: fig-multihead-structure
+
+flowchart TD
+    Input[Input Sequence<br/>d_model dimensions]
+
+    Linear[Linear Projections<br/>W_Q, W_K, W_V]
+    Input --> Linear
+
+    Split[Split into h heads<br/>d_model → h × d_k]
+    Linear --> Split
+
+    H1[Head 1<br/>Attention]
+    H2[Head 2<br/>Attention]
+    H3[Head 3<br/>Attention]
+    Hdots[...]
+    Hh[Head h<br/>Attention]
+
+    Split --> H1
+    Split --> H2
+    Split --> H3
+    Split --> Hdots
+    Split --> Hh
+
+    Concat[Concatenate Heads<br/>h × d_k → d_model]
+
+    H1 --> Concat
+    H2 --> Concat
+    H3 --> Concat
+    Hdots --> Concat
+    Hh --> Concat
+
+    Output[Linear Projection W_O<br/>Final Output]
+    Concat --> Output
+
+    style Input fill:#e1f5ff
+    style Output fill:#ffe1f5
+    style Split fill:#fff4e1
+    style Concat fill:#fff4e1
+    style H1 fill:#d4edda
+    style H2 fill:#d4edda
+    style H3 fill:#d4edda
+    style Hh fill:#d4edda
+```
+
+## Transformers Architecture Details {#sec-transformers-arch-details}
+
+### Positional Embeddings
+
+An extremely observant reader might have been suspicious of a small but very important detail that we have not yet discussed: the attention mechanism, as introduced so far, does not encode the order of the input tokens. For instance, when computing softmax'd attention scores and building token representations, the model is fundamentally permutation-equivariant — the same set of tokens, even if scrambled into a different order, would result in identical outputs permuted in the same order --- Formally, when we fix $\{W_q,W_k,W_v\}$ and switch the input $x_i$ with $x_j$, then the output $z_i$ and $z_j$ will be switched. However, natural language is not a bag of words: meaning is tied closely to word order.
+
+To address this, transformers incorporate positional embeddings — additional information that encodes the position of each token in the sequence. These embeddings are added to the input token embeddings before any attention layers are applied, effectively injecting ordering information into the model.
+
+There are two main strategies for positional embeddings: (i) learned positional embeddings, where a trainable vector $p_i\in\mathbb{R}^d$ is assigned to each position (i.e., token index) $i=0, 1, 2, ..., n$. These vectors are learned alongside all other model parameters and allow the model to discover how best to encode position for a given task, (ii) fixed positional embeddings, such as sinusoidal positional embedding proposed in the original Transformer paper:
+
+$$
+\begin{aligned}
+p_{(i, 2k)} = \sin\left( \frac{i}{10000^{2k/d}} \right) \\
+p_{(i, 2k+1)} = \cos\left( \frac{i}{10000^{2k/d}} \right)
+\end{aligned}
+$$
+
+where $i=1,2,..,n$ is the token index, while $k=1,2,...,d$ is the dimension index. Namely, this sinusoidal positional embedding uses sine for the even dimension and cosine for the odd dimension. Regardless of learnable or fixed positional embedding, it will enter the computation of attention at the input place: $x_i^*=x_i+p_i~,$​ where $x_i$ is the $i$th original input token, and $p_i$ is its positional embedding. The $x_i^*$ will now be what we really feed into the attention layer, so that the input to the attention mechanism now carries information about both what the token is and where it appears in the sequence.
+
+This simple additive design enables attention layers to leverage both semantic content and ordering structure when deciding where to focus. In practice, this addition occurs at the very first layer of the transformer stack, and all subsequent layers operate on position-aware representations. This is a key design choice that allows transformers to work effectively with sequences of text, audio, or even image patches (as in Vision Transformers).
+
+![**Positional Encoding**: Since attention is permutation-invariant, transformers add positional information to token embeddings. This visualization shows how sinusoidal positional encodings create unique patterns for each position, allowing the model to distinguish token order.](figures/slotattn_posenc.png){width=70%}
+
+### The Complete Transformer Block
+
+Now that we've covered the core components (embeddings, positional encoding, and multi-head attention), let's see how they fit together in a complete transformer block. Each block processes the sequence through multiple stages:
+
+**Architecture Flow**:
+
+```
+Input: X ∈ ℝⁿˣᵈ (n tokens, d dimensions)
+    ↓
+1. Multi-Head Attention
+    ↓
+2. Add & Normalize (Residual + LayerNorm)
+    ↓
+3. Feed-Forward Network (FFN)
+    ↓
+4. Add & Normalize (Residual + LayerNorm)
+    ↓
+Output: X' ∈ ℝⁿˣᵈ (same shape as input)
+```
+
+**Step-by-step processing**:
+
+**1. Multi-Head Attention**: The input $X$ is transformed by multi-head attention:
+$$
+Z = \text{MultiHead}(X) \in \mathbb{R}^{n \times d}
+$$
+
+**2. Residual Connection + Layer Normalization**: Instead of using $Z$ directly, we add the original input back (residual connection) and normalize:
+$$
+X_{\text{attn}} = \text{LayerNorm}(X + Z)
+$$
+
+This residual connection is crucial—it allows gradients to flow directly backward through the network during training, preventing vanishing gradients in deep networks (recall similar ideas from ResNets).
+
+**3. Feed-Forward Network**: Each position is processed independently through a two-layer network with ReLU activation:
+$$
+\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2
+$$
+
+where $W_1 \in \mathbb{R}^{d \times 4d}$ expands dimension, $W_2 \in \mathbb{R}^{4d \times d}$ contracts back. The expansion factor of 4 is standard (e.g., GPT-2: $d=768 \to 3072 \to 768$).
+
+**4. Another Residual + LayerNorm**:
+$$
+X' = \text{LayerNorm}(X_{\text{attn}} + \text{FFN}(X_{\text{attn}}))
+$$
+
+**Parameter Count per Block**:
+
+For a single transformer block with $d=768$, $H=12$ heads, the total is approximately 7.1M parameters: multi-head attention contributes $4 \times d^2 = 2.36M$ params (Query, Key, Value, Output projections), feed-forward network contributes $2 \times d \times 4d = 4.72M$ params, and layer normalization contributes $4d = 3{,}072$ params. For GPT-2 with $L=12$ blocks: $12 \times 7.1M \approx 85M$ params (plus embedding layers).
+
+**Why These Design Choices?**
+
+- **Residual connections**: Enable training of very deep networks (GPT-3 has 96 layers!)
+- **Layer normalization**: Stabilizes training by keeping activations well-scaled
+- **Feed-forward expansion**: The $d \to 4d \to d$ bottleneck creates a powerful non-linear transformation
+- **Position-wise FFN**: Each token processed independently—enables full parallelism
+
+:::{.callout-note}
+## Implementation Note
+
+
+```{mermaid}
+%%| fig-cap: "Complete encoder-decoder transformer architecture"
+%%| label: fig-transformer-architecture
+
+graph TB
+    Input[Input Tokens]
+    InputEmbed[Token Embeddings]
+    PosEnc[Positional Encoding]
+
+    Input --> InputEmbed
+    InputEmbed --> PosEnc
+
+    subgraph Encoder["Encoder Stack (N layers)"]
+        EncSelfAttn[Multi-Head Self-Attention]
+        EncAddNorm1[Add & Normalize]
+        EncFFN[Feed-Forward Network]
+        EncAddNorm2[Add & Normalize]
+
+        PosEnc --> EncSelfAttn
+        EncSelfAttn --> EncAddNorm1
+        EncAddNorm1 --> EncFFN
+        EncFFN --> EncAddNorm2
+    end
+
+    subgraph Decoder["Decoder Stack (N layers)"]
+        DecSelfAttn[Masked Multi-Head Self-Attention]
+        DecAddNorm1[Add & Normalize]
+        DecCrossAttn[Multi-Head Cross-Attention]
+        DecAddNorm2[Add & Normalize]
+        DecFFN[Feed-Forward Network]
+        DecAddNorm3[Add & Normalize]
+
+        DecSelfAttn --> DecAddNorm1
+        DecAddNorm1 --> DecCrossAttn
+        EncAddNorm2 -.->|"Key, Value"| DecCrossAttn
+        DecCrossAttn --> DecAddNorm2
+        DecAddNorm2 --> DecFFN
+        DecFFN --> DecAddNorm3
+    end
+
+    Output[Output Tokens]
+    OutputEmbed[Token Embeddings]
+    OutputPos[Positional Encoding]
+
+    Output --> OutputEmbed
+    OutputEmbed --> OutputPos
+    OutputPos --> DecSelfAttn
+
+    LinearLayer[Linear Layer]
+    Softmax[Softmax]
+    Predictions[Output Probabilities]
+
+    DecAddNorm3 --> LinearLayer
+    LinearLayer --> Softmax
+    Softmax --> Predictions
+
+    style Encoder fill:#e1f5ff
+    style Decoder fill:#ffe1f5
+    style PosEnc fill:#fff4e1
+    style OutputPos fill:#fff4e1
+```
+
+A typical transformer implementation demonstrates this exact structure in a `Block` class: multi-head attention, residual connection, layer norm, feed-forward network, and another residual + layer norm. Understanding this flow is key to implementing transformers from scratch.
+:::
+
+
+### Causal Self-attention {#sec-causal-attention}
+More generally, a *mask* may be applied to limit which tokens are used in the attention computation. For example, one common mask limits the attention computation to tokens that occur previously in time to the one being used for the query. This prevents the attention mechanism from "looking ahead" in scenarios where the transformer is being used to generate one token at a time. This causal masking is done by introducing a mask matrix $M \in \mathbb{R}^{n \times n}$ that restricts attention to only current and previous positions. A typical causal mask is a lower-triangular matrix:
+
+$$
+M =
+\begin{bmatrix}
+  0 & -\infty & -\infty & \cdots & -\infty \\
+  0 & 0       & -\infty & \cdots & -\infty \\
+  0 & 0       & 0       & \cdots & -\infty \\
+  \vdots & \vdots & \vdots & \ddots & \vdots \\
+  0 & 0       & 0       & \cdots & 0
+\end{bmatrix}
+$$
+
+and we now have the masked attention matrix:
+
+$$\begin{aligned}
+A = \text{softmax}\left(
+\frac{1}{\sqrt{d_k}}
+\begin{bmatrix}
+q_1^\top k_1 & q_1^\top k_2 & \cdots & q_1^\top k_n \\
+q_2^\top k_1 & q_2^\top k_2 & \cdots & q_2^\top k_n \\
+\vdots       & \vdots       & \ddots & \vdots       \\
+q_n^\top k_1 & q_n^\top k_2 & \cdots & q_n^\top k_n
+\end{bmatrix}
++ M \right)\end{aligned}
+$$ The softmax is performed to each row independently. The attention output is still $Y= A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking before performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
+
+
+Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
+
+### Training and Scaling Transformers
+
+Understanding how transformers are trained and scaled is essential for working with modern foundation models.
+
+#### Model Sizing and Parameter Counts
+
+A transformer's capacity is primarily determined by:
+
+- **Number of layers** $L$: Depth of the network (e.g., GPT-2: 12-48 layers, GPT-3: 96 layers)
+- **Model dimension** $d$: Size of hidden representations (e.g., GPT-2: 768-1600, GPT-3: 12,288)
+- **Number of attention heads** $H$: Parallel attention mechanisms per layer (e.g., 12-96 heads)
+- **Feed-forward dimension**: Typically $4d$ (expands then contracts back to $d$)
+
+**Total parameters** for a transformer with $L$ layers, $H$ heads, dimension $d$, and vocabulary size $V$:
+
+$$
+\text{Params} \approx L \times \left(4d^2 + 2d \times \frac{d}{H} \times H\right) + V \times d
+$$
+
+The dominant term is $L \times d^2$, which grows quadratically with model dimension.
+
+**Example**: GPT-3 ($L=96$, $d=12{,}288$, $H=96$, $V=50{,}257$) has approximately 175 billion parameters.
+
+#### Computational Cost: The 6ND Rule
+
+Training cost is measured in **FLOPs** (floating point operations). For transformers, the approximate cost to train on $D$ tokens is:
+
+$$
+\text{FLOPs} \approx 6ND
+$$
+
+where $N$ is the number of model parameters and $D$ is the dataset size in tokens.
+
+**Example**: Training GPT-3 (175B parameters) on 300B tokens requires $6 \times 175 \times 10^9 \times 300 \times 10^9 = 3.15 \times 10^{23}$ FLOPs. On modern hardware (NVIDIA A100 achieving ~312 TFLOPS with mixed precision), this requires approximately 1,000,000 GPU-hours, which translates to months of training on thousands of GPUs.
+
+#### Memory Requirements
+
+Training requires memory for: (1) Model parameters: $2N$ bytes (BF16), (2) Optimizer states (Adam): $8N$ bytes, (3) Gradients: $2N$ bytes, (4) Activations: depends on batch size and sequence length. Total: $\sim 12N$ bytes minimum for model + optimizer states.
+
+**Example**: GPT-3 (175B params) requires 350 GB for the model (BF16), 1.4 TB for the optimizer, totaling ~2 TB minimum before activations. This massive memory requirement necessitates model parallelism (splitting model across GPUs), gradient checkpointing (recomputing activations instead of storing), and mixed precision training (using BF16/FP16 instead of FP32).
+
+#### Scaling Laws
+
+Research (Kaplan et al., 2020; Hoffmann et al., 2022) shows predictable relationships:
+
+**Power law scaling**: Loss decreases as a power law with compute $C$, parameters $N$, and data $D$:
+$$
+L(N) \propto N^{-\alpha}, \quad L(D) \propto D^{-\beta}
+$$
+
+**Chinchilla optimal scaling** (Hoffmann et al., 2022): For compute budget $C$, optimal model size $N_{\text{optimal}} \propto C^{0.5}$ and optimal dataset size $D_{\text{optimal}} \propto C^{0.5}$. Rule of thumb: $D_{\text{optimal}} \approx 20 \times N_{\text{optimal}}$.
+
+**Implication**: GPT-3 (175B params, 300B tokens) was undertrained by this metric—should have used ~3.5T tokens! This insight led to models like Chinchilla (70B params, 1.4T tokens) outperforming larger but undertrained models.
+
+:::{.callout-tip}
+## Practical Implications
+
+
+```{mermaid}
+%%| fig-cap: "Transformer training workflow with iterative optimization"
+%%| label: fig-training-pipeline
+
+flowchart TD
+    Start[Training Data]
+
+    Preprocess[Data Preprocessing<br/>Tokenization & Batching]
+    Start --> Preprocess
+
+    Forward[Forward Pass<br/>Input → Transformer → Output]
+    Preprocess --> Forward
+
+    Loss[Compute Loss<br/>Cross-Entropy or Custom]
+    Forward --> Loss
+
+    Backward[Backward Pass<br/>Compute Gradients via Backprop]
+    Loss --> Backward
+
+    Update[Update Parameters<br/>Optimizer Adam/AdamW]
+    Backward --> Update
+
+    LR[Learning Rate Schedule<br/>Warmup + Decay]
+    LR -.-> Update
+
+    Checkpoint{Checkpoint<br/>Interval?}
+    Update --> Checkpoint
+
+    Save[Save Model Checkpoint]
+    Checkpoint -->|Yes| Save
+
+    Eval{Evaluation<br/>Interval?}
+    Checkpoint -->|No| Eval
+    Save --> Eval
+
+    Validate[Validation Set<br/>Compute Metrics]
+    Eval -->|Yes| Validate
+
+    Continue{Training<br/>Complete?}
+    Eval -->|No| Continue
+    Validate --> Continue
+
+    Continue -->|No| Preprocess
+
+    Final[Final Model]
+    Continue -->|Yes| Final
+
+    style Start fill:#e1f5ff
+    style Final fill:#d4edda
+    style Loss fill:#fff4e1
+    style Checkpoint fill:#ffe1f5
+    style Eval fill:#ffe1f5
+    style Continue fill:#ffe1f5
+```
+
+- Bigger models need proportionally more data, not just more compute
+- Training cost grows as $\approx N^{1.5}$ to $N^{2}$ when scaling optimally
+- Modern efficient attention variants (Flash Attention) can reduce memory by 5-10×
+:::
+
+### Modern Transformer Architectures
+
+While the original Transformer (Vaswani et al., 2017) used both encoder and decoder stacks, modern large language models typically use only one:
+
+#### Decoder-Only Architecture: GPT
+
+**GPT (Generative Pre-trained Transformer)** and its successors (GPT-2, GPT-3, GPT-4, Claude, LLaMA, Mistral) use decoder-only architecture with causal attention (each token can only attend to previous tokens), autoregressive generation (generates text left-to-right, one token at a time), and next-token prediction training objective.
+
+**Architecture**:
+```
+Input → Token Embedding + Positional Embedding
+     ↓
+[Causal Multi-Head Attention + Feed-Forward] × L layers
+     ↓
+Final Layer Norm → Output Projection → Logits
+```
+
+**Use cases**: Text generation (creative writing, code generation), few-shot learning (prompting with examples), conversational AI (ChatGPT, Claude), code completion (GitHub Copilot).
+
+**Configuration examples**:
+
+- GPT-2 Small: $L=12$, $d=768$, $H=12$ (117M params)
+- GPT-2 Large: $L=36$, $d=1280$, $H=20$ (774M params)
+- GPT-3: $L=96$, $d=12{,}288$, $H=96$ (175B params)
+
+#### Encoder-Only Architecture: BERT
+
+**BERT (Bidirectional Encoder Representations from Transformers)** uses encoder-only architecture with bidirectional attention (each token attends to ALL tokens, no causal masking), non-autoregressive processing (entire sequence simultaneously), and masked language modeling training objective (predict masked tokens).
+
+**Architecture**:
+```
+Input → Token Embedding + Positional Embedding
+     ↓
+[Bidirectional Multi-Head Attention + Feed-Forward] × L layers
+     ↓
+Final Layer Norm → Task-Specific Head
+```
+
+**Use cases**: Text classification (sentiment analysis, spam detection), named entity recognition, question answering (SQuAD), sentence similarity and embedding.
+
+**Configuration examples**:
+
+- BERT-Base: $L=12$, $d=768$, $H=12$ (110M params)
+- BERT-Large: $L=24$, $d=1024$, $H=16$ (340M params)
+
+#### Comparison: GPT vs BERT
+
+| Aspect | GPT (Decoder-Only) | BERT (Encoder-Only) |
+|--------|-------------------|---------------------|
+| **Attention** | Causal (left-to-right) | Bidirectional (all tokens) |
+| **Generation** | Autoregressive | Non-generative |
+| **Training** | Next-token prediction | Masked token prediction |
+| **Best for** | Text generation, completion | Understanding, classification |
+| **Typical size** | 1B-175B+ parameters | 100M-1B parameters |
+| **Inference** | Sequential (slow) | Parallel (fast) |
+
+**Why GPT dominates modern AI**: Autoregressive training aligns with generation tasks, scales better to very large sizes (100B+ parameters), enables few-shot learning via prompting, and uses a single architecture for many tasks (no task-specific heads).
+
+**When to use BERT**: Need bidirectional context (classification, NER), faster inference (no sequential generation), or smaller model footprint is acceptable.
+
+:::{.callout-note}
+## Implementation Note
+
+
+```{mermaid}
+%%| fig-cap: "GPT vs BERT architecture comparison"
+%%| label: fig-gpt-vs-bert
+
+graph TB
+    subgraph GPT["GPT (Decoder-Only)"]
+        GPT_Input[Input Tokens]
+        GPT_Embed[Token + Positional Embeddings]
+        GPT_Mask[Masked Self-Attention<br/>Causal Masking]
+        GPT_FFN[Feed-Forward Network]
+        GPT_Out[Output: Next Token]
+
+        GPT_Input --> GPT_Embed
+        GPT_Embed --> GPT_Mask
+        GPT_Mask --> GPT_FFN
+        GPT_FFN --> GPT_Out
+
+        GPT_Task["Task: Autoregressive<br/>Text Generation"]
+        GPT_Use["Uses: Creative writing,<br/>code generation, chat"]
+    end
+
+    subgraph BERT["BERT (Encoder-Only)"]
+        BERT_Input["Input Tokens with MASK"]
+        BERT_Embed[Token + Positional Embeddings]
+        BERT_Attn[Bidirectional Self-Attention<br/>No Masking]
+        BERT_FFN[Feed-Forward Network]
+        BERT_Out[Output: Token Representations]
+
+        BERT_Input --> BERT_Embed
+        BERT_Embed --> BERT_Attn
+        BERT_Attn --> BERT_FFN
+        BERT_FFN --> BERT_Out
+
+        BERT_Task["Task: Masked Language<br/>Modeling"]
+        BERT_Use["Uses: Classification,<br/>NER, Q&A"]
+    end
+
+    style GPT fill:#e1f5ff
+    style BERT fill:#ffe1f5
+    style GPT_Mask fill:#fff4e1
+    style BERT_Attn fill:#fff4e1
+    style GPT_Task fill:#d4edda
+    style BERT_Task fill:#d4edda
+```
+
+Decoder-only transformer implementations use a **decoder-only architecture** with causal masking, like GPT. The model generates output sequentially, attending only to previous tokens. This mirrors how ChatGPT generates text token-by-token.
+:::
+
+
+<!--
+### Variations of Training Scheme
+
+Instead of auto-regressive training, one can do masked training.
+
+Many variants on this transformer structure exist. For example, the $\text{LayerNorm}$ may be moved to other stages of the neural network. Or a more sophisticated attention function may be employed instead of the simple dot product used in @eq-xfm_softmax. Transformers may also be used in pairs, for example, one to process the input and a separate one to generate the output given the transformed input. Self-attention may also be replaced with cross-attention, where some input data are used to generate queries and other input data generate keys and values. Positional encoding and masking are also common, though they are left implicit in the above equations for simplicity.
+
+How are transformers trained? The number of parameters in $\theta$ can be very large; modern transformer models like GPT4 have tens of billions of parameters or more. A great deal of data is thus necessary to train such models, else the models may simply overfit small datasets.
+
+Training large transformer models is thus generally done in two stages. A first "pre-training" stage employs a very large dataset to train the model to extract patterns. This is done with unsupervised (or self-supervised) learning and unlabelled data. For example, the well-known BERT model was pre-trained using sentences with words masked. The model was trained to predict the masked words. BERT was also trained on sequences of sentences, where the model was trained to predict whether two sentences are likely to be contextually close together or not. The pre-training stage is generally very expensive.
+
+The second "fine-tuning" stage trains the model for a specific task, such as classification or question answering. This training stage can be relatively inexpensive, but it generally requires labeled data -->
