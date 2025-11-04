@@ -24,9 +24,9 @@ book:
     - convolutional_neural_networks.qmd
     - autoencoders.qmd
     - transformers.qmd
+    - non_parametric.qmd
     - mdp.qmd
     - reinforcement_learning.qmd
-    - non_parametric.qmd
     # - clustering.qmd
   appendices:
     - matrix_derivative.qmd

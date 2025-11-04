@@ -1,9 +1,3 @@
-:::{.callout-note}
-This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf); non-parametric models chapter.
-
-As we phase out the PDF, this page may receive updates not reflected in the static PDF.
-:::
-
 # Non-parametric methods {#sec-nonparametric}
 
 Neural networks have adaptable complexity, in the sense that we can try different structural models and use cross validation to find one that works well on our data. Beyond neural networks, we may further broaden the class of models that we can fit to our data, for example as illustrated by the techniques introduced in this chapter.
