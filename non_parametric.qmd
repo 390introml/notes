@@ -43,7 +43,7 @@ Given a data-set ${\cal D}= \{(x^{(i)},y^{(i)})\}_{i=1}^n$, our predictor for a 
 
 This same algorithm works for regression *and* classification!
 
-The nearest neighbor prediction function can be described by dividing the space up into regions whose closest point is each individual training point as shown below :
+The nearest neighbor prediction function can be described by dividing the space up into regions whose closest point is each individual training point as shown below:
 
 
 ![](figures/voronoi.png){width="70%"}
@@ -69,7 +69,8 @@ Tree methods differ by:
 One advantage of tree models is that they are easily interpretable by humans. This is important in application domains, such as medicine, where there are human experts who often ultimately make critical decisions and who need to feel confident in their understanding of recommendations made by an algorithm. Below is an example decision tree, illustrating how one might be able to understand the decisions made by the tree.
 
 :::{.callout-note}
-#Example
+# Example
+
 Here is a sample tree (reproduced from Breiman, Friedman, Olshen, Stone (1984)):
 
 ![](figures/tree-example.png){width="70%"}
@@ -215,17 +216,19 @@ One important limitation or drawback in conventional trees is that they can have
 
 -   Construct $B$ new data sets of size $n$. Each data set is constructed by sampling $n$ data points with replacement from ${\cal D}$. A single data set is called *bootstrap sample* of ${\cal D}$.
 
--   Train a predictor $\hat{f}^b(x)$ on each bootstrap sample.
+-   Train a predictor $\hat{f}^b(x)$ on each bootstrap sample. When building each tree, the standard tree-building algorithm is used, which considers *all* features when deciding how to split at each node.
 
 -   *Regression case*: bagged predictor is $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x) \; .$$
 
--   *Classification case*: Let $K$ be the number of classes. We find a majority bagged predictor as follows. We let $\hat{f}^b(x)$ be a "one-hot" vector with a single 1 and $K-1$ zeros, and define the predicted output $\hat{y}$ for predictor $f^b$ as $\hat{y}^b(x) = {\rm arg}\max_{k} \hat{f}^b(x)_k$. Then $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x),$$ which is a vector containing the proportion of classifiers that predicted each class $k$ for input $x$. Then the overall predicted output is $$\hat{y}_{\rm bag}(x) = {\rm arg}\max_{k} \hat{f}_{\rm bag}(x)_k\;\;.$$
+-   *Classification case*: Let $K$ be the number of classes. We find a majority bagged predictor as follows. We let $\hat{f}^b(x)$ be a "one-hot" vector with a single 1 and $K-1$ zeros, and define the predicted output $\hat{y}$ for predictor $f^b$ as $\hat{y}^b(x) = {\rm arg}\max_{k} \hat{f}^b(x)_k$. Then $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x),$$ which is a vector containing the proportion of classifiers that predicted each class $k$ for input $x.$ Then the overall predicted output is $$\hat{y}_{\rm bag}(x) = {\rm arg}\max_{k} \hat{f}_{\rm bag}(x)_k\;\;.$$
 
 There are theoretical arguments showing that bagging does, in fact, reduce estimation error. However, when we bag a model, any simple intrepetability is lost.
 
 ### Random Forests
 
-Random forests are collections of trees that are constructed to be de-correlated, so that using them to vote gives maximal advantage. In competitions, they often have excellent classification performance among large collections of much fancier methods.
+Random forests extend bagging by introducing an additional source of randomness during tree construction. While bagging uses bootstrap sampling to create diversity across trees, random forests also add *random feature selection* at each split. This additional randomization helps de-correlate the trees, so that using them to vote gives maximal advantage. In competitions, they often have excellent classification performance among large collections of much fancier methods.
+
+The key difference from bagging is that when building each tree, at each split node, rather than considering all $d$ features to find the best split, random forests randomly select only $m$ features (where $m \leq d$ is a hyperparameter) and then choose the best split among those $m$ features. This forces trees to be more diverse and less correlated with each other.
 
 In what follows, $B$, $m$, and $n$ are hyperparameters of the algorithm.
 
