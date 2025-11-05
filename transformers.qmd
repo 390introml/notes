@@ -14,7 +14,7 @@ Like CNNs, transformers factorize signal processing into stages, each involving 
 
 Transformers are powerful neural architectures designed primarily for sequential data, such as text. At their core, transformers are typically auto-regressive, meaning they generate sequences by predicting each token sequentially, conditioned on previously generated tokens. This auto-regressive property ensures that the transformer model inherently captures temporal dependencies, making them especially suited for language modeling tasks like text generation and completion.
 
-Suppose our training data contains this sentence: "To date, the cleverest thinker was Issac." The transformer model will learn to predict the next token in the sequence, given the previous tokens. For example, when predicting the token "cleverest," the model will condition its prediction on the tokens "To," "date," and "the." This process continues until the entire sequence is generated.
+Suppose our training data contains this sentence: "To date, the cleverest thinker was Isaac." The transformer model will learn to predict the next token in the sequence, given the previous tokens. For example, when predicting the token "cleverest," the model will condition its prediction on the tokens "To," "date," and "the." This process continues until the entire sequence is generated.
 ![](figures/auto-regressive.gif)
 
 The animation above illustrates the auto-regressive nature of transformers. 
@@ -108,20 +108,22 @@ This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating con
 
 Self-attention is an attention mechanism where the keys, values, and queries are all generated from the same input.
 
-At a very high level, typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in $n$ tokens, each having feature dimension $d,$ and through many layers of transformation (most important of which are self-attention layers); the transformer finally outputs a sequence of $n$ tokens, each of which $d$-dimensional still. 
+At a very high level, a typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in $n$ tokens, each having feature dimension $d,$ and through many layers of transformation (most important of which are self-attention layers); the transformer finally outputs a sequence of $n$ tokens, each of which $d$-dimensional still. 
 
-With a self-attention layer, there can be multiple attention head. We start with understanding a single head.
+With a self-attention layer, there can be multiple attention heads. We start with understanding a single head.
 
 
 ### A Single Self-attention Head
 
-A single self-attention head is largely the same as our discussion in @sec-qkv. The main additional info introduced in this part is a compact matrix form. The layer takes in $n$ tokens, each having feature dimension $d$. Thus, all tokens can be collectively written as $X\in \mathbb{R}^{n\times d}$, where the $i$-th row of $X$ stores the $i$-th token, denoted as $x_i\in\mathbb{R}^{1\times d}$. For each token $x^i$, self-attention computes (via learned projection matrices, discussed in @sec-qkv), a query $q_i \in \mathbb{R}^{d_q}$, key $k_{i} \in \mathbb{R}^{d_k}$, and value $v_{i} \in \mathbb{R}^{d_v}$, and overall, we will have $n$ queries, $n$ keys, and $n$ values; all of these vectors live in the same dimension in practice, and we often denote all three embedding dimension via a unified $d_k$.
+A single self-attention head is largely the same as our discussion in @sec-qkv. The main additional info introduced in this part is a compact matrix form. The layer takes in $n$ tokens, each having feature dimension $d$. Thus, all tokens can be collectively written as $X\in \mathbb{R}^{n\times d}$, where the $i$-th row of $X$ stores the $i$-th token, denoted as $x_i\in\mathbb{R}^{1\times d}$. For each token $x_i$, self-attention computes (via learned projection matrices, discussed in @sec-qkv), a query $q_i \in \mathbb{R}^{d_q}$, key $k_{i} \in \mathbb{R}^{d_k}$, and value $v_{i} \in \mathbb{R}^{d_v}$, and overall, we will have $n$ queries, $n$ keys, and $n$ values; all of these vectors live in the same dimension in practice, and we often denote all three embedding dimensions via a unified $d_k$.
 
 The self-attention output is calculated as a weighted sum:
 
 $$
 {z}_i = \sum_{j=1}^n  a_{ij} v_{j}\in\mathbb{R}^{d_k }
-$$where $a_{ij}$ is the $j$th element in $a_i$.
+$$
+
+where $a_{ij}$ is the $j$th element in $a_i$.
 
 So far, we've discussed self-attention focusing on a single token input-output. Actually, we can calculate all outputs $z_i$ ($i=1,2,\ldots,n$) at the same time using a matrix form. For clearness, we first introduce the $Q\in\mathbb{R}^{n\times d_k}$ query matrix, $K\in\mathbb{R}^{n\times d_k}$ key matrix, and $V\in\mathbb{R}^{n\times d_k}$ value matrix:
 
@@ -146,7 +148,9 @@ v_2^\top \\
 v_n^\top
 \end{bmatrix} \in \mathbb{R}^{n \times d_k}
 \end{aligned}
-$$It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. Now, the the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
+$$
+
+It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. Now, the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
 
 $$\begin{aligned}
 A = \begin{bmatrix}
@@ -164,7 +168,7 @@ A = \begin{bmatrix}
 \end{aligned}
 $${#eq-self_softmax} 
 
-which often time is shorten as:
+which is often written more concisely as:
 $$\begin{aligned}
 A = \text{softmax}\left(
 \frac{1}{\sqrt{d_k}}
@@ -177,7 +181,7 @@ q_n^\top k_1 & q_n^\top k_2 & \cdots & q_n^\top k_n
 \right)\end{aligned}=\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)
 $$
 
-Note that the Softmax operation is applied in a row-wise manner. The $i$th row $A$ of this matrix corresponds to the softmax'd attention scores computed for query $q_i$ over all keys (i.e., $\alpha_i$). The full output of the self-attention layer can then be written compactly as:
+Note that the Softmax operation is applied in a row-wise manner. The $i$th row of $A$ corresponds to the softmax'd attention scores computed for query $q_i$ over all keys (i.e., $\alpha_i$). The attention-head output can then be written compactly as:
 
 $$
 Z = 
@@ -219,7 +223,7 @@ V^{h} &= X W_v^{h}
 \end{aligned}
 $$
 
-The output of the $i$-th head is $Z^{h}$: ${Z}^h = \text{Attention}(Q^{h}, K^{h}, V^{h})\in\mathbb{R}^{n\times d_k}$. After computing all $h$ heads, we concatenate their outputs and apply a final linear projection:
+The output of the $h$-th head is $Z^{h}$: ${Z}^h = \text{Attention}(Q^{h}, K^{h}, V^{h})\in\mathbb{R}^{n\times d_k}$. After computing all $H$ heads, we concatenate their outputs and apply a final linear projection:
 $$
 \text{MultiHead}(X) = \text{Concat}(Z^1, \dots, Z^H) W^O
 $$
@@ -273,10 +277,11 @@ q_2^\top k_1 & q_2^\top k_2 & \cdots & q_2^\top k_n \\
 q_n^\top k_1 & q_n^\top k_2 & \cdots & q_n^\top k_n
 \end{bmatrix}
 + M \right)\end{aligned}
-$$ The softmax is performed to each row independently. The attention output is still $Y= A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking before performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
+
+The softmax is performed on each row independently. The attention output is still $Y= A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking before performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
 
 
-Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
+Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
 
 
 <!--
