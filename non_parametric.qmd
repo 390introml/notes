@@ -1,4 +1,4 @@
-# Non-parametric methods {#sec-nonparametric}
+# Non-parametric Models {#sec-nonparametric}
 
 Neural networks have adaptable complexity, in the sense that we can try different structural models and use cross validation to find one that works well on our data. Beyond neural networks, we may further broaden the class of models that we can fit to our data, for example as illustrated by the techniques introduced in this chapter.
 
