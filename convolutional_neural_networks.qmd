@@ -44,7 +44,7 @@ An image filter is a function that takes in a local spatial neighborhood of pixe
 
 Let's consider a very simple case to start, in which we have a 1-dimensional binary "image" and a filter $F$ of size two. The filter is a vector of two numbers, which we will move along the image, taking the dot product between the filter values and the image values at each step, and aggregating the outputs to produce a new image.
 
-Let $X$ be the original image, of size $d$; then pixel $i$ of the the output image is specified by $$Y_i = F \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
+Let $X$ be the original image, of size $d$; then pixel $i$ of the output image is specified by $$Y_i = F \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
 
 :::{.column-margin}
 And filters are also sometimes called *convolutional kernels*.
@@ -375,7 +375,7 @@ Consider a max pooling layer where both the strides and $k$ are set to be 2. Thi
 Maximilian Poole thinks it would be a good idea to add two max pooling layers of size $k$, one right after the other, to their network. What single layer would be equivalent?
 :::
 
-One potential concern about max-pooling layers is that they actually don't completely preserve translation invariance. If you do max-pooling with a stride other than 1 (or just pool over the whole image size), then shifting the pattern you are hoping to detect within the image by a small amount can change the output of the max-pooling layer substantially, just because there are discontinuities induced by the way the max-pooling window matches up with its input image. Here is an interesting [paper](https://arxiv.org/\\pdf/1904.11486.pdf) that illustrates this phenomenon clearly and suggests that one should first do max-pooling with a stride of 1, then do "downsampling" by averaging over a window of outputs.
+One potential concern about max-pooling layers is that they actually don't completely preserve translation invariance. If you do max-pooling with a stride other than 1 (or just pool over the whole image size), then shifting the pattern you are hoping to detect within the image by a small amount can change the output of the max-pooling layer substantially, just because there are discontinuities induced by the way the max-pooling window matches up with its input image. Here is an interesting [paper](https://arxiv.org/pdf/1904.11486.pdf) that illustrates this phenomenon clearly and suggests that one should first do max-pooling with a stride of 1, then do "downsampling" by averaging over a window of outputs.
 
 ## Typical architecture
 
