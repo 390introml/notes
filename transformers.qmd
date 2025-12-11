@@ -267,7 +267,7 @@ $$
 
 and we now have the masked attention matrix:
 
-$$\begin{aligned}
+\begin{aligned}
 A = \text{softmax}\left(
 \frac{1}{\sqrt{d_k}}
 \begin{bmatrix}
