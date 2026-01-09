@@ -3,6 +3,9 @@ project:
   preview:
     port: 8888
 
+execute:
+  freeze: auto
+
 book:
   title: 6.390 - Intro to Machine Learning
   # subtitle: Course Notes
