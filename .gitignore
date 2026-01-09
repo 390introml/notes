@@ -308,7 +308,6 @@ TSWLatexianTemp*
 #*Notes.bib
 
 /.quarto/
-/_freeze/
 
 **/*.quarto_ipynb
 /_imagify_files
