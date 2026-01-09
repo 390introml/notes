@@ -2,7 +2,7 @@
 
 In previous chapters, we have largely focused on classification and regression problems, where we use supervised learning with training samples that have both features/inputs and corresponding outputs or labels, to learn hypotheses or models that can then be used to predict labels for new data.
 
-In contrast to supervised learning paradigm, we can also have an unsupervised learning setting, where we only have features but no corresponding outputs or labels for our dataset. On natural question arises then: if there are no labels, what are we learning?
+In contrast to supervised learning paradigm, we can also have an unsupervised learning setting, where we only have features but no corresponding outputs or labels for our dataset. A natural question arises then: if there are no labels, what are we learning?
 
 One canonical example of unsupervised learning is clustering, which is discussed in @sec-clustering. In clustering, the goal is to develop algorithms that can reason about "similarity" among data points's features, and group the data points into clusters.
 
