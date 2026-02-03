@@ -49,11 +49,11 @@ We can describe problems and their solutions using six characteristics, three of
 
 5.  **Model class:** What particular class of models will be used? What criterion will we use to pick a particular model from the model class?
 
+6.  **Algorithm:** What computational process will be used to fit the model to the data and/or to make predictions?
+
 :::{.column-margin}
 In this course and in ML community, "model" and "hypothesis" (and "model class" and "hypothesis class") are used interchangeably. We will generally use these terms synonymously until we get to MDPs and RL, where "model" and "hypothesis" take on distinct meanings; we will point out the distinction there.
 :::
-
-6.  **Algorithm:** What computational process will be used to fit the model to the data and/or to make predictions?
 
 Without making some assumptions about the nature of the process generating the data, we cannot perform generalization. In the following sections, we elaborate on these ideas.
 
