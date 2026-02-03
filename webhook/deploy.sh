@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -euo
 
 # Ensure quarto and git are in PATH (adjust if installed elsewhere)
 export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
@@ -46,18 +46,34 @@ esac
 
 log "Deploying $BRANCH to $DIR"
 
-cd "$DIR"
+# Clone/fetch into a temporary build directory to avoid downtime
+BUILD_DIR=$(mktemp -d)
+trap 'rm -rf "$BUILD_DIR"' EXIT
 
-# Pull latest changes
-git fetch origin "$BRANCH"
-git reset --hard "origin/$BRANCH"
+git clone --branch "$BRANCH" --depth 1 "file://$DIR" "$BUILD_DIR"
 
-log "Git pull complete"
+log "Git clone complete"
 
-# Render with Quarto (with timeout protection)
+# Render into the temp build directory
+cd "$BUILD_DIR"
 if timeout "$TIMEOUT" quarto render; then
     log "Quarto render complete for $BRANCH"
 else
     log "ERROR: Quarto render failed or timed out after ${TIMEOUT}s"
     exit 1
 fi
+
+# Atomic swap: replace _book in the live directory
+rm -rf "$DIR/_book.old"
+if [ -d "$DIR/_book" ]; then
+    mv "$DIR/_book" "$DIR/_book.old"
+fi
+mv "$BUILD_DIR/_book" "$DIR/_book"
+rm -rf "$DIR/_book.old"
+
+# Update the live repo to match
+cd "$DIR"
+git fetch origin "$BRANCH"
+git reset --hard "origin/$BRANCH"
+
+log "Deploy complete for $BRANCH"
