@@ -14,6 +14,8 @@ A *hypothesis* $h$ is a function that serves as our model for the relationship b
 $$x \rightarrow \boxed{h} \rightarrow y \;\;,$$
  where $x \in \mathbb{R}^d$ (i.e., a length $d$ column vector of real numbers), and $y \in \mathbb{R}$ (i.e., a real number).
 
+### The regression problem
+
 Regression is a *supervised learning* problem, in which we are given a training dataset of the form 
 
 $$ \mathcal{D}_\text{train}= \left\{\left(x^{(1)}, y^{(1)}\right), \dots,
@@ -42,7 +44,7 @@ However, we don't know exactly what data this hypothesis might be tested on in t
 To make this discussion more concrete, we need a *loss function* to express how unhappy we are when we guess an output $g = h(x)$ given an input $x$ for which the desired output was $a = y$.
 
 
-Given a training set $\mathcal{D}_\text{train}$ and a hypothesis $h$ with parameters $\Theta$, the *training error* of $h$ can be defined as the average loss on the training data:
+Given a training set $\mathcal{D}_\text{train}$ and a hypothesis $h$ with parameters $\Theta$ (where $\Theta$ stands for all the parameters in our model), the *training error* of $h$ can be defined as the average loss on the training data:
 
 $$
 \mathcal{E}_\text{train}(h; \Theta) = \frac{1}{n}\sum_{i=1}^n \mathcal{L}(h(x^{(i)}; \Theta), y^{(i)})\;\;.
@@ -65,7 +67,7 @@ My favorite analogy is to problem sets.  We evaluate a
 
 
 :::{.callout-note}
-It might be worthwhile to stare at the two errors and think about what's the difference. For example, notice how $\Theta$ is no longer a variable in the testing error? This is because, in evaluating the testing error, the parameters will have been "picked" or "fixed" already.
+It might be worthwhile to stare at the two errors and think about what's the difference. Notice that both expressions depend on $\Theta$, but there is a key distinction: when evaluating the test error, the parameters have already been "picked" or "fixed" by the training process. In other words, $\Theta$ is no longer a variable to be optimized over---it is a fixed quantity determined during training.
 :::
 
 For now, we will try to find a hypothesis with small training error (later, with some added criteria) and try to make some design choices so that it *generalizes well* to new data, meaning that it also has a small *test error*.
@@ -74,7 +76,7 @@ For now, we will try to find a hypothesis with small training error (later, with
 
 Given data, a loss function, and a hypothesis class, we need a method for finding a good hypothesis in the class. One of the most general ways to approach this problem is by framing the machine learning problem as an optimization problem. One reason for taking this approach is that there is a rich area of math and algorithms studying and developing efficient methods for solving optimization problems, and lots of very good software implementations of these methods. So, if we can turn our problem into one of these problems, then there will be a lot of work already done for us!
 
-We begin by writing down an *objective function* $J(\Theta)$, where $\Theta$ stands for *all* the parameters in our model (i.e., all possible choices over parameters). We often write $J(\Theta; {\cal D})$ to make clear the dependence on the data ${\cal D}$.
+We begin by writing down an *objective function* $J(\Theta)$. We often write $J(\Theta; {\cal D})$ to make clear the dependence on the data ${\cal D}$.
 
 ::: {.column-margin}
 Don't be too perturbed by the semicolon where you expected to see a comma! It's a mathematical way of saying that we are mostly interested in this as a function of the arguments before the `;`, but we should remember there's a dependence on the stuff after it as well.
