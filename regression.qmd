@@ -10,9 +10,9 @@
 
 ## Problem formulation
 
-A *hypothesis* $h$ is employed as a model for solving the regression problem, in that it maps inputs $x$ to outputs $y$, 
+A *hypothesis* $h$ is a function that serves as our model for the relationship between inputs and outputs. Concretely, $h: \mathbb{R}^d \to \mathbb{R}$ maps an input vector $x$ to a predicted output $h(x)$, which we hope closely approximates the true output $y$.
 $$x \rightarrow \boxed{h} \rightarrow y \;\;,$$
- where $x \in \mathbb{R}^d$ (i.e., a length $d$ column vector of real numbers), and $y \in \mathbb{R}$ (i.e., a real number). Real life rarely gives us vectors of real numbers; the $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$, whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$, like a person's height or the amount of bass in a song, and then let the $h: \varphi(x) \rightarrow \mathbb{R}$. In much of the following, we'll omit explicit mention of $\varphi$ and assume that the $x^{(i)}$ are in $\mathbb{R}^d$, but you should always have in mind that some additional process was almost surely required to go from the actual input examples to their feature representation, and we'll talk a lot more about features later in the course.
+ where $x \in \mathbb{R}^d$ (i.e., a length $d$ column vector of real numbers), and $y \in \mathbb{R}$ (i.e., a real number).
 
 Regression is a *supervised learning* problem, in which we are given a training dataset of the form 
 
@@ -22,7 +22,7 @@ $$ \mathcal{D}_\text{train}= \left\{\left(x^{(1)}, y^{(1)}\right), \dots,
 
 which gives examples of input values $x^{(i)}$ and the output values $y^{(i)}$ that should be associated with them. Because $y$ values are real-valued, our hypotheses will have the form 
 $$h: \mathbb{R}^d \rightarrow \mathbb{R} \;\;.$$
- This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than to divide the inputs into discrete categories.
+ This is a good framework when we want to predict a numerical quantity, like height, stock value, etc., rather than to divide the inputs into discrete categories. For example, $x^{(i)}$ might represent the size of a house and $y^{(i)}$ its sale price.
 
 :::{.column-margin}
 Real life rarely gives us vectors of real numbers. The $x$ we really want to take as input is usually something like a song, image, or person. In that case, we'll have to define a function $\varphi(x)$ whose range is $\mathbb{R}^d$, where $\varphi$ represents *features* of $x$ (e.g., a person's height or the amount of bass in a song).
@@ -39,7 +39,7 @@ What makes a hypothesis useful? That it works well on *new* data—that is, it m
 
 However, we don't know exactly what data this hypothesis might be tested on in the real world. So, we must *assume* a connection between the training data and testing data. Typically, the assumption is that they are drawn independently from the same probability distribution.
 
-To make this discussion more concrete, we need a *loss function* to express how unhappy we are when we guess an output $g$ given an input $x$ for which the desired output was $a$.
+To make this discussion more concrete, we need a *loss function* to express how unhappy we are when we guess an output $g = h(x)$ given an input $x$ for which the desired output was $a = y$.
 
 
 Given a training set $\mathcal{D}_\text{train}$ and a hypothesis $h$ with parameters $\Theta$, the *training error* of $h$ can be defined as the average loss on the training data:
@@ -52,7 +52,7 @@ The training error of $h$ gives us some idea of how well it characterizes the re
 
 
 $$
-\mathcal{E}_\text{test}(h) = \frac{1}{n'}\sum_{i=n+1}^{n+n'} \mathcal{L}(h(x^{(i)}), y^{(i)})\;\;,
+\mathcal{E}_\text{test}(h; \Theta) = \frac{1}{n'}\sum_{i=n+1}^{n+n'} \mathcal{L}(h(x^{(i)}; \Theta), y^{(i)})\;\;,
 $$
 
 on $n'$ new examples that were not used in the process of finding the hypothesis.
