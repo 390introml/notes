@@ -120,8 +120,8 @@ format:
   #     \printindex
 # # https://christophertkenny.com/posts/2023-07-01-creating-quarto-journal-articles/
 # latex-auto-install: true
-comments:
-  hypothesis: true
+## comments:
+##   hypothesis: true
 resources:
   - demos/
 filters:
