@@ -192,7 +192,7 @@ How do you think increasing the number of guesses $k$ will change the training
 
 ## Analytical solution: ordinary least squares
 
-One very interesting aspect of the problem of finding a linear hypothesis that minimizes mean squared error is that we can find a closed-form formula for the answer! This general problem is often called the *ordinary least squares* (ols).
+One very interesting aspect of the problem of finding a linear hypothesis that minimizes mean squared error is that we can find a closed-form formula for the answer! This general problem is often called the *ordinary least squares* (OLS).
 
 Everything is easier to deal with if we first *ignore* the offset $\theta_0$. So, suppose for now, we have, simply, 
 $$
@@ -200,7 +200,7 @@ y = \theta^T x\;\;.
 $${#eq-linear_reg_hypothesis_noconst}
  
 :::{.column-margin}
-this corresponds to a hyperplane that goes through the origin.
+This corresponds to a hyperplane that goes through the origin.
 :::
 
 In this case, the objective becomes 
@@ -279,10 +279,10 @@ and the dimensions work out! So, given our data, we can directly compute the lin
 
 :::{.column-margin}
 This is a very special case where we can find the solution in closed form. In general, we will need to use iterative optimization algorithms to find the best parameters.
-Also, this process of setting the graident/derivatives to zero and solving for the parameters works out in this problem. But there can be exceptions to this rule, and we will discuss them later in the course.
+Also, this process of setting the gradient/derivatives to zero and solving for the parameters works out in this problem. But there can be exceptions to this rule, and we will discuss them later in the course.
 :::
 
-Now, how do we deal with the offset? We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. That is, we define columns vectors $x_\text{aug}, \theta_\text{aug} \in \mathbb{R}^{d+1}$ such that,
+Now, how do we deal with the offset? We augment the original feature vector with a "fake" feature of value 1, and add a corresponding parameter $\theta_0$ to the $\theta$ vector. That is, we define column vectors $x_\text{aug}, \theta_\text{aug} \in \mathbb{R}^{d+1}$ such that,
 
 $$
 x_{\mathrm{aug}}=\left[\begin{array}{c}
@@ -317,7 +317,7 @@ We can do this "appending a fake feature of 1" to all data points to form the au
 $$
 X_{\text{aug}}=\left[\begin{array}{cccc}x_1^{(1)} & \ldots & x_d^{(1)} &1 \\ \vdots & \ddots & \vdots & \vdots \\ x_1^{(n)} & \ldots & x_d^{(n)} &1\end{array}\right] = \left[\begin{array}{c}X \quad  \mathbb{1} \end{array}\right] 
 $$
-where $\mathbb{1}$ as an $n$-by$1$ vector of all one. Then use the formula in @eq-ols_solution to find the $\theta_{\text{aug}}$ that minimizes the mean squared error.
+where $\mathbb{1}$ is an $n$-by-$1$ vector of all ones. Then use the formula in @eq-ols_solution to find the $\theta_{\text{aug}}$ that minimizes the mean squared error.
 
 :::{.study-question-callout}
 Stop and prove to yourself that adding that extra feature with value 1 to every input vector and getting rid of the $\theta_0$ parameter, as done in @eq-linear_reg_hypothesis_augmented is equivalent to our original model @eq-linear_reg_hypothesis.
@@ -392,7 +392,7 @@ Larger $\lambda$ values (in magnitude) pressure $\theta$ values to be near zero.
  
 Note that, when data isn't centered, we don't penalize $\theta_0$; intuitively, $\theta_0$ is what "floats" the regression surface to the right level for the data you have, and so we shouldn't make it harder to fit a data set where the $y$ values tend to be around one million than one where they tend to be around one. The other parameters control the orientation of the regression surface, and we prefer it to have a not-too-crazy orientation.
 
-There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, even when the data isn't centered, but it's a more complicated to derive than the solution for OLS, even though the process is conceptually similar: taking the gradient, setting it to zero, and solving for the parameters.
+There is an analytical expression for the $\theta, \theta_0$ values that minimize $J_\text{ridge}$, even when the data isn't centered, but it's more complicated to derive than the solution for OLS, even though the process is conceptually similar: taking the gradient, setting it to zero, and solving for the parameters.
 
 The good news is, when the dataset is *centered*, we again have very clean set up and derivation. In particular, the objective can be written as:
 
