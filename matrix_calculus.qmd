@@ -1,0 +1,245 @@
+# Matrix Calculus {#sec-matrix-calculus}
+
+## Single-variable Calculus
+
+We all know how to calculate a derivative in single-variable calculus. If we have an input variable $x \in \mathbb{R}$ and a function $f(x): \mathbb{R} \rightarrow \mathbb{R}$, then:
+
+$$
+f'(x) = \frac{f(x + dx) - f(x)}{dx}
+$$
+
+We generally define the numerator as $df = f(x + dx) - f(x)$, which gives $\frac{df}{dx}$ as our standard derivative. In other words, we can approximate some small change in the function as the derivative times a small change in our input variable:
+
+$$
+df = \frac{df}{dx} \cdot dx
+$$
+
+We can even think of the $dx$'s canceling out nicely. 
+
+## Multi-variable Calculus
+
+In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. There are two approaches for the notation we can use here:
+
+### Numerator Layout
+
+Let us use the same exact same format as before: 
+
+$$
+df = \frac{df}{dx} \cdot dx
+$$
+
+In this case, $df$ is a column vector of size $(m \times 1)$, $x$ is a column vector of size $(n \times 1)$, and thus $\frac{df}{dx}$ must be a matrix of size $(m \times n)$.
+
+Although this notation may seem the most intuitive, it will actually make things more complicated down the line. Therefore, we will NOT use this notation for this course. 
+
+### Denominator Layout
+
+Let us use the following notation, which may seem a bit counter-intuitive at first:
+
+$$
+df = \frac{df}{dx}^T dx
+$$
+
+We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ in this case will be of size $(n \times m)$, which is the transpose of how things were defined in the Numerator Layout. This means that the input ($x$) determines the rows in the derivative, and the output ($f$) determine the columns in the derivative. In other words:
+
+$$
+\left(\frac{df}{dx}\right)_{i,j} = \frac{df_j}{dx_i}
+$$
+
+You may be wondering why we are forcibly—and somewhat confusingly—adding this transpose to the definition. This is a specific choice we made, and some textbooks prefer the Numerator Layout notation. However, we will stick with the denominator layout since it simplifies the calculations later on.  
+
+## Examples
+
+### Example 1 - Simple Numerical Example
+
+Let us calculate the derivative of $f(\theta) = \theta_1^2 - 3\theta_2 + 5$. The input is a vector of size 2, and the output is a scalar. Therefore, our derivative $\frac{df}{d\theta}$ will be of size $(2 \times 1)$. More specifically, we know that:
+
+$$
+\frac{df}{d\theta} = 
+\begin{bmatrix} 
+\frac{df}{d\theta_1} \\ 
+\frac{df}{d\theta_2} 
+\end{bmatrix} 
+= 
+\begin{bmatrix} 
+2\theta_1 \\ 
+-3
+\end{bmatrix}
+$$
+
+### Example 2: $f(\theta) = X\theta$
+
+We begin with a very simple function: $f(\theta) = X\theta$. $f$ takes in a vector $\theta$ of size $(n \times 1)$, multiplies by a matrix $X$ of size $(m \times n)$, and thus returns a vector of size $(m \times 1)$. Let us calculate $\frac{df}{d\theta}$:
+
+$$
+\begin{align*}
+df &= f(\theta + d\theta) - f(\theta) \\
+   &= X(\theta + d\theta) - X\theta \\
+   &= X\theta + Xd\theta - X\theta \\
+   &= Xd\theta
+\end{align*}
+$$
+
+This exactly matches our standard denominator layout form:
+
+$$
+df = \frac{df}{d\theta}^T d\theta
+$$
+
+where: 
+
+$$
+\frac{df}{d\theta} = X^T
+$$
+
+Done!
+
+### Example 3: $f(v) = ||v||^2$
+
+Note that $f$ maps a column vector of size $n$ to a scalar. Therefore, the derivative $\frac{df}{dv}$ will be of size $(n \times 1)$. There are two ways to calculate this:
+
+#### Old Approach
+
+Take the partial derivatives at each index.  
+
+$$
+\frac{df}{dv} = 
+\begin{bmatrix} 
+\frac{df}{dv_1} \\ 
+\vdots \\ 
+\frac{df}{dv_n} 
+\end{bmatrix}  
+= 
+\begin{bmatrix} 
+2v_1 \\ 
+\vdots \\ 
+2v_n 
+\end{bmatrix} 
+= 2v
+$$
+
+#### New Approach
+
+Let us use matrix calculus and the differential notation. 
+
+$$
+\begin{align*}
+df &= f(v + dv) - f(v) \\
+   &= ||(v + dv)||^2 - ||v||^2 \\
+   &= (v + dv)^T(v + dv) - ||v||^2 \\ 
+   &= ||v||^2 + v^T dv + (dv)^T v + ||dv||^2 - ||v||^2 \\
+   &= (2v)^T dv + ||dv||^2
+\end{align*}
+$$
+
+Just like in single variable calculus, we can drop the squared $dv$ term since it grows smaller much faster than our linear $dv$ term. 
+
+Thus we are left with 
+
+$$
+df = (2v)^T dv
+$$
+
+Comparing this to our standard form:
+
+$$
+df = \frac{df}{dv}^T dv
+$$
+
+we see clearly that 
+
+$$
+\frac{df}{dv} = 2v
+$$
+
+### Example 4 - Chain Rule
+
+This is where the advantage of matrix calculus—and more specifically the denominator layout—really shines. 
+
+Let us assume we have a composition of functions $f(g(x))$. We want to calculate the derivative of $f$ with respect to $x$. As a first step, let's just look at how $f$ changes with respect to $g$:
+
+$$
+df = \frac{df}{dg}^T \cdot dg
+$$
+
+Now we also know how $dg$ changes with respect to $dx$, so we can substitute that in:
+
+$$
+df = \frac{df}{dg}^T \cdot \left(\frac{dg}{dx}^T \cdot dx\right)
+$$
+
+Simplifying gives:
+
+$$
+\begin{align*}
+df &= \frac{df}{dg}^T \cdot \left(\frac{dg}{dx}^T \cdot dx\right) \\
+   &= \left(\frac{df}{dg}^T \cdot \frac{dg}{dx}^T\right) \cdot dx \\
+   &= \left(\frac{dg}{dx} \cdot \frac{df}{dg}\right)^T \cdot dx
+\end{align*}
+$$
+
+Comparing this to our standard form gives:
+
+$$
+\frac{df}{dx} = \frac{dg}{dx} \cdot \frac{df}{dg}
+$$
+
+**Important**: Notice how the products go inner → outer as we move from left → right. This will be the general pattern as we compose more and more functions. The innermost derivatives will be on the left, and the outermost will be on the right. This is super important. In general, matrix multiplication is not commutative and the dimensions won't even work out if you try it any other way.
+
+For example, if we had $f(g(h(x)))$, then:
+
+$$
+\frac{df}{dx} = \frac{dh}{dx} \cdot \frac{dg}{dh} \cdot \frac{df}{dg}
+$$
+
+Check for yourself that the dimensions will work out if we multiply in this way!
+
+### Example 5 - MSE for Linear Regression
+
+From lecture/recitation, we know that the Mean Squared Error for Linear Regression can be written as:
+
+$$
+J(\theta) = \frac{1}{n} ||X\theta - Y||^2
+$$
+
+where $X$ and $\theta$ are the augmented forms to allow for an intercept. Let us show how to optimize this function by setting its gradient equal to 0. We combine all of the facts that we learned. We know that the derivative of $||v||^2$ with respect to $v$ is $2v$, the derivative of $X\theta$ with respect to $\theta$ is $X^T$, and we know the chain rule. Combining all of that gives:
+
+$$
+\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y)
+$$
+
+Now, to optimize, we set the derivative equal to 0:
+
+$$
+\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y) = 0 \implies \theta^* = (X^TX)^{-1}X^TY
+$$
+
+That's it! You can now derive the optimal solution for any linear regression problem.
+
+### Example 6 - MSE for Regularized Linear Regression 
+
+In lecture, we also encountered the regularized MSE expression for Linear Regression:
+
+$$
+J(\theta) = \frac{1}{n} ||X\theta - Y||^2 + \lambda || \theta ||^2
+$$
+
+where lambda is some scalar hyperparameter we can choose. 
+
+Calculating this derivative is basically the same as last time, expect there's an additional squared term at the end that we can differentiate separately. Setting the derivative with respect to $\theta$ to 0, gives:
+
+$$
+\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta^* - Y) + 2\lambda \theta^* = 0
+$$
+
+which simplifies to:
+
+$$
+0 = X^T X\theta^* - X^T Y + n\lambda \theta^*
+$$
+
+or
+
+$$
+\theta^* = (X^T X + n\lambda I) X^T Y
+$$
