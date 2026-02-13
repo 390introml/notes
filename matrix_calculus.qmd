@@ -22,7 +22,7 @@ In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n
 
 ### Numerator Layout
 
-Let us use the same exact same format as before: 
+Let us use the exact same format as before:
 
 $$
 df = \frac{df}{dx} \cdot dx
@@ -40,7 +40,7 @@ $$
 df = \frac{df}{dx}^T dx
 $$
 
-We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ in this case will be of size $(n \times m)$, which is the transpose of how things were defined in the Numerator Layout. This means that the input ($x$) determines the rows in the derivative, and the output ($f$) determine the columns in the derivative. In other words:
+We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ in this case will be of size $(n \times m)$, which is the transpose of how things were defined in the Numerator Layout. This means that the input ($x$) determines the rows in the derivative, and the output ($f$) determines the columns in the derivative. In other words:
 
 $$
 \left(\frac{df}{dx}\right)_{i,j} = \frac{df_j}{dx_i}
@@ -132,7 +132,7 @@ df &= f(v + dv) - f(v) \\
 \end{align*}
 $$
 
-Just like in single variable calculus, we can drop the squared $dv$ term since it grows smaller much faster than our linear $dv$ term. 
+Just like in single-variable calculus, we can drop the squared $dv$ term since it grows smaller much faster than our linear $dv$ term. 
 
 Thus we are left with 
 
@@ -224,9 +224,9 @@ $$
 J(\theta) = \frac{1}{n} ||X\theta - Y||^2 + \lambda || \theta ||^2
 $$
 
-where lambda is some scalar hyperparameter we can choose. 
+where $\lambda$ is some scalar hyperparameter we can choose. 
 
-Calculating this derivative is basically the same as last time, expect there's an additional squared term at the end that we can differentiate separately. Setting the derivative with respect to $\theta$ to 0, gives:
+Calculating this derivative is basically the same as last time, except there's an additional squared term at the end that we can differentiate separately. Setting the derivative with respect to $\theta$ to 0, gives:
 
 $$
 \frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta^* - Y) + 2\lambda \theta^* = 0
@@ -241,5 +241,5 @@ $$
 or
 
 $$
-\theta^* = (X^T X + n\lambda I) X^T Y
+\theta^* = (X^T X + n\lambda I)^{-1} X^T Y
 $$
