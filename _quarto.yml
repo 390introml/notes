@@ -29,7 +29,6 @@ book:
     - reinforcement_learning.qmd
     # - clustering.qmd
   appendices:
-    - matrix_derivative.qmd
     - matrix_calculus.qmd
     - neural_network_appendix.qmd
     - nutshell.qmd
