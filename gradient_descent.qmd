@@ -30,21 +30,23 @@ For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudoc
 \begin{algorithm}
 \begin{algorithmic}
 \Procedure{1D-Gradient-Descent}{$\Theta_{init}, \eta, f, f', \epsilon$}
-  \State $\Theta^{(0)} \gets \Theta_{init}$ 
-  \State $t \gets 0$ 
+  \State $\Theta^{(0)} \gets \Theta_{init}$
+  \State $t \gets 0$
   \Repeat
     \State $t \gets t+1$
     \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta \, f'(\Theta^{(t-1)})$
-  \Until{$|f'(\Theta^{(t)})| < \epsilon$}
+  \Until{$\left|f(\Theta^{(t)}) - f(\Theta^{(t-1)})\right| < \epsilon$}
   \Return{$\Theta^{(t)}$}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 ```
 
-Note that this algorithm terminates when the derivative of the function $f$ is sufficiently small. There are many other reasonable ways to decide to terminate, including:
+Note that this algorithm terminates when the change in the value of the objective function is sufficiently small. There are many other reasonable ways to decide to terminate, including:
 
 -   Stop after a fixed number of iterations $T$, i.e., when $t = T$. Practically, this is the most common choice.
+
+-   Stop when the derivative of $f$ is sufficiently small, i.e., when $\left|f'(\Theta^{(t)})\right| < \epsilon$.
 
 -   Stop when the change in the value of the parameter $\Theta$ is sufficiently small, i.e., when $\left| \Theta^{(t)} - \Theta^{(t-1)} \right| < \epsilon$.
 
