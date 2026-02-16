@@ -157,7 +157,7 @@ $$ and any termination criteria that depend on the dimensionality of $\Theta$ wo
 Which termination criteria from the 1D case were defined in a way that assumes $\Theta$ is one dimensional?
 :::
 
-## Application to regression {#sec-gd_ridge}
+## Application to ridge regression {#sec-gd_ridge}
 
 Recall from the previous chapter that choosing a loss function is the first step in formulating a machine-learning problem as an optimization problem, and for regression we studied the mean-squared loss, which captures loss as $({\rm guess} - {\rm actual})^2$. This leads to the *ordinary least squares* objective 
 
@@ -303,19 +303,21 @@ $\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,J,\nabla_{\Theta}J_1,...,\nabla_{\Theta} J_n,T$}
-  \State $\Theta^{(0)} \gets \Theta_{\it init}$ 
-  \For{$t \gets 1$}
+\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,J,\nabla_{\Theta}J_1,...,\nabla_{\Theta} J_n,\epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\it init}$
+  \State $t \gets 0$
+  \Repeat
+    \State $t \gets t+1$
     \State randomly select $i \in \{1, 2, \dots, n\}$
-    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta J_i(\Theta^{(t-1)})$ 
-  \EndFor
-
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta J_i(\Theta^{(t-1)})$
+  \Until{$\left|J(\Theta^{(t)}) - J(\Theta^{(t-1)})\right| < \epsilon$}
+  \Return{$\Theta^{(t)}$}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 ```
 
-Note that now instead of a fixed value of $\eta$, $\eta$ is indexed by the iteration of the algorithm, $t$. Choosing a good stopping criterion can be a little trickier for SGD than traditional gradient descent. Here we've just chosen to stop after a fixed number of iterations $T$.
+Note that now instead of a fixed value of $\eta$, $\eta$ is indexed by the iteration of the algorithm, $t$. Choosing a good stopping criterion can be a little trickier for SGD than traditional gradient descent, since the objective value can be noisy from step to step. Practically, stopping after a fixed number of iterations $T$ is a common alternative.
 
 For SGD to converge to a local optimum point as $t$ increases, the learning rate has to decrease as a function of time. The next result shows one learning rate sequence that works.
 
