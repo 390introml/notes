@@ -83,7 +83,7 @@ The following plot illustrates a convex function $f(x) = (x - 2)^2$, starting gr
       \draw[-latex,blue,thick] (axis cs: 4,4) -- (axis cs: 2,0);
     \end{axis}
   \end{tikzpicture}
-::::
+:::
 
 
 If $f$ is non-convex, where gradient descent converges depends on $x_{\it init}$. First, let's establish some definitions. Let $f$ be a real-valued function defined over some domain $D$. A point $x_0 \in D$ is called a *global minimum point* of $f$ if $f(x_0) \leq f(x)$ for all other $x \in D$. A point $x_0 \in D$ is instead called a *local minimum point* of a function $f$ if there exists some constant $\epsilon > 0$ such that for all $x$ within the interval defined by $d(x,x_0) < \epsilon,$ $f(x_0) \leq f(x)$, where $d$ is some distance metric, e.g., $d(x,x_0) = || x - x_0 ||.$ A global minimum point is also a local minimum point, but a local minimum point does not have to be a global minimum point.
@@ -303,7 +303,7 @@ $\nabla_\Theta J_i$ for all $i$ in $1\ldots n$. Note that, unlike standard gradi
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,J,\nabla_{\Theta}J_1,...,\nabla_{\Theta} J_n,\epsilon$}
+\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,\{J_i\}_{i=1}^n,\epsilon$}
   \State $\Theta^{(0)} \gets \Theta_{\it init}$
   \State $t \gets 0$
   \Repeat
@@ -334,10 +334,41 @@ One "legal" way of setting the learning rate is to make $\eta(t) = 1/t$ but peop
 If you start a long way from the optimum, would making $\eta(t)$ decrease more slowly tend to make you move more quickly or more slowly to the optimum?
 :::
 
-There are multiple intuitions for why SGD might be a better choice algorithmically than regular gd (sometimes called *batch* gd (BGD)):
+There are multiple intuitions for why SGD might be a better choice algorithmically than regular gradient descent:
 
--   BGD typically requires computing some quantity over every data point in a data set. SGD may perform well after visiting only some of the data. This behavior can be useful for very large data sets -- in runtime and memory savings.
+-   GD typically requires computing some quantity over every data point in a data set. SGD may perform well after visiting only some of the data. This behavior can be useful for very large data sets -- in runtime and memory savings.
 
--   If your $J$ is actually non-convex, but has many shallow local optimum points that might trap BGD, then taking *samples* from the gradient at some point $\Theta$ might "bounce" you around the landscape and away from the local optimum points.
+-   If your $J$ is actually non-convex, but has many shallow local optimum points that might trap GD, then taking *samples* from the gradient at some point $\Theta$ might "bounce" you around the landscape and away from the local optimum points.
 
--   Sometimes, optimizing $J$ really well is not what we want to do, because it might overfit the training set; so, in fact, although SGD might not get lower training error than BGD, it might result in lower test error.
+-   Sometimes, optimizing $J$ really well is not what we want to do, because it might overfit the training set; so, in fact, although SGD might not get lower training error than GD, it might result in lower test error.
+
+## Mini-batch gradient descent {#sec-minibatch}
+
+In practice, a common middle ground between GD and SGD is *mini-batch gradient descent*. Instead of using the full data set (GD) or a single data point (SGD) to estimate the gradient at each step, mini-batch GD randomly selects a small subset of $b$ data points.
+
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{Mini-batch-Gradient-Descent}{$\Theta_{init},\eta,b,\{J_i\}_{i=1}^n,\epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\it init}$
+  \State $t \gets 0$
+  \Repeat
+    \State $t \gets t+1$
+    \State $B \gets$ random mini-batch of size $b$ from $\{1, \ldots, n\}$
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta \, \nabla_\Theta J_B(\Theta^{(t-1)})$
+  \Until{$\left|J(\Theta^{(t)}) - J(\Theta^{(t-1)})\right| < \epsilon$}
+  \Return{$\Theta^{(t)}$}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+```
+
+Here $\nabla_\Theta J_B(\Theta) = \frac{1}{b}\sum_{i \in B} \nabla_\Theta J_i(\Theta)$ is the gradient averaged over the mini-batch $B$. This gives a more accurate gradient estimate than SGD while remaining much cheaper per step than GD.
