@@ -289,8 +289,8 @@ $$
 where $n$ is the number of data points used in the objective (and this may be different from the number of points available in the whole data set). 
 
 
-Here is pseudocode for applying SGD to such an objective $J$; it assumes we know the form of 
-$\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
+Here is pseudocode for applying SGD to such an objective $J$; it assumes we know the form of
+$\nabla_\Theta J_i$ for all $i$ in $1\ldots n$. Note that, unlike standard gradient descent, the learning rate $\eta(t)$ is now indexed by the iteration $t$, allowing it to decrease over time:
 
 ```pseudocode
 #| html-indent-size: "1.2em"
@@ -317,7 +317,7 @@ $\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
 \end{algorithm}
 ```
 
-Note that now instead of a fixed value of $\eta$, $\eta$ is indexed by the iteration of the algorithm, $t$. Choosing a good stopping criterion can be a little trickier for SGD than traditional gradient descent, since the objective value can be noisy from step to step. Practically, stopping after a fixed number of iterations $T$ is a common alternative.
+Choosing a good stopping criterion can be a little trickier for SGD than traditional gradient descent, since the objective value can be noisy from step to step. Practically, stopping after a fixed number of iterations $T$ is a common alternative.
 
 For SGD to converge to a local optimum point as $t$ increases, the learning rate has to decrease as a function of time. The next result shows one learning rate sequence that works.
 
