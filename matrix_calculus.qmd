@@ -18,35 +18,23 @@ We can even, in a very hand-waving way, think of the $dx$'s canceling out nicely
 
 ## Multi-variable Calculus
 
-In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. There are two approaches for the notation we can use here:
-
-### Numerator Layout
-
-Let us use the exact same format as before:
-
-$$
-df = \frac{df}{dx} \cdot dx
-$$
-
-In this case, $df$ is a column vector of size $(m \times 1)$, $x$ is a column vector of size $(n \times 1)$, and thus $\frac{df}{dx}$ must be a matrix of size $(m \times n)$.
-
-Although this notation may seem the most intuitive, it will actually make things more complicated down the line. Therefore, we will NOT use this notation for this course.
-
-### Denominator Layout
-
-Let us use the following notation, which may seem a bit counter-intuitive at first:
+In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. We will use the following notation, which may seem a bit counter-intuitive at first:
 
 $$
 df = \frac{df}{dx}^T dx
 $$
 
-We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ in this case will be of size $(n \times m)$, which is the transpose of how things were defined in the Numerator Layout. This means that the input ($x$) determines the rows in the derivative, and the output ($f$) determines the columns in the derivative. In other words:
+We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ will be of size $(n \times m)$. The input ($x$) determines the rows in the derivative, and the output ($f$) determines the columns in the derivative. In other words:
 
 $$
 \left(\frac{df}{dx}\right)_{i,j} = \frac{df_j}{dx_i}
 $$
 
-You may be wondering why we are forcibly—and somewhat confusingly—adding this transpose to the definition. This is a specific choice we made, and some textbooks prefer the Numerator Layout notation. However, we will stick with the denominator layout since it simplifies the calculations later on. This denominator layout convention has been adopted by the field of machine learning to ensure that the shape of the gradient is the same as the shape of the respective parameter.
+This is called the **denominator layout** convention, and it has been widely adopted by the machine learning community because it ensures that the shape of the gradient is the same as the shape of the respective parameter. This simplifies calculations considerably, as we will see.
+
+::: {.callout-note title="Numerator Layout"}
+Some textbooks instead use the **numerator layout**, where $df = \frac{df}{dx} \cdot dx$ without the transpose. In that convention, $\frac{df}{dx}$ is of size $(m \times n)$—the transpose of what we define above. Although it may seem more intuitive at first, it makes chain rule computations more complicated. We will not use numerator layout in this course.
+:::
 
 ## The Shapes of Things {#sec-matrix-derivative}
 
