@@ -32,7 +32,7 @@ $$
 
 This is called the **denominator layout** convention, and it has been widely adopted by the machine learning community because it ensures that the shape of the gradient is the same as the shape of the respective parameter. This simplifies calculations considerably, as we will see.
 
-::: {.callout-note title="Numerator Layout"}
+::: {.callout-note collapse="true" title="Numerator Layout"}
 Some textbooks instead use the **numerator layout**, where $df = \frac{df}{dx} \cdot dx$ without the transpose. In that convention, $\frac{df}{dx}$ is of size $(m \times n)$—the transpose of what we define above. Although it may seem more intuitive at first, it makes chain rule computations more complicated. We will not use numerator layout in this course.
 :::
 
