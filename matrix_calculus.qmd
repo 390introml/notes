@@ -14,7 +14,7 @@ $$
 df = \frac{df}{dx} \cdot dx
 $$
 
-We can even think of the $dx$'s canceling out nicely.
+We can even, in a very hand-waving way, think of the $dx$'s canceling out nicely.
 
 ## Multi-variable Calculus
 
