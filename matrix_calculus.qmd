@@ -1,18 +1,44 @@
-# Matrix derivative common cases {#sec-matrix-derivative}
+# Matrix Calculus {#sec-matrix-calculus}
 
-What are some conventions for derivatives of matrices and vectors? It will always work to explicitly write all indices and treat everything as scalars, but we introduce here some shortcuts that are often faster to use and helpful for understanding.
+## Single-variable Calculus
 
-There are at least two consistent but different systems for describing shapes and rules for doing matrix derivatives. In the end, they all are correct, but it is important to be consistent.
+We all know how to calculate a derivative in single-variable calculus. If we have an input variable $x \in \mathbb{R}$ and a function $f(x): \mathbb{R} \rightarrow \mathbb{R}$, then:
 
-We will use what is often called the 'Hessian' or denominator layout, in which we say that for
+$$
+f'(x) = \frac{f(x + dx) - f(x)}{dx}
+$$
 
-${\bf x}$ of size $n\times 1$ and ${\bf y}$ of size $m\times 1$, $\partial {\bf y}/\partial {\bf x}$ is a matrix of size $n\times m$ with the $(i, j)$ entry $\partial y_j/\partial x_i$. This denominator layout convention has been adopted by the field of machine learning to ensure that the shape of the gradient is the same as the shape of the respective derivative. This is somewhat controversial at large, but alas, we shall continue with denominator layout.
+We generally define the numerator as $df = f(x + dx) - f(x)$, which gives $\frac{df}{dx}$ as our standard derivative. In other words, we can approximate some small change in the function as the derivative times a small change in our input variable:
 
-The discussion below closely follows the Wikipedia on matrix derivatives.
+$$
+df = \frac{df}{dx} \cdot dx
+$$
 
-## The shapes of things
+We can even, in a very hand-waving way, think of the $dx$'s canceling out nicely.
 
-Here are important special cases of the rule above:
+## Multi-variable Calculus
+
+In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. We will use the following notation, which may seem a bit counter-intuitive at first:
+
+$$
+df = \frac{df}{dx}^T dx
+$$
+
+We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ will be of size $(n \times m)$. The input ($x$) determines the rows in the derivative, and the output ($f$) determines the columns in the derivative. In other words:
+
+$$
+\left(\frac{df}{dx}\right)_{i,j} = \frac{df_j}{dx_i}
+$$
+
+This is called the **denominator layout** convention, and it has been widely adopted by the machine learning community because it ensures that the shape of the gradient is the same as the shape of the respective parameter. This simplifies calculations considerably, as we will see.
+
+::: {.callout-note collapse="true" title="Numerator Layout"}
+Some textbooks instead use the **numerator layout**, where $df = \frac{df}{dx} \cdot dx$ without the transpose. In that convention, $\frac{df}{dx}$ is of size $(m \times n)$—the transpose of what we define above. Although it may seem more intuitive at first, it makes chain rule computations more complicated. We will not use numerator layout in this course.
+:::
+
+## The Shapes of Things {#sec-matrix-derivative}
+
+Here are the important special cases of the denominator layout convention:
 
 -   Scalar-by-scalar: For $x$ of size $1\times 1$ and $y$ of size $1\times 1$, $\partial y/\partial x$ is the (scalar) partial derivative of $y$ with respect to $x$.
 
@@ -46,7 +72,7 @@ $$\begin{aligned}
 \end{bmatrix}.
 \end{aligned}$$
 
--   Scalar-by-matrix: For ${\bf X}$ of size $n\times m$ and $y$ of size $1\times 1$, $\partial y/\partial {\bf X}$ (also written $\nabla_{\bf X}y$, the gradient of $y$ with respect to ${\bf X}$) is a matrix of size $n\times m$ with the $(i, j)$ entry $\partial y/\partial X_{i, j}$: 
+-   Scalar-by-matrix: For ${\bf X}$ of size $n\times m$ and $y$ of size $1\times 1$, $\partial y/\partial {\bf X}$ (also written $\nabla_{\bf X}y$, the gradient of $y$ with respect to ${\bf X}$) is a matrix of size $n\times m$ with the $(i, j)$ entry $\partial y/\partial X_{i, j}$:
 
 $$\begin{aligned}
 \partial y/\partial {\bf X}=
@@ -61,27 +87,173 @@ You may notice that in this list, we have not included matrix-by-matrix, matrix-
 
 Additionally, notice that for all cases, you can explicitly compute each element of the derivative object using (scalar) partial derivatives. You may find it useful to work through some of these by hand as you are reviewing matrix derivatives.
 
-## Some vector-by-vector identities
+## Examples
 
-Here are some examples of $\partial {\bf y}/ \partial {\bf x}$. In each case, assume ${\bf x}$ is $n \times 1$, ${\bf y}$ is $m \times 1$, $a$ is a scalar constant, ${\bf a}$ is a vector that does not depend on ${\bf x}$ and ${\bf A}$ is a matrix that does not depend on ${\bf x}$, $u$ and $v$ are scalars that do depend on ${\bf x}$, and ${\bf u}$ and ${\bf v}$ are vectors that do depend on ${\bf x}$. We also have vector-valued functions ${\bf f}$ and ${\bf g}$.
+### Example 1 - Simple Numerical Example
 
-### Some fundamental cases
+Let us calculate the derivative of $f(\theta) = \theta_1^2 - 3\theta_2 + 5$. The input is a vector of size 2, and the output is a scalar. Therefore, our derivative $\frac{df}{d\theta}$ will be of size $(2 \times 1)$. More specifically, we know that:
+
+$$
+\frac{df}{d\theta} =
+\begin{bmatrix}
+\frac{df}{d\theta_1} \\
+\frac{df}{d\theta_2}
+\end{bmatrix}
+=
+\begin{bmatrix}
+2\theta_1 \\
+-3
+\end{bmatrix}
+$$
+
+### Example 2: $f(\theta) = X\theta$
+
+We begin with a very simple function: $f(\theta) = X\theta$. $f$ takes in a vector $\theta$ of size $(n \times 1)$, multiplies by a matrix $X$ of size $(m \times n)$, and thus returns a vector of size $(m \times 1)$. Let us calculate $\frac{df}{d\theta}$:
+
+$$
+\begin{align*}
+df &= f(\theta + d\theta) - f(\theta) \\
+   &= X(\theta + d\theta) - X\theta \\
+   &= X\theta + Xd\theta - X\theta \\
+   &= Xd\theta
+\end{align*}
+$$
+
+This exactly matches our standard denominator layout form:
+
+$$
+df = \frac{df}{d\theta}^T d\theta
+$$
+
+where:
+
+$$
+\frac{df}{d\theta} = X^T
+$$
+
+Done!
+
+### Example 3: $f(v) = ||v||^2$
+
+Note that $f$ maps a column vector of size $n$ to a scalar. Therefore, the derivative $\frac{df}{dv}$ will be of size $(n \times 1)$. There are two ways to calculate this:
+
+#### Old Approach
+
+Take the partial derivatives at each index.
+
+$$
+\frac{df}{dv} =
+\begin{bmatrix}
+\frac{df}{dv_1} \\
+\vdots \\
+\frac{df}{dv_n}
+\end{bmatrix}
+=
+\begin{bmatrix}
+2v_1 \\
+\vdots \\
+2v_n
+\end{bmatrix}
+= 2v
+$$
+
+#### New Approach
+
+Let us use matrix calculus and the differential notation.
+
+$$
+\begin{align*}
+df &= f(v + dv) - f(v) \\
+   &= ||(v + dv)||^2 - ||v||^2 \\
+   &= (v + dv)^T(v + dv) - ||v||^2 \\
+   &= ||v||^2 + v^T dv + (dv)^T v + ||dv||^2 - ||v||^2 \\
+   &= (2v)^T dv + ||dv||^2
+\end{align*}
+$$
+
+Just like in single-variable calculus, we can drop the squared $dv$ term since it grows smaller much faster than our linear $dv$ term.
+
+Thus we are left with
+
+$$
+df = (2v)^T dv
+$$
+
+Comparing this to our standard form:
+
+$$
+df = \frac{df}{dv}^T dv
+$$
+
+we see clearly that
+
+$$
+\frac{df}{dv} = 2v
+$$
+
+### Example 4 - Chain Rule
+
+This is where the advantage of matrix calculus—and more specifically the denominator layout—really shines.
+
+Let us assume we have a composition of functions $f(g(x))$. We want to calculate the derivative of $f$ with respect to $x$. As a first step, let's just look at how $f$ changes with respect to $g$:
+
+$$
+df = \frac{df}{dg}^T \cdot dg
+$$
+
+Now we also know how $dg$ changes with respect to $dx$, so we can substitute that in:
+
+$$
+df = \frac{df}{dg}^T \cdot \left(\frac{dg}{dx}^T \cdot dx\right)
+$$
+
+Simplifying gives:
+
+$$
+\begin{align*}
+df &= \frac{df}{dg}^T \cdot \left(\frac{dg}{dx}^T \cdot dx\right) \\
+   &= \left(\frac{df}{dg}^T \cdot \frac{dg}{dx}^T\right) \cdot dx \\
+   &= \left(\frac{dg}{dx} \cdot \frac{df}{dg}\right)^T \cdot dx
+\end{align*}
+$$
+
+Comparing this to our standard form gives:
+
+$$
+\frac{df}{dx} = \frac{dg}{dx} \cdot \frac{df}{dg}
+$$
+
+**Important**: Notice how the products go inner → outer as we move from left → right. This will be the general pattern as we compose more and more functions. The innermost derivatives will be on the left, and the outermost will be on the right. This is super important. In general, matrix multiplication is not commutative and the dimensions won't even work out if you try it any other way.
+
+For example, if we had $f(g(h(x)))$, then:
+
+$$
+\frac{df}{dx} = \frac{dh}{dx} \cdot \frac{dg}{dh} \cdot \frac{df}{dg}
+$$
+
+Check for yourself that the dimensions will work out if we multiply in this way!
+
+## Vector-by-vector Identities
+
+In this section, we collect useful identities for $\partial {\bf y}/ \partial {\bf x}$. In each case, assume ${\bf x}$ is $n \times 1$, ${\bf y}$ is $m \times 1$, $a$ is a scalar constant, ${\bf a}$ is a vector that does not depend on ${\bf x}$ and ${\bf A}$ is a matrix that does not depend on ${\bf x}$, $u$ and $v$ are scalars that do depend on ${\bf x}$, and ${\bf u}$ and ${\bf v}$ are vectors that do depend on ${\bf x}$. We also have vector-valued functions ${\bf f}$ and ${\bf g}$.
+
+### Some Fundamental Cases
 
 First, we will cover a couple of fundamental cases: suppose that ${\bf a}$ is an $m \times 1$ vector which is not a function of ${\bf x}$, an $n\times1$ vector. Then,
 
 $$
 \frac{\partial {\bf a}}{\partial {\bf x}} = {\bf 0},
-$${#eq-const} 
+$${#eq-const}
 
 is an $n \times m$ matrix of 0s. This is similar to the scalar case of differentiating a constant. Next, we can consider the case of differentiating a vector with respect to itself:
 
 $$
 \frac{\partial {\bf x}}{\partial {\bf x}} = {\bf I}
-$$ 
+$$
 
 This is the $n \times n$ identity matrix, with 1's along the diagonal and 0's elsewhere. It makes sense, because $\partial {\bf x}_j / {\bf x}_i$ is 1 for $i = j$ and 0 otherwise. This identity is also similar to the scalar case.
 
-### Derivatives involving a constant matrix
+### Derivatives Involving a Constant Matrix
 
 Let the dimensions of ${\bf A}$ be $m \times n$. Then the object ${\bf A}{\bf x}$ is an $m\times 1$ vector. We can then compute the derivative of ${\bf A}{\bf x}$ with respect to ${\bf x}$ as:
 
@@ -111,7 +283,7 @@ Similarly, for objects ${\bf x}, {\bf A}$ of the same shape, one can obtain,
 $$\frac{\partial {\bf x}^T {\bf A}}{\partial {\bf x}} = {\bf A}
 $${#eq-xTA}
 
-### Linearity of derivatives
+### Linearity of Derivatives
 
 Suppose that ${\bf u}, {\bf v}$ are both vectors of size $m \times 1$. Then,
 
@@ -129,7 +301,7 @@ One can extend the previous identity to vector- and matrix-valued constants. Sup
 
 $$\frac{\partial v {\bf a}}{\partial {\bf x}} = \frac{\partial
     v}{\partial {\bf x}}{\bf a}^T
-$$ 
+$$
 
 First, checking dimensions, $\partial v/\partial {\bf x}$ is $n \times 1$ and ${\bf a}$ is $m \times 1$ so ${\bf a}^T$ is $1 \times m$ and our answer is $n \times m$ as it should be. Now, checking a value, element $(i,j)$ of the answer is $\partial v {\bf a}_j / \partial x_i$ = $(\partial v / \partial x_i) {\bf a}_j$ which corresponds to element $(i,j)$ of $(\partial v / \partial {\bf x}){\bf a}^T$.
 
@@ -140,7 +312,7 @@ $$
     {\bf u}}{\partial {\bf x}}{\bf A}^T
 $$
 
-### Product rule (vector-valued numerator)
+### Product Rule (Vector-valued Numerator)
 
 Suppose that $v$ is a scalar which depends on ${\bf x}$, while ${\bf u}$ is a column vector of shape $m\times 1$ and ${\bf x}$ is a column vector of shape $n \times 1$. Then,
 
@@ -162,23 +334,23 @@ $$\begin{aligned}
 \end{aligned}
 $$
 
-Then, one can use the product rule for scalar-valued functions, 
+Then, one can use the product rule for scalar-valued functions,
 $$
 \begin{aligned}
   \partial (v u_j)/\partial x_i = v (\partial u_j / \partial x_i) + (\partial v / \partial x_i) u_j,
 \end{aligned}
 $$ to obtain the desired result.
 
-### Chain rule
+### Chain Rule Identity
 
 Suppose that ${\bf g}$ is a vector-valued function with output vector of shape $m \times 1$, and the argument to ${\bf g}$ is a column vector ${\bf u}$ of shape $d\times 1$ which depends on ${\bf x}$. Then, one can obtain the chain rule as,
 
 $$\frac{\partial {\bf g}({\bf u})}{\partial {\bf x}} = \frac{\partial
     {\bf u}}{\partial {\bf x}}\frac{\partial {\bf g}({\bf u})}{\partial
     {\bf u}}
-$$ 
+$$
 
-Following "the shapes of things," $\partial {\bf u}/ \partial {\bf x}$ is $n \times d$ and $\partial {\bf g}({\bf u}) / \partial {\bf u}$ is $d \times m$, where element $(i,j)$ is $\partial {\bf g}({\bf u})_j / \partial {\bf u}_i$. The same chain rule applies for further compositions of functions: 
+Following "the shapes of things," $\partial {\bf u}/ \partial {\bf x}$ is $n \times d$ and $\partial {\bf g}({\bf u}) / \partial {\bf u}$ is $d \times m$, where element $(i,j)$ is $\partial {\bf g}({\bf u})_j / \partial {\bf u}_i$. The same chain rule applies for further compositions of functions:
 
 $$
 \frac{\partial {\bf f}({\bf g}({\bf u}))}{\partial {\bf x}} = \frac{\partial
@@ -186,7 +358,7 @@ $$
   \frac{\partial {\bf f}({\bf g})}{\partial {\bf g}}
 $$
 
-## Some other identities
+### Some Other Identities
 
 You can get many scalar-by-vector and vector-by-scalar cases as special cases of the rules above, making one of the relevant vectors just be 1 x 1. Here are some other ones that are handy. For more, see the Wikipedia article on Matrix derivatives (for consistency, only use the ones in *denominator layout*).
 
@@ -199,28 +371,61 @@ $$\frac{\partial {\bf u}^T}{\partial x} = \big(\frac{\partial
     {\bf u}}{\partial x}\big)^T
 $${#eq-uT}
 
-## Derivation of gradient for linear regression {#app:matrix-gradient}
+## MSE for Linear Regression
 
-Recall here that $\bf X$ is a matrix of size $n \times d$ and $\bf Y$ is an $n \times 1$ vector. 
+From lecture/recitation, we know that the Mean Squared Error for Linear Regression can be written as:
 
-Applying identities @eq-xTA, @eq-uTv,@eq-uplusv, @eq-Ax, @eq-const 
+$$
+J(\theta) = \frac{1}{n} ||X\theta - Y||^2
+$$
 
-$$\begin{aligned}
-  \frac{\partial ({\bf X}\theta - {\bf Y})^T({\bf X}\theta - {\bf Y})/n}{\partial
-  \theta} & = \frac{2}{n} \frac{\partial({\bf X}\theta - {\bf Y})}{\partial
-  \theta}({\bf X}\theta - {\bf Y})                                           \\
-          & = \frac{2}{n} \big(\frac{\partial{\bf X}\theta}{\partial
-    \theta}-\frac{\partial {\bf Y}}{\partial
-  \theta}\big)({\bf X}\theta - {\bf Y})                                      \\
-          & = \frac{2}{n} \big({\bf X}^T -{\bf 0}\big)({\bf X}\theta - {\bf Y}) \\
-          & = \frac{2}{n} {\bf X}^T ({\bf X}\theta - {\bf Y})                   \\
-\end{aligned}$$
+where $X$ and $\theta$ are the augmented forms to allow for an intercept. Let us show how to optimize this function by setting its gradient equal to 0. We combine all of the facts that we learned. We know that the derivative of $||v||^2$ with respect to $v$ is $2v$, the derivative of $X\theta$ with respect to $\theta$ is $X^T$, and we know the chain rule. Combining all of that gives:
 
-## Matrix derivatives using Einstein summation {#app:einstein}
+$$
+\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y)
+$$
+
+Now, to optimize, we set the derivative equal to 0:
+
+$$
+\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y) = 0 \implies \theta^* = (X^TX)^{-1}X^TY
+$$
+
+That's it! You can now derive the optimal solution for any linear regression problem.
+
+## MSE for Regularized Linear Regression
+
+In lecture, we also encountered the regularized MSE expression for Linear Regression:
+
+$$
+J(\theta) = \frac{1}{n} ||X\theta - Y||^2 + \lambda || \theta ||^2
+$$
+
+where $\lambda$ is some scalar hyperparameter we can choose.
+
+Calculating this derivative is basically the same as last time, except there's an additional squared term at the end that we can differentiate separately. Setting the derivative with respect to $\theta$ to 0, gives:
+
+$$
+\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta^* - Y) + 2\lambda \theta^* = 0
+$$
+
+which simplifies to:
+
+$$
+0 = X^T X\theta^* - X^T Y + n\lambda \theta^*
+$$
+
+or
+
+$$
+\theta^* = (X^T X + n\lambda I)^{-1} X^T Y
+$$
+
+## Matrix Derivatives Using Einstein Summation {#app:einstein}
 
 *You do not have to read or learn this! But you might find it interesting or helpful.*
 
-Consider the objective function for linear regression, written out as products of matrices: 
+Consider the objective function for linear regression, written out as products of matrices:
 
 $$\begin{aligned}
 J(\theta) = \frac{1}{n} (X\theta - Y)^T (X\theta-Y)
@@ -228,16 +433,16 @@ J(\theta) = \frac{1}{n} (X\theta - Y)^T (X\theta-Y)
 \end{aligned}
 $$
 
-where $X$ is $n\times d$, $Y$ is $n\times 1$, and $\theta$ is $d\times 1$. How does one show, with no shortcuts, that 
+where $X$ is $n\times d$, $Y$ is $n\times 1$, and $\theta$ is $d\times 1$. How does one show, with no shortcuts, that
 
 $$\begin{aligned}
 \nabla_{\theta}J = \frac{2}{n} {X^T} {(X\theta - Y)} \;\;?
 \end{aligned}
-$$ 
+$$
 
 One neat way, which is very explicit, is to simply write all the matrices as variables with row and column indices, e.g., $X_{ab}$ is the row $a$, column $b$ entry of the matrix $X$. Furthermore, let us use the convention that in any product, all indices which appear more than once get summed over; this is a popular convention in theoretical physics, and lets us suppress all the summation symbols which would otherwise clutter the following expresssions. For example, $X_{ab} \theta_b$ would be the implicit summation notation giving the element at the $a^{\rm th}$ row of the matrix-vector product $X\theta$.
 
-Using implicit summation notation with explicit indices, we can rewrite $J(\theta)$ as 
+Using implicit summation notation with explicit indices, we can rewrite $J(\theta)$ as
 
 $$\begin{aligned}
 J(\theta) = \frac{1}{n} \left( X_{ab} \theta_b - Y_a \right)  \left( X_{ac}\theta_c - Y_a \right) \,.
@@ -245,7 +450,7 @@ J(\theta) = \frac{1}{n} \left( X_{ab} \theta_b - Y_a \right)  \left( X_{ac}\thet
 
 Note that we no longer need the transpose on the first term, because all that transpose accomplished was to take a dot product between the vector given by the left term, and the vector given by the right term. With implicit summation, this is accomplished by the two terms sharing the repeated index $a$.
 
-Taking the derivative of $J$ with respect to the $d^{\rm th}$ element of $\theta$ thus gives, using the chain rule for (ordinary scalar) multiplication: 
+Taking the derivative of $J$ with respect to the $d^{\rm th}$ element of $\theta$ thus gives, using the chain rule for (ordinary scalar) multiplication:
 
 $$\begin{aligned}
 \frac{dJ}{d\theta_d} &=& \frac{1}{n} \left[
@@ -260,8 +465,8 @@ $$\begin{aligned}
 \\
 &=& \frac{2}{n} X_{ad} \left( X_{ab}\theta_b-Y_a \right)
 \,,
-\end{aligned}$$ 
-where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^T$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^T$ with $X$! Thus, we have that 
+\end{aligned}$$
+where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^T$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^T$ with $X$! Thus, we have that
 
 $$\begin{aligned}
 \frac{dJ}{d\theta_d} =& \frac{2}{n} X^T_{da} \left( X_{ab}\theta_b-Y_a \right)
