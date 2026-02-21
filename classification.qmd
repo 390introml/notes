@@ -8,7 +8,7 @@ Classification is a machine learning problem seeking to map from inputs $\mathbb
 This is in contrast to a continuous real-valued output, as we saw for linear regression.
 :::
 
-Examples of classification output sets could be $\{\text{apples}, \text{oranges}, \text{pears}\}$ if we're trying to figure out what type of fruit we have, or $\{\text{heart attack}, \text{no heart attack}\}$ if we're working in an emergency room and trying to give the best medical care to a new patient. We focus on an essential simple case, *binary classification*, where we aim to find a mapping from $\mathbb{R}^d$ to two outputs. While we should think of the outputs as not having an order, it's often convenient to encode them as $\{+1, 0\}$. As before, let the letter $h$ (for hypothesis) represent a classifier, so the classification process looks like: $$x \rightarrow \boxed{h} \rightarrow y \;\;.$$ 
+Examples of classification output sets could be $\{\text{apples}, \text{oranges}, \text{pears}\}$ if we're trying to figure out what type of fruit we have, or $\{\text{heart attack}, \text{no heart attack}\}$ if we're working in an emergency room and trying to give the best medical care to a new patient. We focus on an essential simple case, *binary classification*, where we aim to find a mapping from $\mathbb{R}^d$ to two outputs. While we should think of the outputs as not having an order, it's often convenient to encode them as $\{0, 1\}$. As before, let the letter $h$ (for hypothesis) represent a classifier, so the classification process looks like: $$x \rightarrow \boxed{h} \rightarrow y \;\;.$$ 
 
 Like regression, classification is a *supervised learning* problem, in which we are given a training data set of the form 
 
@@ -20,7 +20,7 @@ We will assume that each $x^{(i)}$ is a $d \times 1$ *column vector*. The intend
 
 What makes a classifier useful? As in regression, we want it to work well on new data, making good predictions on examples it hasn't seen. But we don't know exactly what data this classifier might be tested on when we use it in the real world. So, we have to *assume* a connection between the training data and testing data; typically, they are drawn independently from the same probability distribution.
 
-In classification, we will often use 0-1 loss for evaluation (as discussed in @sec-evaluation). For that choice, we can write the training error and the testing error. In particular, given a training set ${\cal D}_n$ and a classifier $h$, we define the *training error* of $h$ to be 
+In classification, we will often use 0-1 loss for evaluation (as discussed in @sec-evaluation). For that choice, we can write the training error and the testing error. In particular, given a training set ${\cal D}_{\text{train}}$ and a classifier $h$, we define the *training error* of $h$ to be 
 
 $$
 \begin{aligned}
