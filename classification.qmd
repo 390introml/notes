@@ -1,6 +1,6 @@
 # Classification {#sec-classification}
 
-## Classification {#classification}
+## Problem formulation
 
 Classification is a machine learning problem seeking to map from inputs $\mathbb{R}^d$ to outputs in an unordered set. 
 
@@ -299,7 +299,7 @@ Remember to be sure your $y$
 :::
 
 
-We would like to pick the parameters of our classifier to maximize the probability assigned by the LLC to the correct $y$ values, as specified in the training set. Letting guess $g^{(i)} = \sigma(\theta^Tx^{(i)} + \theta_0)$, that probability is
+We would like to pick the parameters of our classifier to maximize the probability assigned by the LLC to the correct $y$ values, as specified in the training set. Letting $g^{(i)} = \sigma(\theta^Tx^{(i)} + \theta_0)$, that probability is
 
 :::{.column-margin}
 That crazy huge $\Pi$ represents taking the product over a bunch of factors just as huge $\Sigma$ represents taking the sum over a bunch of terms.
@@ -519,7 +519,7 @@ g = \operatorname{softmax}(z) =
       \exp(z_K) / \sum_{i} \exp(z_i)
     \end{bmatrix}\;\;.
 $$ 
-which can be interpreted as a probability distribution over $K$ items. To make the final prediction of the class label, we can then look at $g,$ find the most likely probability over these $K$ entries in $g,$ (i.e. find the largest entry in $g,$) and return the corresponding index as the "one-hot" element of $1$ in our prediction.
+which can be interpreted as a probability distribution over $K$ items. To make the final prediction of the class label, we can then look at $g,$ find the most probable class over these $K$ entries in $g,$ (i.e. find the largest entry in $g,$) and return the corresponding index as the "one-hot" element of $1$ in our prediction.
 
 :::{.study-question-callout}
 Convince yourself that the vector of $g$ values will be non-negative and sum to 1.
