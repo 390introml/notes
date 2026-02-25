@@ -306,3 +306,10 @@ If some feature is already encoded as a numeric value (heart rate, stock price, 
   transformation $\phi$ on our data.  Would increasing $k$ tend to
   increase or decrease structural error?  What about estimation error?
 :::
+
+## Final remarks
+
+Throughout this chapter, we have treated feature representation $\phi(x)$ as a fixed pre-processing step to enable linear models to capture complex, non-linear patterns. 
+In the next chapter, we will see that Neural Networks take this a step further: they don't just use a fixed $\phi(x)$, but rather learn the best feature representation directly from the raw input. 
+By composing multiple layers of nonlinear functions, they can approximate virtually any complex relationship—a concept mathematically grounded in the Universal Approximation Theorem ((Cybenko, 1989; Hornik, 1991)). 
+Thus, what we do manually here with polynomial or radial bases, neural networks achieve through automated optimization.
