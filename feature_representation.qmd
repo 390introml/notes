@@ -269,7 +269,7 @@ Getting a good encoding of discrete features is particularly important. You want
 We'll start by listing some encoding strategies, and then work through some examples. Let's assume we have some feature in our raw data that can take on one of $k$ discrete values.
 
 -   **Numeric:** Assign each of these values a number, say $1.0/k,
-              2.0/k, \ldots, 1.0$. We might want to then do some further processing, as described in Section [1.3.3](#realFeatures){reference-type="ref" reference="realFeatures"}. This is a sensible strategy *only* when the discrete values really do signify some sort of numeric quantity, so that these numerical values are meaningful.
+              2.0/k, \ldots, 1.0$. We might want to then do some further processing, as described in Section @sec-realFeature. This is a sensible strategy *only* when the discrete values really do signify some sort of numeric quantity, so that these numerical values are meaningful.
 
 -   **Thermometer code:** If your discrete values have a natural ordering, from $1, \ldots, k$, but not a natural mapping into real numbers, a good strategy is to use a vector of length $k$ binary variables, where we convert discrete input value $0 < j \leq k$ into a vector in which the first $j$ values are $1.0$ and the rest are $0.0$. This does not necessarily imply anything about the spacing or numerical quantities of the inputs, but does convey something about ordering.
 
