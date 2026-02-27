@@ -309,7 +309,6 @@ If some feature is already encoded as a numeric value (heart rate, stock price, 
 
 ## Final remarks
 
-Throughout this chapter, we have treated feature representation $\phi(x)$ as a fixed pre-processing step to enable linear models to capture complex, non-linear patterns. 
-In the next chapter, we will see that Neural Networks take this a step further: they don't just use a fixed $\phi(x)$, but rather learn the best feature representation directly from the raw input. 
-By composing multiple layers of nonlinear functions, they can approximate virtually any complex relationship—a concept mathematically grounded in the Universal Approximation Theorem ((Cybenko, 1989; Hornik, 1991)). 
-Thus, what we do manually here with polynomial or radial bases, neural networks achieve through automated optimization.
+Throughout this chapter, we have treated the feature representation $\phi(x)$ as a fixed pre-processing step that we choose manually to enable linear models to capture non-linear patterns.
+In the next chapter, we will see that neural networks take this a step further: rather than requiring us to specify $\phi(x)$, they *learn* a suitable feature representation directly from data.
+By composing multiple layers of nonlinear functions, neural networks can, under some technical conditions, approximate virtually any continuous function. This is a result known as the Universal Approximation Theorem (Cybenko, 1989; Hornik, 1991), which we will not cover in detail in this course but which offers useful insights into why neural networks are so expressive.
