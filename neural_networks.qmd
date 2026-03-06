@@ -94,7 +94,7 @@ The function represented by the neuron is expressed as: $$a = f(z) = f\left(\lef
 Before thinking about a whole network, we can consider how to train a single unit. Given a loss function $\mathcal{L}(\text{guess}, \text{actual})$ and a dataset $\{(x^{(1)}, y^{(1)}), \ldots,
   (x^{(n)},y^{(n)})\}$, we can do (stochastic) gradient descent, adjusting the weights $w, w_0$ to minimize $$J(w, w_0) = \frac{1}{n}\sum_{i} \mathcal{L}\left(\text{NN}(x^{(i)}; w, w_0), y^{(i)}\right)\;,$$ where $\text{NN}$ is the output of our single-unit neural net for a given input.
 
-We have already studied two special cases of the neuron: linear logistic classifiers (LLCs) with NLL loss and regressors with quadratic loss! The activation function for the LLC is $f(x) =
+We have already studied two special cases of the neuron: linear logistic classifiers (LLCs) and regressors! The activation function for the LLC is $f(x) =
   \sigma(x)$ and for linear regression it is simply $f(x) = x$.
 
 
