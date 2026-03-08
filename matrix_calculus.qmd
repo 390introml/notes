@@ -43,11 +43,34 @@ What our inputs and outputs are not just vectors, but are matrices? In this case
 
 However, we will deal w/ one specific case of matrix derivatives; namely, when we have a function $f$ that maps inputs of size $m \times n$ to scalar outputs. This derivative will require only a matrix of values to capture its information. But how do we formally define this? 
 
-We can extend the notation above quite naturally to this case. Specifically:
+We can extend the notation above of accumulating partial derivatives quite naturally to this case. Specifically:
 
-$$\frac{df}{dA} = \sum_{i,j} \frac{df}{dA_{i,j}} \cdot dA_{i,j}$$
+$$df = \sum_{i,j} \frac{df}{dA_{i,j}} \cdot dA_{i,j}$$
 
 In other words, we element-wise multiply the elements of $\frac{df}{dA}$ and $dA$ and sum up the results! This is kind of look a dot-product for matrices, and immediatly tells us that the size of $\frac{df}{dA}$ must match the size of $dA$. 
+
+In practice, however, we want to avoid all of these indices, so there is actually a cleaner way to write this expression. First, recall from Linear Algebra that the *trace* of a matrix is denoted $tr(A)$ and it sums up the elements along the main diagonal of the matrix. Using this function, we can rewrite the above as:
+
+$$df = tr(\frac{df}{dA}^T \cdot dA)$$.
+
+This can be verified by expanding out the indices of the multiplication. 
+::: {.callout-note collapse="true" title="Numerator Layout"}
+Consider the matrix $X$ of size $m \cross n$, and denote $X_j$$ as the jth column of X. We have:
+$$
+\begin{aligned}
+
+  df &= tr(\frac{df}{dA}^T \cdot dA)
+     &= \sum_{j=1}^{n} \frac{df}{dA}_j \cdot dA_j
+     &= \sum_{j=1}^{n} \sum_{i=1}^{m} \frac{df}{dA}_{i, j} \cdot dA_{i,j}
+     &= \sum_{i,j} \frac{df}{dA}_{i, j} \cdot dA_{i,j}
+\end{aligned}
+
+which was the original expression above. 
+$$
+:::
+
+
+Nevertheless, this cleaner notation that avoids indexing directly will be helpful when we take derivatives with respect to weight matrices in Neural Nets, as we will cover later. 
 
 ## The Shapes of Things {#sec-matrix-derivative}
 
