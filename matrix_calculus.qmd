@@ -65,7 +65,6 @@ $$
      &= \sum_{i,j} \frac{df}{dA}_{i, j} \cdot dA_{i,j}
 \end{aligned}
 $$
-which was the original expression above. 
 :::
 
 
