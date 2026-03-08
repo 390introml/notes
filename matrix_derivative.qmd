@@ -201,7 +201,7 @@ $${#eq-uT}
 
 ## Derivation of gradient for linear regression {#app:matrix-gradient}
 
-Recall here that $\bf X$ is a matrix of of size $n \times d$ and $\bf Y$ is an $n \times 1$ vector. 
+Recall here that $\bf X$ is a matrix of size $n \times d$ and $\bf Y$ is an $n \times 1$ vector. 
 
 Applying identities @eq-xTA, @eq-uTv,@eq-uplusv, @eq-Ax, @eq-const 
 

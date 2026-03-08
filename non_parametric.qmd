@@ -1,10 +1,4 @@
-:::{.callout-note}
-This page contains all content from the legacy [PDF notes](https://introml.mit.edu/_static/spring25/notes.pdf); non-parametric models chapter.
-
-As we phase out the PDF, this page may receive updates not reflected in the static PDF.
-:::
-
-# Non-parametric methods {#sec-nonparametric}
+# Non-parametric Models {#sec-nonparametric}
 
 Neural networks have adaptable complexity, in the sense that we can try different structural models and use cross validation to find one that works well on our data. Beyond neural networks, we may further broaden the class of models that we can fit to our data, for example as illustrated by the techniques introduced in this chapter.
 
@@ -49,7 +43,7 @@ Given a data-set ${\cal D}= \{(x^{(i)},y^{(i)})\}_{i=1}^n$, our predictor for a 
 
 This same algorithm works for regression *and* classification!
 
-The nearest neighbor prediction function can be described by dividing the space up into regions whose closest point is each individual training point as shown below :
+The nearest neighbor prediction function can be described by dividing the space up into regions whose closest point is each individual training point as shown below:
 
 
 ![](figures/voronoi.png){width="70%"}
@@ -75,7 +69,8 @@ Tree methods differ by:
 One advantage of tree models is that they are easily interpretable by humans. This is important in application domains, such as medicine, where there are human experts who often ultimately make critical decisions and who need to feel confident in their understanding of recommendations made by an algorithm. Below is an example decision tree, illustrating how one might be able to understand the decisions made by the tree.
 
 :::{.callout-note}
-#Example
+# Example
+
 Here is a sample tree (reproduced from Breiman, Friedman, Olshen, Stone (1984)):
 
 ![](figures/tree-example.png){width="70%"}
@@ -221,17 +216,19 @@ One important limitation or drawback in conventional trees is that they can have
 
 -   Construct $B$ new data sets of size $n$. Each data set is constructed by sampling $n$ data points with replacement from ${\cal D}$. A single data set is called *bootstrap sample* of ${\cal D}$.
 
--   Train a predictor $\hat{f}^b(x)$ on each bootstrap sample.
+-   Train a predictor $\hat{f}^b(x)$ on each bootstrap sample. When building each tree, the standard tree-building algorithm is used, which considers *all* features when deciding how to split at each node.
 
 -   *Regression case*: bagged predictor is $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x) \; .$$
 
--   *Classification case*: Let $K$ be the number of classes. We find a majority bagged predictor as follows. We let $\hat{f}^b(x)$ be a "one-hot" vector with a single 1 and $K-1$ zeros, and define the predicted output $\hat{y}$ for predictor $f^b$ as $\hat{y}^b(x) = {\rm arg}\max_{k} \hat{f}^b(x)_k$. Then $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x),$$ which is a vector containing the proportion of classifiers that predicted each class $k$ for input $x$. Then the overall predicted output is $$\hat{y}_{\rm bag}(x) = {\rm arg}\max_{k} \hat{f}_{\rm bag}(x)_k\;\;.$$
+-   *Classification case*: Let $K$ be the number of classes. We find a majority bagged predictor as follows. We let $\hat{f}^b(x)$ be a "one-hot" vector with a single 1 and $K-1$ zeros, and define the predicted output $\hat{y}$ for predictor $f^b$ as $\hat{y}^b(x) = {\rm arg}\max_{k} \hat{f}^b(x)_k$. Then $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x),$$ which is a vector containing the proportion of classifiers that predicted each class $k$ for input $x.$ Then the overall predicted output is $$\hat{y}_{\rm bag}(x) = {\rm arg}\max_{k} \hat{f}_{\rm bag}(x)_k\;\;.$$
 
 There are theoretical arguments showing that bagging does, in fact, reduce estimation error. However, when we bag a model, any simple intrepetability is lost.
 
 ### Random Forests
 
-Random forests are collections of trees that are constructed to be de-correlated, so that using them to vote gives maximal advantage. In competitions, they often have excellent classification performance among large collections of much fancier methods.
+Random forests extend bagging by introducing an additional source of randomness during tree construction. While bagging uses bootstrap sampling to create diversity across trees, random forests also add *random feature selection* at each split. This additional randomization helps de-correlate the trees, so that using them to vote gives maximal advantage. In competitions, they often have excellent classification performance among large collections of much fancier methods.
+
+The key difference from bagging is that when building each tree, at each split node, rather than considering all $d$ features to find the best split, random forests randomly select only $m$ features (where $m \leq d$ is a hyperparameter) and then choose the best split among those $m$ features. This forces trees to be more diverse and less correlated with each other.
 
 In what follows, $B$, $m$, and $n$ are hyperparameters of the algorithm.
 
@@ -277,8 +274,6 @@ While tree-based methods excel at supervised learning tasks, we now turn to anot
 
 ## $k$-means Clustering {#sec-clustering}
 Clustering is an unsupervised learning method where we aim to discover meaningful groupings or categories in a dataset based on patterns or similarities within the data itself, without relying on pre-assigned labels. It is widely used for exploratory data analysis, pattern recognition, and segmentation tasks, allowing us to interpret and manage complex datasets by uncovering hidden structures and relationships.
-
-
 
 Oftentimes a dataset can be partitioned into different categories. A doctor may notice that their patients come in cohorts and different cohorts respond to different treatments. A biologist may gain insight by identifying that bats and whales, despite outward appearances, have some underlying similarity, and both should be considered members of the same category, i.e., "mammal". The problem of automatically identifying meaningful groupings in datasets is called clustering. Once these groupings are found, they can be leveraged toward interpreting the data and making optimal decisions for each group.
 
@@ -382,13 +377,13 @@ A very important parameter in cluster algorithms is the number of clusters we ar
 
 ![Example of k-means run on our toy data, with two different values of k. Setting k=4, on the left, results in one cluster being merged, compared to setting k=5, on the right. Which clustering do you think is better? How could you decide?](figures/effect_of_k.png){#fig-effect_of_k width="67%"}
 
-@fig-effect_of_k shows an example of the effect. Which result looks more correct? It can be hard to say! Using higher k we get more clusters, and with more clusters we can achieve lower within-cluster variance -- the k-means objective will never increase, and will typically strictly decrease as we increase k. Eventually, we can increase k to equal the total number of datapoints, so that each datapoint is assigned to its own cluster. Then the k-means objective is zero, but the clustering reveals nothing. Clearly, then, we cannot use the k-means objective itself to choose the best value for k. In Section [1.3](#sec-eval){reference-type="ref" reference="sec-eval"}, we will discuss some ways of evaluating the success of clustering beyond its ability to minimize the k-means objective, and it's with these sorts of methods that we might decide on a proper value of k.
+@fig-effect_of_k shows an example of the effect. Which result looks more correct? It can be hard to say! Using higher k we get more clusters, and with more clusters we can achieve lower within-cluster variance -- the k-means objective will never increase, and will typically strictly decrease as we increase k. Eventually, we can increase k to equal the total number of datapoints, so that each datapoint is assigned to its own cluster. Then the k-means objective is zero, but the clustering reveals nothing. Clearly, then, we cannot use the k-means objective itself to choose the best value for k. In @sec-eval, we will discuss some ways of evaluating the success of clustering beyond its ability to minimize the k-means objective, and it's with these sorts of methods that we might decide on a proper value of k.
 
 Alternatively, you may be wondering: why bother picking a single k? Wouldn't it be nice to reveal a *hierarchy* of clusterings of our data, showing both coarse and fine groupings? Indeed *hierarchical clustering* is another important class of clustering algorithms, beyond k-means. These methods can be useful for discovering tree-like structure in data, and they work a bit like this: initially a coarse split/clustering of the data is applied at the root of the tree, and then as we descend the tree we split and cluster the data in ever more fine-grained ways. A prototypical example of hierarchical clustering is to discover a taxonomy of life, where creatures may be grouped at multiple granularities, from species to families to kingdoms. You may find a suite of clustering algorithms in SKLEARN's [cluster](https://scikit-learn.org/1.5/modules/clustering.html) module.
 
 ###### k-means in feature space
 
-Clustering algorithms group data based on a notion of *similarity*, and thus we need to define a *distance metric* between datapoints. This notion will also be useful in other machine learning approaches, such as nearest-neighbor methods that we see in @sec-nonparametric. In k-means and other methods, our choice of distance metric can have a big impact on the results we will find.
+Clustering algorithms group data based on a notion of *similarity*, and thus we need to define a *distance metric* between datapoints. This notion will also be useful in other machine learning approaches, such as nearest-neighbor methods that we see in @sec-np_nn. In k-means and other methods, our choice of distance metric can have a big impact on the results we will find.
 
 Our k-means algorithm uses the Euclidean distance, i.e., $\left\Vert x^{(i)} - \mu^{(j)} \right\Vert$, with a loss function that is the square of this distance. We can modify k-means to use different distance metrics, but a more common trick is to stick with Euclidean distance but measured in a *feature space*. Just like we did for regression and classification problems, we can define a feature map from the data to a nicer feature representation, $\phi(x)$, and then apply k-means to cluster the data in the feature space.
 
