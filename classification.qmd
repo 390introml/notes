@@ -1,6 +1,6 @@
 # Classification {#sec-classification}
 
-## Classification {#classification}
+## Problem formulation
 
 Classification is a machine learning problem seeking to map from inputs $\mathbb{R}^d$ to outputs in an unordered set. 
 
@@ -8,7 +8,7 @@ Classification is a machine learning problem seeking to map from inputs $\mathbb
 This is in contrast to a continuous real-valued output, as we saw for linear regression.
 :::
 
-Examples of classification output sets could be $\{\text{apples}, \text{oranges}, \text{pears}\}$ if we're trying to figure out what type of fruit we have, or $\{\text{heart attack}, \text{no heart attack}\}$ if we're working in an emergency room and trying to give the best medical care to a new patient. We focus on an essential simple case, *binary classification*, where we aim to find a mapping from $\mathbb{R}^d$ to two outputs. While we should think of the outputs as not having an order, it's often convenient to encode them as $\{+1, 0\}$. As before, let the letter $h$ (for hypothesis) represent a classifier, so the classification process looks like: $$x \rightarrow \boxed{h} \rightarrow y \;\;.$$ 
+Examples of classification output sets could be $\{\text{apples}, \text{oranges}, \text{pears}\}$ if we're trying to figure out what type of fruit we have, or $\{\text{heart attack}, \text{no heart attack}\}$ if we're working in an emergency room and trying to give the best medical care to a new patient. We focus on an essential simple case, *binary classification*, where we aim to find a mapping from $\mathbb{R}^d$ to two outputs. While we should think of the outputs as not having an order, it's often convenient to encode them as $\{0, 1\}$. As before, let the letter $h$ (for hypothesis) represent a classifier, so the classification process looks like: $$x \rightarrow \boxed{h} \rightarrow y \;\;.$$ 
 
 Like regression, classification is a *supervised learning* problem, in which we are given a training data set of the form 
 
@@ -20,7 +20,7 @@ We will assume that each $x^{(i)}$ is a $d \times 1$ *column vector*. The intend
 
 What makes a classifier useful? As in regression, we want it to work well on new data, making good predictions on examples it hasn't seen. But we don't know exactly what data this classifier might be tested on when we use it in the real world. So, we have to *assume* a connection between the training data and testing data; typically, they are drawn independently from the same probability distribution.
 
-In classification, we will often use 0-1 loss for evaluation (as discussed in @sec-evaluation). For that choice, we can write the training error and the testing error. In particular, given a training set ${\cal D}_n$ and a classifier $h$, we define the *training error* of $h$ to be 
+In classification, we will often use 0-1 loss for evaluation (as discussed in @sec-evaluation). For that choice, we can write the training error and the testing error. In particular, given a training set ${\cal D}_{\text{train}}$ and a classifier $h$, we define the *training error* of $h$ to be 
 
 $$
 \begin{aligned}
@@ -299,7 +299,7 @@ Remember to be sure your $y$
 :::
 
 
-We would like to pick the parameters of our classifier to maximize the probability assigned by the LLC to the correct $y$ values, as specified in the training set. Letting guess $g^{(i)} = \sigma(\theta^Tx^{(i)} + \theta_0)$, that probability is
+We would like to pick the parameters of our classifier to maximize the probability assigned by the LLC to the correct $y$ values, as specified in the training set. Letting $g^{(i)} = \sigma(\theta^Tx^{(i)} + \theta_0)$, that probability is
 
 :::{.column-margin}
 That crazy huge $\Pi$ represents taking the product over a bunch of factors just as huge $\Sigma$ represents taking the sum over a bunch of terms.
@@ -337,7 +337,11 @@ $$
   \text{guess})\right) \;\;.
 $$ 
 
-This loss function is also sometimes referred to as the *log loss* or *cross entropy*. and it won't make any real difference. If we ask you for numbers, use log base $e$.
+This loss function is also sometimes referred to as the *log loss* or *cross entropy*.
+
+:::{.column-margin}
+The choice of log base doesn't make any real difference here. When we ask you for numbers, use log base $e$ (i.e., $\ln$).
+:::
 
 **What is the objective function for linear logistic classification?** We can finally put all these pieces together and develop an objective function for optimizing regularized negative log-likelihood for a linear logistic classifier. In fact, this process is usually called "logistic regression," so we'll call our objective $J_\text{lr}$, and define it as 
 $$
@@ -519,7 +523,7 @@ g = \operatorname{softmax}(z) =
       \exp(z_K) / \sum_{i} \exp(z_i)
     \end{bmatrix}\;\;.
 $$ 
-which can be interpreted as a probability distribution over $K$ items. To make the final prediction of the class label, we can then look at $g,$ find the most likely probability over these $K$ entries in $g,$ (i.e. find the largest entry in $g,$) and return the corresponding index as the "one-hot" element of $1$ in our prediction.
+which can be interpreted as a probability distribution over $K$ items. To make the final prediction of the class label, we can then look at $g,$ find the most probable class over these $K$ entries in $g,$ (i.e. find the largest entry in $g,$) and return the corresponding index as the "one-hot" element of $1$ in our prediction.
 
 :::{.study-question-callout}
 Convince yourself that the vector of $g$ values will be non-negative and sum to 1.

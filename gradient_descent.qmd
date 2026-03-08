@@ -30,21 +30,23 @@ For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudoc
 \begin{algorithm}
 \begin{algorithmic}
 \Procedure{1D-Gradient-Descent}{$\Theta_{init}, \eta, f, f', \epsilon$}
-  \State $\Theta^{(0)} \gets \Theta_{init}$ 
-  \State $t \gets 0$ 
+  \State $\Theta^{(0)} \gets \Theta_{init}$
+  \State $t \gets 0$
   \Repeat
     \State $t \gets t+1$
     \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta \, f'(\Theta^{(t-1)})$
-  \Until{$|f'(\Theta^{(t)})| < \epsilon$}
+  \Until{$\left|f(\Theta^{(t)}) - f(\Theta^{(t-1)})\right| < \epsilon$}
   \Return{$\Theta^{(t)}$}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 ```
 
-Note that this algorithm terminates when the derivative of the function $f$ is sufficiently small. There are many other reasonable ways to decide to terminate, including:
+Note that this algorithm terminates when the change in the value of the objective function is sufficiently small. There are many other reasonable ways to decide to terminate, including:
 
 -   Stop after a fixed number of iterations $T$, i.e., when $t = T$. Practically, this is the most common choice.
+
+-   Stop when the derivative of $f$ is sufficiently small, i.e., when $\left|f'(\Theta^{(t)})\right| < \epsilon$.
 
 -   Stop when the change in the value of the parameter $\Theta$ is sufficiently small, i.e., when $\left| \Theta^{(t)} - \Theta^{(t-1)} \right| < \epsilon$.
 
@@ -81,7 +83,7 @@ The following plot illustrates a convex function $f(x) = (x - 2)^2$, starting gr
       \draw[-latex,blue,thick] (axis cs: 4,4) -- (axis cs: 2,0);
     \end{axis}
   \end{tikzpicture}
-::::
+:::
 
 
 If $f$ is non-convex, where gradient descent converges depends on $x_{\it init}$. First, let's establish some definitions. Let $f$ be a real-valued function defined over some domain $D$. A point $x_0 \in D$ is called a *global minimum point* of $f$ if $f(x_0) \leq f(x)$ for all other $x \in D$. A point $x_0 \in D$ is instead called a *local minimum point* of a function $f$ if there exists some constant $\epsilon > 0$ such that for all $x$ within the interval defined by $d(x,x_0) < \epsilon,$ $f(x_0) \leq f(x)$, where $d$ is some distance metric, e.g., $d(x,x_0) = || x - x_0 ||.$ A global minimum point is also a local minimum point, but a local minimum point does not have to be a global minimum point.
@@ -155,7 +157,7 @@ $$ and any termination criteria that depend on the dimensionality of $\Theta$ wo
 Which termination criteria from the 1D case were defined in a way that assumes $\Theta$ is one dimensional?
 :::
 
-## Application to regression {#sec-gd_ridge}
+## Application to ridge regression {#sec-gd_ridge}
 
 Recall from the previous chapter that choosing a loss function is the first step in formulating a machine-learning problem as an optimization problem, and for regression we studied the mean-squared loss, which captures loss as $({\rm guess} - {\rm actual})^2$. This leads to the *ordinary least squares* objective 
 
@@ -287,8 +289,8 @@ $$
 where $n$ is the number of data points used in the objective (and this may be different from the number of points available in the whole data set). 
 
 
-Here is pseudocode for applying SGD to such an objective $J$; it assumes we know the form of 
-$\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
+Here is pseudocode for applying SGD to such an objective $J$; it assumes we know the form of
+$\nabla_\Theta J_i$ for all $i$ in $1\ldots n$. Note that, unlike standard gradient descent, the learning rate $\eta(t)$ is now indexed by the iteration $t$, allowing it to decrease over time:
 
 ```pseudocode
 #| html-indent-size: "1.2em"
@@ -301,19 +303,21 @@ $\nabla_\Theta J_i$ for all $i$ in $1\ldots n$:
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,J,\nabla_{\Theta}J_1,...,\nabla_{\Theta} J_n,T$}
-  \State $\Theta^{(0)} \gets \Theta_{\it init}$ 
-  \For{$t \gets 1$}
+\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,\{J_i\}_{i=1}^n,\epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\it init}$
+  \State $t \gets 0$
+  \Repeat
+    \State $t \gets t+1$
     \State randomly select $i \in \{1, 2, \dots, n\}$
-    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta J_i(\Theta^{(t-1)})$ 
-  \EndFor
-
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta(t) \, \nabla_\Theta J_i(\Theta^{(t-1)})$
+  \Until{$\left|J(\Theta^{(t)}) - J(\Theta^{(t-1)})\right| < \epsilon$}
+  \Return{$\Theta^{(t)}$}
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
 ```
 
-Note that now instead of a fixed value of $\eta$, $\eta$ is indexed by the iteration of the algorithm, $t$. Choosing a good stopping criterion can be a little trickier for SGD than traditional gradient descent. Here we've just chosen to stop after a fixed number of iterations $T$.
+Choosing a good stopping criterion can be a little trickier for SGD than traditional gradient descent, since the objective value can be noisy from step to step. Practically, stopping after a fixed number of iterations $T$ is a common alternative.
 
 For SGD to converge to a local optimum point as $t$ increases, the learning rate has to decrease as a function of time. The next result shows one learning rate sequence that works.
 
@@ -330,10 +334,41 @@ One "legal" way of setting the learning rate is to make $\eta(t) = 1/t$ but peop
 If you start a long way from the optimum, would making $\eta(t)$ decrease more slowly tend to make you move more quickly or more slowly to the optimum?
 :::
 
-There are multiple intuitions for why SGD might be a better choice algorithmically than regular gd (sometimes called *batch* gd (BGD)):
+There are multiple intuitions for why SGD might be a better choice algorithmically than regular gradient descent:
 
--   BGD typically requires computing some quantity over every data point in a data set. SGD may perform well after visiting only some of the data. This behavior can be useful for very large data sets -- in runtime and memory savings.
+-   GD typically requires computing some quantity over every data point in a data set. SGD may perform well after visiting only some of the data. This behavior can be useful for very large data sets -- in runtime and memory savings.
 
--   If your $J$ is actually non-convex, but has many shallow local optimum points that might trap BGD, then taking *samples* from the gradient at some point $\Theta$ might "bounce" you around the landscape and away from the local optimum points.
+-   If your $J$ is actually non-convex, but has many shallow local optimum points that might trap GD, then taking *samples* from the gradient at some point $\Theta$ might "bounce" you around the landscape and away from the local optimum points.
 
--   Sometimes, optimizing $J$ really well is not what we want to do, because it might overfit the training set; so, in fact, although SGD might not get lower training error than BGD, it might result in lower test error.
+-   Sometimes, optimizing $J$ really well is not what we want to do, because it might overfit the training set; so, in fact, although SGD might not get lower training error than GD, it might result in lower test error.
+
+## Mini-batch gradient descent {#sec-minibatch}
+
+In practice, a common middle ground between GD and SGD is *mini-batch gradient descent*. Instead of using the full data set (GD) or a single data point (SGD) to estimate the gradient at each step, mini-batch GD randomly selects a small subset of $b$ data points.
+
+```pseudocode
+#| html-indent-size: "1.2em"
+#| html-comment-delimiter: "//"
+#| html-line-number: true
+#| html-line-number-punc: ":"
+#| html-no-end: false
+#| pdf-placement: "htb!"
+#| pdf-line-number: true
+
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{Mini-batch-Gradient-Descent}{$\Theta_{init},\eta,b,\{J_i\}_{i=1}^n,\epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\it init}$
+  \State $t \gets 0$
+  \Repeat
+    \State $t \gets t+1$
+    \State $B \gets$ random mini-batch of size $b$ from $\{1, \ldots, n\}$
+    \State $\Theta^{(t)} = \Theta^{(t-1)} - \eta \, \nabla_\Theta J_B(\Theta^{(t-1)})$
+  \Until{$\left|J(\Theta^{(t)}) - J(\Theta^{(t-1)})\right| < \epsilon$}
+  \Return{$\Theta^{(t)}$}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+```
+
+Here $\nabla_\Theta J_B(\Theta) = \frac{1}{b}\sum_{i \in B} \nabla_\Theta J_i(\Theta)$ is the gradient averaged over the mini-batch $B$. This gives a more accurate gradient estimate than SGD while remaining much cheaper per step than GD.
