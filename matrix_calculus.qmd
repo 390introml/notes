@@ -51,7 +51,7 @@ In other words, we element-wise multiply the elements of $\frac{df}{dA}$ and $dA
 
 In practice, however, we want to avoid all of these indices, so there is actually a cleaner way to write this expression. First, recall from Linear Algebra that the *trace* of a matrix is denoted $tr(A)$ and it sums up the elements along the main diagonal of the matrix. Using this function, we can rewrite the above as:
 
-$$df = tr(\frac{df}{dA}^T \cdot dA)$$.
+$$df = tr(\frac{df}{dA}^T \cdot dA)$$
 
 This can be verified by expanding out the indices of the multiplication. 
 
@@ -226,7 +226,7 @@ $$
 \frac{df}{dv} = 2v
 $$
 
-### Example 4 - Chain Rule
+### Example 4 - Chain Rule {#sec-ChainRule}
 
 This is where the advantage of matrix calculus—and more specifically the denominator layout—really shines.
 
@@ -520,4 +520,42 @@ Let us try applying everything that we've learned about Matrix Calculus to the c
 Let's cover / remind ourselves of each of these points
 
 ### Chain Rule
-Given a function
+Let's say we are given a composition of functions of the form $f(g(h(x)))$, then we proved in @sec-ChainRule
+that:
+
+$$\frac{df}{dx} = \frac{dh}{dx} \cdot \frac{dg}{dh} \cdot \frac{df}{dg}$$
+
+where as we move from left to right, we move from the inner most function to the outermost.  
+
+### Element-Wise Operations
+Let's say we are given a vector $v \in \mathbb{R}^n$ and a function $f: \mathbb{R} \rightarrow \mathbb{R}$. Let's define 
+$F: \mathbb{R}^n \rightarrow \mathbb{R}^n $ as the function that applies $f$ element wise. 
+
+This shows up very often in Neural Nets, when we apply an element-wise activation to the neurons in a layer of the network.
+
+What is the derivative of this operation? Note that $F$ maps vectors to vectors of the same size, so we expect to get a square matrix as the derivative.
+
+Then:
+$$$$
+\begin{aligned}
+  dF &= F(v + dv) - F(v) \\
+     &= [f(v_1 + dv_1), \ldots, f(v_n + dv_n)]^T - [f(v_1), \ldots, f(v_n)]^T \\
+     &= [f(v_1 + dv_1) - f(v_1), \ldots, f(v_n + dv_n) - f(v_n)]^T \\
+     &= [f'(v_1) dv_1, \ldots, f'(v_n) dv_n]^T
+     &= \begin{bmatrix}
+        f'(v_1) & 0 & \cdots & 0 \\
+        0 & f'(v_2) & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots & f'(v_n)
+      \end{bmatrix} dv
+\end{aligned}
+$$
+
+where $f'(x)$ represents the standard one-dimensional derivative of the function with respect to $x$. We thus have that:
+
+$$\frac{dF}{dv} = \begin{bmatrix}
+  f'(v_1) & 0 & \cdots & 0 \\
+  0 & f'(v_2) & \cdots & 0 \\
+  \vdots & \vdots & \ddots & \vdots \\
+  0 & 0 & \cdots & f'(v_n)
+\end{bmatrix}$$
