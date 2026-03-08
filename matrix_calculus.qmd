@@ -65,6 +65,7 @@ $$
      &= \sum_{i,j} \frac{df}{dA}_{i, j} \cdot dA_{i,j}
 \end{aligned}
 $$
+which was the original expression above
 :::
 
 
@@ -509,3 +510,14 @@ $$\begin{aligned}
 \,,
 \end{aligned}
 $$ which is the desired result.
+
+## Matrix Calculus for Neural Networks
+Let us try applying everything that we've learned about Matrix Calculus to the case of Neural Networks. This boils to three main principles:
+1. Chain Rule
+2. Element-wise operations
+3. Derivatives with respect to matrices
+
+Let's cover / remind ourselves of each of these points
+
+### Chain Rule
+Given a function
