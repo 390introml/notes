@@ -54,6 +54,7 @@ In practice, however, we want to avoid all of these indices, so there is actuall
 $$df = tr(\frac{df}{dA}^T \cdot dA)$$.
 
 This can be verified by expanding out the indices of the multiplication. 
+
 ::: {.callout-note collapse="true" title="Proof"}
 Consider the matrix $A$ of size $m \times n$, and denote $A_j$ as the $j$th column of $A$. We have:
 $$
