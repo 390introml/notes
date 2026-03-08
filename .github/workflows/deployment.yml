@@ -27,6 +27,7 @@ jobs:
       - name: Pull and Render
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.ID }}@${{ secrets.HOST }} << 'EOF'
+          set -e
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
           cd ${{ secrets.DIR }}
           elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
