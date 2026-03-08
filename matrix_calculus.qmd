@@ -18,6 +18,7 @@ We can even, in a very hand-waving way, think of the $dx$'s canceling out nicely
 
 ## Multi-variable Calculus
 
+### Vector-by-Vector Derivatives
 In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. We will use the following notation, which may seem a bit counter-intuitive at first:
 
 $$
@@ -35,6 +36,18 @@ This is called the **denominator layout** convention, and it has been widely ado
 ::: {.callout-note collapse="true" title="Numerator Layout"}
 Some textbooks instead use the **numerator layout**, where $df = \frac{df}{dx} \cdot dx$ without the transpose. In that convention, $\frac{df}{dx}$ is of size $(m \times n)$—the transpose of what we define above. Although it may seem more intuitive at first, it makes chain rule computations more complicated. We will not use numerator layout in this course.
 :::
+
+### Scalar-by-Matrix Derivatives
+
+What our inputs and outputs are not just vectors, but are matrices? In this case, things certainly become more complicated. For instance, note that the number of elements needed in a derivative is the product of the number of elements in the input and output of the function. That's why vector-by-vector derivatives look like matrices. This would mean that vector-by-matrix derivatives would require us to have a three-dimensional derivative object (often referred to as a tensor). These types of high-order objects are beyond the scope of this course. 
+
+However, we will deal w/ one specific case of matrix derivatives; namely, when we have a function $f$ that maps inputs of size $m \times n$ to scalar outputs. This derivative will require only a matrix of values to capture its information. But how do we formally define this? 
+
+We can extend the notation above quite naturally to this case. Specifically:
+
+$$\frac{df}{dA} = \sum_{i,j} \frac{df}{dA_{i,j}} \cdot dA_{i,j}$$
+
+In other words, we element-wise multiply the elements of $\frac{df}{dA}$ and $dA$ and sum up the results! This is kind of look a dot-product for matrices, and immediatly tells us that the size of $\frac{df}{dA}$ must match the size of $dA$. 
 
 ## The Shapes of Things {#sec-matrix-derivative}
 
