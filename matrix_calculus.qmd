@@ -39,34 +39,32 @@ Some textbooks instead use the **numerator layout**, where $df = \frac{df}{dx} \
 
 ### Scalar-by-Matrix Derivatives
 
-What our inputs and outputs are not just vectors, but are matrices? In this case, things certainly become more complicated. For instance, note that the number of elements needed in a derivative is the product of the number of elements in the input and output of the function. That's why vector-by-vector derivatives look like matrices. This would mean that vector-by-matrix derivatives would require us to have a three-dimensional derivative object (often referred to as a tensor). These types of high-order objects are beyond the scope of this course. 
+What if our inputs and outputs are not just vectors, but matrices? In this case, things certainly become more complicated. For instance, note that the number of dimensions needed for a derivative object is the product of the number of dimensions in the input and output of the function. That's why vector-by-vector derivatives look like matrices. This would mean that vector-by-matrix derivatives would require us to have a three-dimensional derivative object (often referred to as a tensor). These types of high-order objects are beyond the scope of this course. 
 
-However, we will deal w/ one specific case of matrix derivatives; namely, when we have a function $f$ that maps inputs of size $m \times n$ to scalar outputs. This derivative will require only a matrix of values to capture its information. But how do we formally define this? 
+However, we will deal with one specific case of matrix derivatives; namely, when we have a function $f$ that maps matrix inputs of size $m \times n$ to scalar outputs. This derivative will require only a matrix of values to capture its information. But how do we formally define this? 
 
-We can extend the notation above of accumulating partial derivatives quite naturally to this case. Specifically:
+In the vector-by-vector case, we defined a $df$ by summing up all of the products between $\frac{df_i}{dx_j}$ and $dx_j$. We can extend the notation above of accumulating partial derivatives quite naturally to the case of scalar-by-matrix derivatives. Specifically:
 
 $$df = \sum_{i,j} \frac{df}{dA_{i,j}} \cdot dA_{i,j}$$
 
-In other words, we element-wise multiply the elements of $\frac{df}{dA}$ and $dA$ and sum up the results! This is kind of look a dot-product for matrices, and immediatly tells us that the size of $\frac{df}{dA}$ must match the size of $dA$. 
+In other words, we element-wise multiply the elements of $\frac{df}{dA}$ and $dA$ and sum up the results! This is essentially a component-wise dot-product for matrices, and immediatly tells us that the size of $\frac{df}{dA}$ must match the size of $dA$. 
 
 In practice, however, we want to avoid all of these indices, so there is actually a cleaner way to write this expression. First, recall from Linear Algebra that the *trace* of a matrix is denoted $tr(A)$ and it sums up the elements along the main diagonal of the matrix. Using this function, we can rewrite the above as:
 
 $$df = tr(\frac{df}{dA}^T \cdot dA)$$.
 
 This can be verified by expanding out the indices of the multiplication. 
-::: {.callout-note collapse="true" title="Numerator Layout"}
-Consider the matrix $X$ of size $m \cross n$, and denote $X_j$$ as the jth column of X. We have:
+::: {.callout-note collapse="true" title="Proof"}
+Consider the matrix $A$ of size $m \times n$, and denote $A_j$ as the $j$th column of $A$. We have:
 $$
 \begin{aligned}
-
-  df &= tr(\frac{df}{dA}^T \cdot dA)
-     &= \sum_{j=1}^{n} \frac{df}{dA}_j \cdot dA_j
-     &= \sum_{j=1}^{n} \sum_{i=1}^{m} \frac{df}{dA}_{i, j} \cdot dA_{i,j}
+  df &= tr(\frac{df}{dA}^T \cdot dA) \\
+     &= \sum_{j=1}^{n} \frac{df}{dA}_j^T \cdot dA_j \\
+     &= \sum_{j=1}^{n} \sum_{i=1}^{m} \frac{df}{dA}_{i, j} \cdot dA_{i,j} \\
      &= \sum_{i,j} \frac{df}{dA}_{i, j} \cdot dA_{i,j}
 \end{aligned}
-
-which was the original expression above. 
 $$
+which was the original expression above. 
 :::
 
 
