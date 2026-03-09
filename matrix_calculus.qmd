@@ -656,7 +656,7 @@ dL &= \frac{dL}{dg}^T (dW)^Tx \\
    &= tr( \frac{dL}{dg}^T (dW)^Tx) \\
    &= tr( x^T dW \frac{dL}{dg}) \\
    &= tr( \frac{dL}{dg} x^T dW) \\
-   &= tr( (x^T \cdot \frac{dL}{dg})^T dW)
+   &= tr( (x \cdot \frac{dL}{dg}^T)^T dW)
 \end{aligned}
 $$
 
