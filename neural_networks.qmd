@@ -4,7 +4,7 @@ You've probably been hearing a lot about "neural networks." Now that we have sev
 
 This is, in some sense, the "third wave" of neural nets. The basic idea is founded on the 1943 model of neurons of McCulloch and Pitts and the learning ideas of Hebb. There was a great deal of excitement, but not a lot of practical success: there were good training methods (e.g., perceptron) for linear functions, and interesting examples of non-linear functions, but no good way to train non-linear functions from data. Interest died out for a while, but was re-kindled in the 1980s when several people came up with a way to train neural networks with "back-propagation," which is a particular style of implementing gradient descent, that we will study here. 
 
-:::{.column-margins}
+:::{.column-margin}
 As with many good ideas in science,
   the basic idea for how to train non-linear neural networks with
   gradient descent was independently developed by more than one
@@ -87,7 +87,7 @@ $(w_1, \ldots, w_m) \in \mathbb{R}^m$ and an *offset* or *threshold* $w_0 \in \m
 This should remind you of our $\theta$ and $\theta_0$ for linear models.
 :::
 
-We also specify an *activation function* $f : \mathbb{R}\rightarrow \mathbb{R}$. In general, this is chosen to be a non-linear function, which means the neuron is non-linear. In the case that the activation function is the identity ($f(x) = x$) or another linear function, then the neuron is a linear function of $x$). The activation can theoretically be any function, though we will only be able to work with it if it is differentiable.
+We also specify an *activation function* $f : \mathbb{R}\rightarrow \mathbb{R}$. In general, this is chosen to be a non-linear function, which means the neuron is non-linear. In the case that the activation function is the identity ($f(x) = x$) or another linear function, then the neuron is a linear function of $x$. The activation can theoretically be any function, though we will only be able to work with it if it is differentiable.
 
 The function represented by the neuron is expressed as: $$a = f(z) = f\left(\left(\sum_{j=1}^m x_jw_j\right) + w_0\right) = f(w^Tx + w_0)\;\;.$$
 
@@ -1334,7 +1334,7 @@ So, we can consider having an independent step-size parameter *for each weight*,
 
 :::{.column-margin}
 This section is very strongly influenced
-by Sebastian Ruder's excellent blog posts on the topic:{ruder.io/optimizing-gradient-descent}
+by Sebastian Ruder's excellent blog posts on the topic: [ruder.io/optimizing-gradient-descent](https://ruder.io/optimizing-gradient-descent)
 :::
 
 Some common strategies for this include *momentum* ("averaging" recent gradient updates), *Adadelta* (take larger steps in parts of the space where $J(W)$ is nearly flat), and *Adam* (which combines these two previous ideas). Details of these approaches are described in @sec-adaptive-step-size-appendix.
