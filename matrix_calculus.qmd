@@ -673,4 +673,16 @@ $$
 \frac{dL}{dW} = x \cdot \frac{dL}{dg}^T
 $$
 
-where x is the input into that weight matrix and $g$ is the output from it. 
+where $x$ is the input into that weight matrix and $g$ is the output from it. Substituting in from the example above, we get:
+
+$$
+\frac{dL}{dW} = x \cdot (\text{diag}(\mathbb{1}_{g > 0}) \cdot 2(a - y))^T = 2x(a - y)^T \cdot \text{diag}(\mathbb{1}_{g > 0})
+$$
+
+Notice that this has the correct shape! We have $x \in \mathbb{R}^{n \times 1}$, $(a - y)^T \in \mathbb{R}^{1 \times m}$, and the diagonal matrix $\text{diag}(\mathbb{1}_{g > 0})$ has shape $m \times m$, so their product is $\mathbb{R}^{n \times m}$, which matches the shape of $W$.
+
+This is the key insight for backpropagation in neural networks. This allows us to efficiently compute how the loss changes with respect to each weight, which is exactly what we need for training neural networks via gradient descent.
+
+### Key Takeaways
+
+Finish up here!
