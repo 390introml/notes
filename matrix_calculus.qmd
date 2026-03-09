@@ -571,7 +571,7 @@ Consider the following case:
 
 - We begin with an input $x \in \mathbb{R}^n$ and associated output $y \in \mathbb{R}^m$
 - We then apply a linear layer of the form $g = W^Tx$, where $W \in \mathbb{R}^{n \times m}$ and $g \in \mathbb{R}^m$
-- We then apply an element-wise ReLU: $a = \text{ReLU}(g)$
+- We then apply an element-wise ReLU: $a = \text{ReLU}.(g)$
 - Finally we calculate some loss $\mathcal{L}(a, y) = ||a - y||^2$
 
 How can we calculate the derivative with respect to the input $x$? Note that we normally want to calculate the derivative with respect to the weight matrix, but let's start with this example first.
@@ -645,18 +645,18 @@ $$
 This gives:
 
 $$
-dL = \frac{dL}{dg}^T \cdot (dW)^Tx
+dL = \frac{dL}{dg}^T (dW)^Tx
 $$
 
 Not that the expression on the RHS is actually a scalar (since $dL$ is a scalar), and so we can simply take its trace, since the trace of a scalar is just that same scalar. Also recall that the trace is cyclic and invariant to transpose, so $tr(ABC) = tr(CAB)$ and $tr(A) = tr(A^T)$. 
 
 $$
 \begin{aligned}
-dL &= \frac{dL}{dg}^T \cdot (dW)^Tx \\
-   &= tr( \frac{dL}{dg}^T \cdot (dW)^Tx) \\
-   &= tr( x \cdot (dW) \cdot \frac{dL}{dg}^T ) \\
-   &= tr( \frac{dL}{dg}^T \cdot x \cdot dW) \\
-   &= tr( (x^T \cdot \frac{dL}{dg})^T \cdot dW)
+dL &= \frac{dL}{dg}^T (dW)^Tx \\
+   &= tr( \frac{dL}{dg}^T (dW)^Tx) \\
+   &= tr( x^T dW \frac{dL}{dg}) \\
+   &= tr( \frac{dL}{dg} x^T dW) \\
+   &= tr( (x^T \cdot \frac{dL}{dg})^T dW)
 \end{aligned}
 $$
 
