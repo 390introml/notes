@@ -651,15 +651,15 @@ Not that the expression on the RHS is actually a scalar (since $dL$ is a scalar)
 
 $$
 \begin{aligned}
-\frac{dL} &= \frac{dL}{dg}^T \cdot (dW)^Tx
-          &= tr( \frac{dL}{dg}^T \cdot (dW)^Tx)
-          &= tr( x^T \cdot dW \cdot \frac{dL}{dg})
-          &= tr( \frac{dL}{dg}  \cdot x^T \cdot dW)
-          &= tr( (x \cdot \frac{dL}{dg}^T)^T \cdot dW)
+dL &= \frac{dL}{dg}^T \cdot (dW)^Tx \\
+   &= tr( \frac{dL}{dg}^T \cdot (dW)^Tx) \\
+   &= tr( x \cdot (dW) \cdot \frac{dL}{dg}^T ) \\
+   &= tr( \frac{dL}{dg}^T \cdot x \cdot dW) \\
+   &= tr( (x \cdot \frac{dL}{dg}^T)^T \cdot dW)
 \end{aligned}
 $$
 
-where the second line uses the fact that the RHS is a scalar, the third uses the fact that the trace is invariant to transposing its input, the third uses the cyclic property, and the fourth simply combines the terms to match the form of @eq-dL-trace.
+where the second line uses the fact that the RHS is a scalar, the third uses the fact that the trace is invariant to transposing its input, the fourth uses the cyclic property, and the fifth simply combines the terms to match the form of @eq-dL-trace.
 
 Comparing to @eq-dL-trace, we can identify:
 
