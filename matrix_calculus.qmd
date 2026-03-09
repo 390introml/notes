@@ -37,7 +37,7 @@ This is called the **denominator layout** convention, and it has been widely ado
 Some textbooks instead use the **numerator layout**, where $df = \frac{df}{dx} \cdot dx$ without the transpose. In that convention, $\frac{df}{dx}$ is of size $(m \times n)$—the transpose of what we define above. Although it may seem more intuitive at first, it makes chain rule computations more complicated. We will not use numerator layout in this course.
 :::
 
-### Scalar-by-Matrix Derivatives
+### Scalar-by-Matrix Derivatives {#sec-scalar-matrix}
 
 What if our inputs and outputs are not just vectors, but matrices? In this case, things certainly become more complicated. For instance, note that the number of dimensions needed for a derivative object is the product of the number of dimensions in the input and output of the function. That's why vector-by-vector derivatives look like matrices. This would mean that vector-by-matrix derivatives would require us to have a three-dimensional derivative object (often referred to as a tensor). These types of high-order objects are beyond the scope of this course. 
 
@@ -568,10 +568,12 @@ We often abbreviate this as $\frac{dF}{dv} = \text{diag}(f'.(v))$, where the dia
 Before we get to the third rule, let's do an example using what we've learned so far. 
 
 Consider the following case: 
-- We begin with an input $x \in \mathbb{R}^n$ and associated output $y \in \mathbb{R}^m$. 
-- We then apply a linear layer of the form $g = W^Tx$, where $W \in \mathbb{R}^{n \times m}$, and $g \in \mathbb{R}^m$
-- We then apply an element-wise ReLU: $a = ReLU.(g)$
-- Finally we calculate some loss $\cal{L}(a, y) = ||a - y||^2$. 
+- We begin with an input $x \in \mathbb{R}^n$ and associated output $y \in \mathbb{R}^m$
+- We then apply a linear layer of the form $g = W^Tx$, where $W \in \mathbb{R}^{n \times m}$ and $g \in \mathbb{R}^m$
+- We then apply an element-wise ReLU: $a = \text{ReLU}(g)$
+- Finally we calculate some loss $\mathcal{L}(a, y) = ||a - y||^2$
+
+How can we calculate the derivative with respect to the input $x$? Note that we normally want to calculate the derivative with respect to the weight matrix, but let's start with this example first.
 
 
 How can we calculate the derivative with respect to the input $x$? Note that we normally 
@@ -608,3 +610,67 @@ $$
 $$
 
 This tells us exactly how the loss changes with respect to the input $x$. 
+
+### Derivative with respect to Weight Matrices
+
+What if we wanted -- as we do in training Neural nets -- to take the derivative of the loss with respect to the 
+weight matrix $W$. Something with this approach goes wrong. Writing out the chain rule, we get:
+
+$$
+\frac{dL}{dW} = \frac{dg}{dW} \cdot \frac{da}{dg} \cdot \frac{dL}{da}
+$$
+
+What type of object is $\frac{dg}{dW}$? It is a vector-by-matrix derivative, which means it actually must be a tensor! However, we know that $\frac{dL}{dW}$ must be able to be repsented by just a matrix! So how can we reconcile these facts? 
+The answer lies in the fact that $\frac{dg}{dW}$ is a sparse tensor (many of its entires are $0$) and using some clever matrix calculus tricks we can simplify our chain rule into something more managable. 
+
+Remember from @sec-scalar-matrix that $\frac{dL}{dW}$ must take the form of: 
+
+$$dL = tr(\frac{dL}{dW}^T \cdot dW)$$ {#eq-dL-trace}
+
+How can we massage our chain rule expression above into this form? 
+
+First, note that by definition, we have:
+
+$$ 
+\frac{dL} = \frac{dL}{dg}^T \cdot dg
+$$
+
+and we know 
+
+$$
+dg = (W + dW)^Tx - W^Tx = (dW)^Tx
+$$
+
+This gives:
+
+$$
+\frac{dL} = \frac{dL}{dg}^T \cdot (dW)^Tx
+$$
+
+Not that the expression on the RHS is actually a scalar (since $dL$ is a scalar), and so we can simply take its trace, since the trace of a scalar is just that same scalar. Also recall that the trace is cyclic and invariant to transpose, so $tr(ABC) = tr(CAB)$ and $tr(A) = tr(A^T)$. 
+
+$$
+\begin{aligned}
+\frac{dL} &= \frac{dL}{dg}^T \cdot (dW)^Tx
+          &= tr( \frac{dL}{dg}^T \cdot (dW)^Tx)
+          &= tr( x^T \cdot dW \cdot \frac{dL}{dg})
+          &= tr( \frac{dL}{dg}  \cdot x^T \cdot dW)
+          &= tr( (x \cdot \frac{dL}{dg}^T)^T \cdot dW)
+\end{aligned}
+$$
+
+where the second line uses the fact that the RHS is a scalar, the third uses the fact that the trace is invariant to transposing its input, the third uses the cyclic property, and the fourth simply combines the terms to match the form of @eq-dL-trace.
+
+Comparing to @eq-dL-trace, we can identify:
+
+$$
+\frac{dL}{dW} = x \cdot \frac{dL}{dg}^T
+$$
+
+And there you have it! To take the derivative of the loss with respect to a weight matrix, you simply do 
+
+$$
+\frac{dL}{dW} = x \cdot \frac{dL}{dg}^T
+$$
+
+where x is the input into that weight matrix and $g$ is the output from it. 
