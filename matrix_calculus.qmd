@@ -519,7 +519,7 @@ Let us try applying everything that we've learned about Matrix Calculus to the c
 
 Let's cover / remind ourselves of each of these points
 
-### Chain Rule
+### 1. Chain Rule
 Let's say we are given a composition of functions of the form $f(g(h(x)))$, then we proved in @sec-ChainRule
 that:
 
@@ -527,21 +527,22 @@ $$\frac{df}{dx} = \frac{dh}{dx} \cdot \frac{dg}{dh} \cdot \frac{df}{dg}$$
 
 where as we move from left to right, we move from the inner most function to the outermost.  
 
-### Element-Wise Operations
+### 2. Element-Wise Operations
+
 Let's say we are given a vector $v \in \mathbb{R}^n$ and a function $f: \mathbb{R} \rightarrow \mathbb{R}$. Let's define 
-$F: \mathbb{R}^n \rightarrow \mathbb{R}^n $ as the function that applies $f$ element wise. 
+$f.: \mathbb{R}^n \rightarrow \mathbb{R}^n$ as the function that applies $f$ element-wise. 
 
 This shows up very often in Neural Nets, when we apply an element-wise activation to the neurons in a layer of the network.
 
-What is the derivative of this operation? Note that $F$ maps vectors to vectors of the same size, so we expect to get a square matrix as the derivative.
+What is the derivative of this operation? Note that $f.$ maps vectors to vectors of the same size, so we expect to get a square matrix as the derivative.
 
 Then:
-$$$$
+$$
 \begin{aligned}
-  dF &= F(v + dv) - F(v) \\
+  dF &= f.(v + dv) - f.(v) \\
      &= [f(v_1 + dv_1), \ldots, f(v_n + dv_n)]^T - [f(v_1), \ldots, f(v_n)]^T \\
      &= [f(v_1 + dv_1) - f(v_1), \ldots, f(v_n + dv_n) - f(v_n)]^T \\
-     &= [f'(v_1) dv_1, \ldots, f'(v_n) dv_n]^T
+     &= [f'(v_1) dv_1, \ldots, f'(v_n) dv_n]^T \\
      &= \begin{bmatrix}
         f'(v_1) & 0 & \cdots & 0 \\
         0 & f'(v_2) & \cdots & 0 \\
@@ -559,3 +560,51 @@ $$\frac{dF}{dv} = \begin{bmatrix}
   \vdots & \vdots & \ddots & \vdots \\
   0 & 0 & \cdots & f'(v_n)
 \end{bmatrix}$$
+
+We often abbreviate this as $\frac{dF}{dv} = \text{diag}(f'.(v))$, where the diagonal matrix contains the derivatives evaluated at each element of $v$.
+
+### Example
+
+Before we get to the third rule, let's do an example using what we've learned so far. 
+
+Consider the following case: 
+- We begin with an input $x \in \mathbb{R}^n$ and associated output $y \in \mathbb{R}^m$. 
+- We then apply a linear layer of the form $g = W^Tx$, where $W \in \mathbb{R}^{n \times m}$, and $g \in \mathbb{R}^m$
+- We then apply an element-wise ReLU: $a = ReLU.(g)$
+- Finally we calculate some loss $\cal{L}(a, y) = ||a - y||^2$. 
+
+
+How can we calculate the derivative with respect to the input $x$? Note that we normally 
+want to calculate the derivative with respect to the weight matrix, but let's start with this example
+first. 
+
+We apply the chain rule:
+
+$$
+\frac{dL}{dx} = \frac{dg}{dx} \cdot \frac{da}{dg} \cdot \frac{dL}{da}
+$$
+
+Now let's consider each term separately. First, $\frac{dg}{dx}$ is simply $W$. Second, we know that the derivative of the ReLU function applied to a scalar $x$ is simply an indicator variable that is $1$ if $x > 0$ and $0$ else. We use the notation $\mathbb{1}_{g > 0}$ to denote the element-wise indicator function, so the derivative is:
+
+$$
+\frac{da}{dg} = \begin{bmatrix}
+  \mathbb{1}_{g_1 > 0} & 0 & \cdots & 0 \\
+  0 & \mathbb{1}_{g_2 > 0} & \cdots & 0 \\
+  \vdots & \vdots & \ddots & \vdots \\
+  0 & 0 & \cdots & \mathbb{1}_{g_m > 0}
+\end{bmatrix}
+$$
+
+Third, we know from earlier that the derivative of $\mathcal{L}(a, y) = ||a - y||^2$ with respect to $a$ is:
+
+$$
+\frac{d\mathcal{L}}{da} = 2(a - y)
+$$
+
+Now we can chain them all together:
+
+$$
+\frac{d\mathcal{L}}{dx} = W \cdot \text{diag}(\mathbb{1}_{g > 0}) \cdot 2(a - y)
+$$
+
+This tells us exactly how the loss changes with respect to the input $x$. 
