@@ -136,48 +136,75 @@ Two-dimensional versions of filters like these are thought to be found in the vi
 \begin{tikzpicture}[scale=0.6, background rectangle/.style={fill=white},
     show background rectangle]
   % Input image
-  \begin{scope}
-    \draw[black,very thick] (0,0) rectangle (4,4);
-    \node[anchor=center] at (2,2) {Image};
-  \end{scope}
+  \draw[black,very thick] (0,0) rectangle (4,4);
+  \node[anchor=center] at (2,2) {Image};
 
-  % Arrows from image to filters
-  \coordinate (x) at (4.2, 2);
+  % Arrows from image to filter stack
   \foreach \yoff in {-1.2,-0.4,0.4,1.2} {
-      \draw[->,thick] (x) -- ++(1.5,\yoff);
+      \draw[->,thick] (4.2,2) -- ++(1.3,\yoff);
     }
 
-  % Filter bank - 4 different filters
-  \begin{scope}[xshift=7cm]
-    \foreach \i/\c/\label in {0/blue/Filter 1,1/red/Filter 2,2/green/Filter 3,3/purple/Filter 4} {
-        \begin{scope}[xshift=0, yshift=\i*1.2cm]
-          \draw[step=4mm, color=\c, thick] (0,0) grid (2,2);
-          \draw[black,very thick] (0,0) rectangle (2,2);
-          \node[below, color=\c] at (1,-0.3) {\label};
-        \end{scope}
-      }
+  % Filter bank - 3D stacked look (draw back to front)
+  % Each filter offset by (0.4, 0.4) for depth effect
+  \begin{scope}[shift={(6,0)}]
+    % Filter 4 (purple, back)
+    \begin{scope}[shift={(1.2, 1.2)}]
+      \fill[white] (0,0) rectangle (2,2);
+      \draw[step=4mm, color=purple, thick] (0,0) grid (2,2);
+      \draw[black,very thick] (0,0) rectangle (2,2);
+    \end{scope}
+    % Filter 3 (green)
+    \begin{scope}[shift={(0.8, 0.8)}]
+      \fill[white] (0,0) rectangle (2,2);
+      \draw[step=4mm, color=green!70!black, thick] (0,0) grid (2,2);
+      \draw[black,very thick] (0,0) rectangle (2,2);
+    \end{scope}
+    % Filter 2 (red)
+    \begin{scope}[shift={(0.4, 0.4)}]
+      \fill[white] (0,0) rectangle (2,2);
+      \draw[step=4mm, color=red, thick] (0,0) grid (2,2);
+      \draw[black,very thick] (0,0) rectangle (2,2);
+    \end{scope}
+    % Filter 1 (blue, front)
+    \fill[white] (0,0) rectangle (2,2);
+    \draw[step=4mm, color=blue, thick] (0,0) grid (2,2);
+    \draw[black,very thick] (0,0) rectangle (2,2);
   \end{scope}
 
-  % Arrows from filters to feature maps
-  \coordinate (y) at (9.2, 2);
+  % Arrows from filter stack to channel stack
   \foreach \yoff in {-1.2,-0.4,0.4,1.2} {
-      \draw[->,thick] (y) -- ++(1.5,\yoff);
+      \draw[->,thick] (9.8,2) -- ++(1.3,\yoff);
     }
 
-  % Feature maps (output channels)
-  \begin{scope}[xshift=12cm]
-    \foreach \i/\c/\label in {0/blue/Channel 1,1/red/Channel 2,2/green/Channel 3,3/purple/Channel 4} {
-        \begin{scope}[xshift=0, yshift=\i*1.2cm]
-          \draw[step=3mm, color=\c, thin] (0,0) grid (3,3);
-          \draw[black,very thick] (0,0) rectangle (3,3);
-          \node[below, color=\c] at (1.5,-0.3) {\label};
-        \end{scope}
-      }
+  % Feature maps - 3D stacked look (draw back to front)
+  \begin{scope}[shift={(11.6,-0.5)}]
+    % Channel 4 (purple, back)
+    \begin{scope}[shift={(1.2, 1.2)}]
+      \fill[white] (0,0) rectangle (3,3);
+      \draw[step=3mm, color=purple, thin] (0,0) grid (3,3);
+      \draw[black,very thick] (0,0) rectangle (3,3);
+    \end{scope}
+    % Channel 3 (green)
+    \begin{scope}[shift={(0.8, 0.8)}]
+      \fill[white] (0,0) rectangle (3,3);
+      \draw[step=3mm, color=green!70!black, thin] (0,0) grid (3,3);
+      \draw[black,very thick] (0,0) rectangle (3,3);
+    \end{scope}
+    % Channel 2 (red)
+    \begin{scope}[shift={(0.4, 0.4)}]
+      \fill[white] (0,0) rectangle (3,3);
+      \draw[step=3mm, color=red, thin] (0,0) grid (3,3);
+      \draw[black,very thick] (0,0) rectangle (3,3);
+    \end{scope}
+    % Channel 1 (blue, front)
+    \fill[white] (0,0) rectangle (3,3);
+    \draw[step=3mm, color=blue, thin] (0,0) grid (3,3);
+    \draw[black,very thick] (0,0) rectangle (3,3);
   \end{scope}
 
-  % Label for the whole process
-  \node[above] at (6,4.5) {Filter Bank};
-  \node[above] at (10.5,4.5) {Feature Maps};
+  % Labels
+  \node[above] at (7.6,3.7) {Filter Bank};
+  \node[above] at (13.8,4.2) {Feature Maps};
 \end{tikzpicture}
 :::
 
@@ -200,117 +227,134 @@ When we have a color image as input, we treat it as having three
 channels, and hence as an $n \times n \times 3$ tensor.
 :::
 
+:::{.column-margin}
+Both slices of the tensor filter are identical here, so the output is simply the sum of the two channel values at each position.
+:::
+
 
 
 :::{.imagify}
 \begin{tikzpicture}[scale=0.4, background rectangle/.style={fill=white}, show background rectangle]
+  % === INPUT GRID at (0,0) — cross pattern ===
   \begin{scope}
     \draw[black,thick] (0,0) grid (6,6);
     \draw[black,very thick] (0,0) rectangle (6,6);
-    % Fill black cells and add labels
-    \foreach \x/\y in {0/0,0/1,0/2,2/1,2/2,2/3,3/1,3/3,4/1,4/2,4/3,
-        3/5,4/5,5/5} {
-        \fill[black] ($(\x,\y)$)
-        rectangle ($(\x,\y)+(1,1)$);
+    % Cross: vertical bar at x=3 (y=1..5), horizontal bar at y=3 (x=0..5)
+    \foreach \x/\y in {0/3,1/3,2/3,3/1,3/2,3/3,3/4,3/5,4/3,5/3} {
+        \fill[black] ($(\x,\y)$) rectangle ($(\x,\y)+(1,1)$);
         \node[white] at ($(\x,\y)+(0.5,0.5)$) {1};
       }
-    % Add 0 labels for white cells
-    \foreach \x in {1,3,4,5} {
-        \foreach \y in {0,1,2,3,4,5} {
+    % 0 labels for non-black cells
+    \foreach \x in {0,1,2,4,5} {
+        \foreach \y in {0,1,2,4,5} {
             \node at ($(\x,\y)+(0.5,0.5)$) {0};
           }
       }
-    \foreach \x in {0,2} {
-        \foreach \y in {3,4} {
-            \node at ($(\x,\y)+(0.5,0.5)$) {0};
-          }
-      }
-    \node at (1.5,0.5) {0}; \node at (1.5,1.5) {0}; \node at (1.5,2.5) {0};
-    \node at (1.5,3.5) {0}; \node at (1.5,4.5) {0}; \node at (1.5,5.5) {0};
-    \node at (2.5,0.5) {0}; \node at (2.5,4.5) {0}; \node at (2.5,5.5) {0};
-    \node at (4.5,0.5) {0}; \node at (4.5,4.5) {0}; \node at (4.5,5.5) {0};
-    \node at (5.5,0.5) {0}; \node at (5.5,1.5) {0}; \node at (5.5,2.5) {0};
-    \node at (5.5,3.5) {0}; \node at (5.5,4.5) {0}; \node at (5.5,5.5) {0};
-    \draw[->,thick] (6.5,3) -- (8.2, 1.5);
-    \draw[->,thick] (6.5,3) -- (8.2, 4.5);
-    \begin{scope}[xshift=8.2cm,yshift=4.5cm]
-      \draw[black,thick] (0,0) grid (3,3);
-      \draw[black,very thick] (0,0) rectangle (3,3);
-      % Fill black cells and add labels for f2 (horizontal)
-      \foreach \x/\y in {0/1,1/1,2/1} {
-          \fill[black] ($(\x,\y)$)
-          rectangle ($(\x,\y)+(1,1)$);
-          \node[white] at ($(\x,\y)+(0.5,0.5)$) {1};
-        }
-      % Add 0 labels for white cells
-      \foreach \x in {0,1,2} {
-          \foreach \y in {0,2} {
-              \node at ($(\x,\y)+(0.5,0.5)$) {0};
-            }
-        }
-      \node[left] at (0,1.5) {$f_2$ (horizontal)};
-    \end{scope}
-    \begin{scope}[xshift=8.2cm,yshift=1.5cm]
-      \draw[black,thick] (0,0) grid (3,3);
-      \draw[black,very thick] (0,0) rectangle (3,3);
-      % Fill black cells and add labels for f1 (vertical)
-      \foreach \x/\y in {1/0,1/1,1/2} {
-          \fill[black] ($(\x,\y)$)
-          rectangle ($(\x,\y)+(1,1)$);
-          \node[white] at ($(\x,\y)+(0.5,0.5)$) {1};
-        }
-      % Add 0 labels for white cells
-      \foreach \x in {0,2} {
-          \foreach \y in {0,1,2} {
-              \node at ($(\x,\y)+(0.5,0.5)$) {0};
-            }
-        }
-      \node[left] at (0,1.5) {$f_1$ (vertical)};
-    \end{scope}
+    \node at (3.5,0.5) {0};
   \end{scope}
-  \begin{scope}[xshift=14cm, yshift=6cm]
-    \draw[black,thick] (0,0) grid (6,6);
-    \draw[black,very thick] (0,0) rectangle (6,6);
-    % Add numerical convolution results for f1 (vertical detector)
-    \node at (0.5,0.5) {2}; \node at (1.5,0.5) {2}; \node at (2.5,0.5) {0}; \node at (3.5,0.5) {0}; \node at (4.5,0.5) {0}; \node at (5.5,0.5) {0};
-    \node at (0.5,1.5) {3}; \node at (1.5,1.5) {3}; \node at (2.5,1.5) {0}; \node at (3.5,1.5) {0}; \node at (4.5,1.5) {0}; \node at (5.5,1.5) {0};
-    \node at (0.5,2.5) {1}; \node at (1.5,2.5) {1}; \node at (2.5,2.5) {2}; \node at (3.5,2.5) {1}; \node at (4.5,2.5) {2}; \node at (5.5,2.5) {0};
-    \node at (0.5,3.5) {0}; \node at (1.5,3.5) {0}; \node at (2.5,3.5) {2}; \node at (3.5,3.5) {1}; \node at (4.5,3.5) {2}; \node at (5.5,3.5) {0};
-    \node at (0.5,4.5) {0}; \node at (1.5,4.5) {0}; \node at (2.5,4.5) {1}; \node at (3.5,4.5) {1}; \node at (4.5,4.5) {1}; \node at (5.5,4.5) {0};
-    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {0}; \node at (3.5,5.5) {0}; \node at (4.5,5.5) {0}; \node at (5.5,5.5) {0};
-    \draw[->,thick] (3.2, 1.5) -- (5.2, 1.5);
-  \end{scope}
-  \begin{scope}[xshift=14cm, yshift=-6cm]
-    \draw[black,thick] (0,0) grid (6,6);
-    \draw[black,very thick] (0,0) rectangle (6,6);
-    % Add numerical convolution results for f2 (horizontal detector)
-    \node at (0.5,0.5) {0}; \node at (1.5,0.5) {0}; \node at (2.5,0.5) {0}; \node at (3.5,0.5) {0}; \node at (4.5,0.5) {0}; \node at (5.5,0.5) {0};
-    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {0}; \node at (3.5,1.5) {0}; \node at (4.5,1.5) {0}; \node at (5.5,1.5) {0};
-    \node at (0.5,2.5) {0}; \node at (1.5,2.5) {0}; \node at (2.5,2.5) {2}; \node at (3.5,2.5) {1}; \node at (4.5,2.5) {2}; \node at (5.5,2.5) {0};
-    \node at (0.5,3.5) {0}; \node at (1.5,3.5) {0}; \node at (2.5,3.5) {2}; \node at (3.5,3.5) {1}; \node at (4.5,3.5) {2}; \node at (5.5,3.5) {0};
-    \node at (0.5,4.5) {0}; \node at (1.5,4.5) {0}; \node at (2.5,4.5) {1}; \node at (3.5,4.5) {1}; \node at (4.5,4.5) {1}; \node at (5.5,4.5) {0};
-    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {0}; \node at (3.5,5.5) {0}; \node at (4.5,5.5) {0}; \node at (5.5,5.5) {0};
-    \draw[->,thick] (3.2, 4.5) -- (5.2, 4.5);
-  \end{scope}
-  \begin{scope}[xshift=22cm,yshift=1.5cm]
+
+  % === ARROWS FROM INPUT TO FILTERS ===
+  \draw[->,thick] (6.5,4.5) -- (8.5,8);
+  \draw[->,thick] (6.5,1.5) -- (8.5,-2);
+
+  % === f_2 (horizontal) FILTER at (9, 6.5) ===
+  \begin{scope}[shift={(9,6.5)}]
     \draw[black,thick] (0,0) grid (3,3);
     \draw[black,very thick] (0,0) rectangle (3,3);
-    % Add numerical values for tensor filter
-    \node at (0.5,0.5) {0}; \node at (1.5,0.5) {1}; \node at (2.5,0.5) {0};
-    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {0};
-    \node at (0.5,2.5) {0}; \node at (1.5,2.5) {1}; \node at (2.5,2.5) {0};
-    \node[left] at (0,1.5) {tensor filter};
+    \foreach \x/\y in {0/1,1/1,2/1} {
+        \fill[black] ($(\x,\y)$) rectangle ($(\x,\y)+(1,1)$);
+        \node[white] at ($(\x,\y)+(0.5,0.5)$) {1};
+      }
+    \foreach \x in {0,1,2} {
+        \foreach \y in {0,2} {
+            \node at ($(\x,\y)+(0.5,0.5)$) {0};
+          }
+      }
+    \node[above] at (1.5,3.3) {$f_2$ (horizontal)};
   \end{scope}
-  \begin{scope}[xshift=28cm]
+
+  % === f_1 (vertical) FILTER at (9, -4.5) ===
+  \begin{scope}[shift={(9,-4.5)}]
+    \draw[black,thick] (0,0) grid (3,3);
+    \draw[black,very thick] (0,0) rectangle (3,3);
+    \foreach \x/\y in {1/0,1/1,1/2} {
+        \fill[black] ($(\x,\y)$) rectangle ($(\x,\y)+(1,1)$);
+        \node[white] at ($(\x,\y)+(0.5,0.5)$) {1};
+      }
+    \foreach \x in {0,2} {
+        \foreach \y in {0,1,2} {
+            \node at ($(\x,\y)+(0.5,0.5)$) {0};
+          }
+      }
+    \node[below] at (1.5,-0.3) {$f_1$ (vertical)};
+  \end{scope}
+
+  % === ARROWS FROM FILTERS TO RESULTS ===
+  \draw[->,thick] (12.5,8) -- (14.5,8);
+  \draw[->,thick] (12.5,-3) -- (14.5,-3);
+
+  % === f_2 RESULT (horizontal detector) at (15, 5) ===
+  \begin{scope}[shift={(15,5)}]
     \draw[black,thick] (0,0) grid (6,6);
     \draw[black,very thick] (0,0) rectangle (6,6);
-    % Add numerical values for final output
     \node at (0.5,0.5) {0}; \node at (1.5,0.5) {0}; \node at (2.5,0.5) {0}; \node at (3.5,0.5) {0}; \node at (4.5,0.5) {0}; \node at (5.5,0.5) {0};
-    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {0}; \node at (3.5,1.5) {0}; \node at (4.5,1.5) {0}; \node at (5.5,1.5) {0};
-    \node at (0.5,2.5) {0}; \node at (1.5,2.5) {0}; \node at (2.5,2.5) {4}; \node at (3.5,2.5) {0}; \node at (4.5,2.5) {0}; \node at (5.5,2.5) {0};
-    \node at (0.5,3.5) {0}; \node at (1.5,3.5) {0}; \node at (2.5,3.5) {0}; \node at (3.5,3.5) {0}; \node at (4.5,3.5) {0}; \node at (5.5,3.5) {0};
-    \node at (0.5,4.5) {0}; \node at (1.5,4.5) {0}; \node at (2.5,4.5) {0}; \node at (3.5,4.5) {0}; \node at (4.5,4.5) {0}; \node at (5.5,4.5) {0};
-    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {0}; \node at (3.5,5.5) {0}; \node at (4.5,5.5) {0}; \node at (5.5,5.5) {0};
+    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {1}; \node at (3.5,1.5) {1}; \node at (4.5,1.5) {1}; \node at (5.5,1.5) {0};
+    \node at (0.5,2.5) {0}; \node at (1.5,2.5) {0}; \node at (2.5,2.5) {1}; \node at (3.5,2.5) {1}; \node at (4.5,2.5) {1}; \node at (5.5,2.5) {0};
+    \node at (0.5,3.5) {2}; \node at (1.5,3.5) {3}; \node at (2.5,3.5) {3}; \node at (3.5,3.5) {3}; \node at (4.5,3.5) {3}; \node at (5.5,3.5) {2};
+    \node at (0.5,4.5) {0}; \node at (1.5,4.5) {0}; \node at (2.5,4.5) {1}; \node at (3.5,4.5) {1}; \node at (4.5,4.5) {1}; \node at (5.5,4.5) {0};
+    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {1}; \node at (3.5,5.5) {1}; \node at (4.5,5.5) {1}; \node at (5.5,5.5) {0};
+  \end{scope}
+
+  % === f_1 RESULT (vertical detector) at (15, -6) ===
+  \begin{scope}[shift={(15,-6)}]
+    \draw[black,thick] (0,0) grid (6,6);
+    \draw[black,very thick] (0,0) rectangle (6,6);
+    \node at (0.5,0.5) {0}; \node at (1.5,0.5) {0}; \node at (2.5,0.5) {0}; \node at (3.5,0.5) {1}; \node at (4.5,0.5) {0}; \node at (5.5,0.5) {0};
+    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {0}; \node at (3.5,1.5) {2}; \node at (4.5,1.5) {0}; \node at (5.5,1.5) {0};
+    \node at (0.5,2.5) {1}; \node at (1.5,2.5) {1}; \node at (2.5,2.5) {1}; \node at (3.5,2.5) {3}; \node at (4.5,2.5) {1}; \node at (5.5,2.5) {1};
+    \node at (0.5,3.5) {1}; \node at (1.5,3.5) {1}; \node at (2.5,3.5) {1}; \node at (3.5,3.5) {3}; \node at (4.5,3.5) {1}; \node at (5.5,3.5) {1};
+    \node at (0.5,4.5) {1}; \node at (1.5,4.5) {1}; \node at (2.5,4.5) {1}; \node at (3.5,4.5) {2}; \node at (4.5,4.5) {1}; \node at (5.5,4.5) {1};
+    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {0}; \node at (3.5,5.5) {1}; \node at (4.5,5.5) {0}; \node at (5.5,5.5) {0};
+  \end{scope}
+
+  % === ARROWS FROM RESULTS TO TENSOR FILTER ===
+  \draw[->,thick] (21.5,8) -- (24.5,4);
+  \draw[->,thick] (21.5,-3) -- (24.5,2);
+
+  % === TENSOR FILTER at (25, 1.5) — two stacked 3x3 slices ===
+  \begin{scope}[shift={(25,1.5)}]
+    % Back slice (channel 2 / f_2)
+    \begin{scope}[shift={(0.5,0.5)}]
+      \fill[white] (0,0) rectangle (3,3);
+      \draw[black,thick] (0,0) grid (3,3);
+      \draw[black,very thick] (0,0) rectangle (3,3);
+      \node at (0.5,0.5) {0}; \node at (1.5,0.5) {0}; \node at (2.5,0.5) {0};
+      \node at (0.5,1.5) {0}; \node at (1.5,1.5) {1}; \node at (2.5,1.5) {0};
+      \node at (0.5,2.5) {0}; \node at (1.5,2.5) {0}; \node at (2.5,2.5) {0};
+    \end{scope}
+    % Front slice (channel 1 / f_1)
+    \fill[white] (0,0) rectangle (3,3);
+    \draw[black,thick] (0,0) grid (3,3);
+    \draw[black,very thick] (0,0) rectangle (3,3);
+    \node at (0.5,0.5) {0}; \node at (1.5,0.5) {0}; \node at (2.5,0.5) {0};
+    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {1}; \node at (2.5,1.5) {0};
+    \node at (0.5,2.5) {0}; \node at (1.5,2.5) {0}; \node at (2.5,2.5) {0};
+    \node[above] at (1.75,3.8) {tensor filter};
+  \end{scope}
+
+  % === ARROW FROM TENSOR TO OUTPUT ===
+  \draw[->,thick] (29,3) -- (31,3);
+
+  % === FINAL OUTPUT at (31.5, 0) ===
+  \begin{scope}[shift={(31.5,0)}]
+    \draw[black,thick] (0,0) grid (6,6);
+    \draw[black,very thick] (0,0) rectangle (6,6);
+    \node at (0.5,0.5) {0}; \node at (1.5,0.5) {0}; \node at (2.5,0.5) {0}; \node at (3.5,0.5) {1}; \node at (4.5,0.5) {0}; \node at (5.5,0.5) {0};
+    \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {1}; \node at (3.5,1.5) {3}; \node at (4.5,1.5) {1}; \node at (5.5,1.5) {0};
+    \node at (0.5,2.5) {1}; \node at (1.5,2.5) {1}; \node at (2.5,2.5) {2}; \node at (3.5,2.5) {4}; \node at (4.5,2.5) {2}; \node at (5.5,2.5) {1};
+    \node at (0.5,3.5) {3}; \node at (1.5,3.5) {4}; \node at (2.5,3.5) {4}; \node at (3.5,3.5) {6}; \node at (4.5,3.5) {4}; \node at (5.5,3.5) {3};
+    \node at (0.5,4.5) {1}; \node at (1.5,4.5) {1}; \node at (2.5,4.5) {2}; \node at (3.5,4.5) {3}; \node at (4.5,4.5) {2}; \node at (5.5,4.5) {1};
+    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {1}; \node at (3.5,5.5) {2}; \node at (4.5,5.5) {1}; \node at (5.5,5.5) {0};
   \end{scope}
 \end{tikzpicture}
 :::
