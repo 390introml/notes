@@ -77,7 +77,7 @@ These points are not linearly separable, but consider the transformation $\phi(x
 :::
 :::
 
-A linear separator in $\phi$ space is a nonlinear separator in the original space! Let's see how this plays out in our simple example. Consider the separator $x^2  - 1 = 0$ (which corresponds to $\theta = [0,1]^T$ and $\theta_0 = -1$ in our transformed space), which labels the half-plane $x^2 -1 > 0$ as positive. What separator does it correspond to in the original 1-D space? We have to ask the question: which $x$ values have the property that $x^2 - 1 = 0$. The answer is $+1$ and $-1$, so those two points constitute our separator, back in the original space. Similarly, by evaluating where $x^2 - 1 > 0$ and where $x^2 - 1 < 0$, we can find the regions of 1D space that are labeled positive and negative (respectively) by this separator.
+A linear separator in $\phi$ space is a non-linear separator in the original space! Let's see how this plays out in our simple example. Consider the separator $x^2  - 1 = 0$ (which corresponds to $\theta = [0,1]^T$ and $\theta_0 = -1$ in our transformed space), which labels the half-plane $x^2 -1 > 0$ as positive. What separator does it correspond to in the original 1-D space? We have to ask the question: which $x$ values have the property that $x^2 - 1 = 0$. The answer is $+1$ and $-1$, so those two points constitute our separator, back in the original space. Similarly, by evaluating where $x^2 - 1 > 0$ and where $x^2 - 1 < 0$, we can find the regions of 1D space that are labeled positive and negative (respectively) by this separator.
 
 :::{.callout-note}
 ## Example
@@ -199,7 +199,7 @@ If we train a classifier after performing this feature
 :::
 
 
-We might run a classification learning algorithm and find a separator with coefficients $\theta = [0, 0, 0, 0, 4, 0]^T$ and $\theta_0 = 0$. This corresponds to $$0 + 0 x_1 + 0 x_2 + 0 x_1^2 + 4 x_1 x_2 + 0x_2^2 + 0 = 0$$ and is plotted below, with the gray shaded region classified as negative and the white region classified as positive:
+We might run a classification learning algorithm and find a separator with coefficients $\theta = [0, 0, 0, 0, 4, 0]^T$ and $\theta_0 = 0$. This corresponds to $$0 + 0 x_1 + 0 x_2 + 0 x_1^2 + 4 x_1 x_2 + 0 x_2^2 + 0 = 0$$ and is plotted below, with the gray shaded region classified as negative and the white region classified as positive:
 
 :::{.callout-note}
 ## Example
@@ -256,7 +256,7 @@ The parameter $\beta$ governs how quickly the feature value decays as we move aw
 Now, given a dataset ${\cal D}$ containing $n$ points, we can make a feature transformation $\phi$ that maps points in our original space, $\mathbb{R}^d$, into points in a new space, $\mathbb{R}^n$. It is defined as follows: $$\phi(x) = [f_{x^{(1)}}(x), f_{x^{(2)}}(x), \ldots,
   f_{x^{(n)}}(x)]^T\;\;.$$ So, we represent a new datapoint $x$ in terms of how far it is from each of the datapoints in our training set.
 
-This idea can be generalized in several ways and is the fundamental concept underlying *kernel methods*, that are not directly covered in this class but we recommend you read about some time. This idea of describing objects in terms of their similarity to a set of reference objects is very powerful and can be applied to cases where $\mathcal{X}$ is not a simple vector space, but where the inputs are graphs or strings or other types of objects, as long as there is a distance metric defined on the input space.
+This idea can be generalized in several ways and is the fundamental concept underlying *kernel methods*, that are not directly covered in this class but we recommend you read about sometime. This idea of describing objects in terms of their similarity to a set of reference objects is very powerful and can be applied to cases where $\mathcal{X}$ is not a simple vector space, but where the inputs are graphs or strings or other types of objects, as long as there is a distance metric defined on the input space.
 
 ## (Optional) Hand-constructing features for real domains {#handBuiltFeatures}
 
@@ -311,4 +311,4 @@ If some feature is already encoded as a numeric value (heart rate, stock price, 
 
 Throughout this chapter, we have treated the feature representation $\phi(x)$ as a fixed pre-processing step that we choose manually to enable linear models to capture non-linear patterns.
 In the next chapter, we will see that neural networks take this a step further: rather than requiring us to specify $\phi(x)$, they *learn* a suitable feature representation directly from data.
-By composing multiple layers of nonlinear functions, neural networks can, under some technical conditions, approximate virtually any continuous function. This is a result known as the Universal Approximation Theorem (Cybenko, 1989; Hornik, 1991), which we will not cover in detail in this course but which offers useful insights into why neural networks are so expressive.
+By composing multiple layers of non-linear functions, neural networks can, under some technical conditions, approximate virtually any continuous function. This is a result known as the Universal Approximation Theorem (Cybenko, 1989; Hornik, 1991), which we will not cover in detail in this course but which offers useful insights into why neural networks are so expressive.
