@@ -30,10 +30,7 @@ What makes a representation *good*? Bengio et al. (2013) identify several desira
 
 These properties are sometimes in tension --- for instance, maximizing compactness may sacrifice explanatory power. However, as we saw with overfitting, maximizing explanatory power for the *current* dataset may actually *lower* it for future datasets. Compact representations help with generalization: just as limiting model complexity prevents overfitting, a bottleneck in the representation forces the model to capture the most broadly useful structure rather than dataset-specific noise. Much of representation learning is about navigating these trade-offs.
 
-
-## Representations in deep networks {#sec-representations-deep}
-
-We have already seen representation learning at work, even if we didn't call it that. When a CNN is trained to classify images, its internal layers learn a hierarchy of increasingly abstract features.
+In fact, we have already seen representation learning at work, even if we didn't call it that. When a CNN is trained to classify images, its internal layers learn a hierarchy of increasingly abstract features.
 
 **Hierarchical feature learning.** We can intuitively understand the types of features learned at different stages by visualizing what individual neurons in a trained CNN respond to. Work by Zeiler and Fergus (2014) showed that early layers learn simple edges and colors, middle layers combine these into textures and object parts, and the deepest layers respond to entire objects and scenes --- mirroring the classical computer vision pipeline, except that here the features are *learned* end-to-end from data rather than hand-designed.
 
@@ -173,7 +170,7 @@ The same context-based principle applies far beyond text:
 
 - **Node2Vec** (Grover and Leskovec, 2016) learns embeddings for nodes in a graph by treating random walks as "sentences" and applying a word2vec-like objective. Nodes that appear in similar graph neighborhoods get similar embeddings.
 - **Medical embeddings:** Representations of electronic health records (EHRs) embed patient histories into vector spaces where patients with similar conditions cluster together, enabling better clinical prediction models.
-- **Image embeddings:** As discussed in @sec-representations-deep, intermediate layers of CNNs produce embeddings where visually and semantically similar images are nearby.
+- **Image embeddings:** As discussed in @sec-what-is-representation, intermediate layers of CNNs produce embeddings where visually and semantically similar images are nearby.
 
 
 ### Contrastive and multimodal learning (optional) {#sec-contrastive}
