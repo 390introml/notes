@@ -150,10 +150,6 @@ Self-supervised learning has become the dominant paradigm for training large-sca
 
 ### Contrastive learning (optional) {#sec-contrastive}
 
-:::{.callout-note}
-This section covers material beyond the scope of exams. It is included for interested readers who want a broader picture of modern representation learning methods.
-:::
-
 *Contrastive learning* takes a different approach to learning without labels: rather than reconstructing or predicting parts of the input, it learns by *comparing* examples.
 
 The core idea is simple:
@@ -170,10 +166,6 @@ He et al. (2020) introduced MoCo (Momentum Contrast), which maintains a dynamic 
 
 
 ### Multimodal learning (optional) {#sec-multimodal}
-
-:::{.callout-note}
-This section covers material beyond the scope of exams. It is included for interested readers who want a broader picture of modern representation learning methods.
-:::
 
 The methods above learn representations from a single type of data (images, or text). *Multimodal learning* extends this idea by learning shared representations across different data types --- for instance, images and their text descriptions, or audio and video.
 
