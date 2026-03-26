@@ -28,31 +28,30 @@ What makes a representation *good*? Bengio et al. (2013) identify several desira
 "Generally speaking, a good representation is one that makes a subsequent learning task easier." --- *Deep Learning*, Goodfellow et al. 2016
 :::
 
-These properties are often in tension --- for instance, maximizing compactness may sacrifice explanatory power. Much of representation learning is about navigating these trade-offs.
+These properties are sometimes in tension --- for instance, maximizing compactness may sacrifice explanatory power. However, as we saw with overfitting, maximizing explanatory power for the *current* dataset may actually *lower* it for future datasets. Compact representations help with generalization: just as limiting model complexity prevents overfitting, a bottleneck in the representation forces the model to capture the most broadly useful structure rather than dataset-specific noise. Much of representation learning is about navigating these trade-offs.
 
 
 ## Representations in deep networks {#sec-representations-deep}
 
 We have already seen representation learning at work, even if we didn't call it that. When a CNN is trained to classify images, its internal layers learn a hierarchy of increasingly abstract features.
 
-**Hierarchical feature learning.** Work by Zeiler and Fergus (2014) visualized what individual neurons in a trained CNN respond to. The findings were striking:
+**Hierarchical feature learning.** We can intuitively understand the types of features learned at different stages by visualizing what individual neurons in a trained CNN respond to. Work by Zeiler and Fergus (2014) showed that early layers learn simple edges and colors, middle layers combine these into textures and object parts, and the deepest layers respond to entire objects and scenes --- mirroring the classical computer vision pipeline, except that here the features are *learned* end-to-end from data rather than hand-designed.
 
-- **Layer 1** neurons respond to simple edges and colors --- much like Gabor filters long used in classical computer vision.
-- **Layer 2** neurons combine these into textures and simple patterns (corners, circles, stripes).
-- **Layers 3--4** respond to object parts (wheels, eyes, text) and increasingly complex combinations.
-- **Layer 5** neurons respond to entire objects and scenes (specific dog breeds, flowers, faces).
+Note that in a CNN trained end-to-end for classification, backpropagation is jointly learning *both* the feature representations (what the filters detect) *and* the fully connected weights (how those features are combined for the final task). The two are coupled: the representations that emerge are shaped by the prediction objective.
 
-:::{.column-margin}
-This progression mirrors the classical computer vision pipeline --- edges, textures, segments, parts, objects --- except that here the features are *learned* end-to-end from data rather than hand-designed.
-:::
-
-This hierarchy also echoes what neuroscientists observe in the brain's visual system, which processes information through a series of areas with increasing complexity --- from simple edge detectors in early visual cortex to neurons that respond to whole objects in higher areas. Remarkably, when researchers compare how a deep network and the primate brain each organize visual information, the similarity structures turn out to be strikingly alike: images that produce similar neural activation patterns in the brain also produce similar activation patterns in the deep network, and vice versa.
+**Neuroscience parallels.** This hierarchy shows parallels with what neuroscientists observe in the brain's visual system, which processes information through a series of areas with increasing complexity --- from simple edge detectors in early visual cortex to neurons that respond to whole objects in higher areas. When researchers compare how a deep network and the primate brain each organize visual information, the similarity structures turn out to be closely aligned: images that produce similar neural activation patterns in the brain also produce similar activation patterns in the deep network, and vice versa.
 
 :::{.column-margin}
-Yamins et al. (PNAS 2014) compared the similarity structure of deep network activations with neural recordings from primate visual cortex and found a strong correspondence --- deep nets organize visual information much like our brains do.
+Yamins et al. (PNAS 2014) compared the similarity structure of deep network activations with neural recordings from primate visual cortex and found a strong correspondence. More recently, [Goldstein et al. (Nature Communications, 2024)](https://doi.org/10.1038/s41467-024-49168-6) showed that brain embeddings and contextual embeddings from language models share common geometric patterns, suggesting that biological and artificial systems converge on similar representational strategies.
 :::
 
-**Representations as embeddings.** Each layer of a neural network maps its input to a vector of activations. We can think of this vector as an *embedding* --- a point in a high-dimensional space where position encodes meaning. For example, given an image $x$, the activations at some intermediate layer form a vector that represents the image at a particular level of abstraction. We might call this "im2vec" by analogy with "word2vec" (discussed in @sec-embeddings below). If the network has learned a good representation, then semantically similar images will have embeddings that are close together --- two photos of golden retrievers will be nearby in this space, even if the actual pixel values are very different.
+**Representations as embeddings.** Each layer of a neural network maps its input to a vector of *activations*. We can think of this activation vector as an *embedding* --- a point in a high-dimensional space where position encodes meaning. It is important to distinguish between the *weights* of a layer and the *activations* it produces: the weights are the learned parameters (the filters in a CNN, the entries of a weight matrix), while the activations are the outputs produced when those weights are applied to a specific input. The embedding of a data point is its activation vector, not the weights themselves --- the weights define the *mapping* between embedding spaces, while the activations are the *representation* of a particular input at a given level of abstraction.
+
+:::{.column-margin}
+In a CNN, the learned filters are the "alphabet" or building blocks of the representation. The embedding of a specific image is the vector of filter activations --- how strongly each filter responds at each location. Two images of the same object will produce similar activation patterns even if their pixels differ substantially.
+:::
+
+For example, given an image $x$, the activations at some intermediate layer form a vector that represents the image at a particular level of abstraction. We might call this "im2vec" by analogy with "word2vec" (discussed in @sec-embeddings below). If the network has learned a good representation, then semantically similar images will have embeddings that are close together --- two photos of golden retrievers will be nearby in this space, even if the actual pixel values are very different.
 
 
 ## Transfer learning and finetuning {#sec-transfer}
@@ -81,9 +80,38 @@ So far, the representations we discussed (CNN features, transferred representati
 Can we learn useful representations from unlabeled data alone? This is the central question of unsupervised and self-supervised representation learning.
 
 
-### Autoencoders {#sec-autoencoder-structure}
+### Pretext tasks: from supervised to self-supervised {#sec-self-supervised}
 
-*Autoencoders* are a classical approach to learning representations from unlabeled data. The idea is to learn a compressed version of the data by training a network to reconstruct its own input through a bottleneck.
+The idea behind *self-supervised learning* is conceptually simple: instead of requiring human-provided labels, we create a supervised learning problem *from the data itself*, using the structure of the data to generate labels automatically.
+
+The key idea is to design a *pretext task* --- an auxiliary prediction problem whose labels are free. By training a network to solve the pretext task, useful representations emerge in its internal layers. This is a natural extension of the supervised learning students are already familiar with --- the only difference is *where the labels come from*.
+
+Examples of pretext tasks include:
+
+- **Masked prediction:** Hide part of the input and train the network to predict the missing piece. For images, this might mean masking random patches and predicting their pixel values. For text, this means masking words and predicting them from context (as in BERT).
+- **Context prediction:** Given one part of an input, predict what appears nearby. For example, given one patch of an image, predict which of several candidate patches was its neighbor.
+- **Colorization:** Given a grayscale image, predict the colors. To succeed, the network must understand object boundaries, materials, and semantics.
+
+:::{.column-margin}
+He et al. (2022) showed that masked autoencoders (MAE) --- which mask 75% of image patches and train the network to reconstruct them --- learn representations that rival or exceed those from supervised pretraining.
+:::
+
+In each case, the labels come for free from the data itself --- no human annotation required. The representations that emerge are useful *because* solving these tasks requires understanding the structure of the data. A network that can fill in missing image patches must have learned about textures, object boundaries, and spatial layout. A network that can predict masked words must have learned something about syntax and meaning.
+
+Consider a concrete text example. Given the sentence:
+
+> After the rain, the grass was ____.
+
+A model trained to predict the missing word must learn that "wet" or "green" are likely completions --- which requires understanding something about rain, grass, and their relationship. This is an example of *self-supervision*: the training signal comes from the data itself, not from human labels.
+
+Self-supervised learning has become the dominant paradigm for training large-scale models. Modern language models are trained by predicting the next word in a sequence --- a form of self-supervision that, at scale, produces remarkably capable representations of language.
+
+
+### Autoencoders: learning representations through compression {#sec-autoencoder-structure}
+
+A special case of self-supervised learning arises when the pretext task is to reconstruct the input $x$ *itself* --- not a masked portion, not a neighboring patch, but the entire input. When this reconstruction is forced through a bottleneck, the result is an *autoencoder*, and the latent representation at the bottleneck becomes very explicit.
+
+In a simple, linearly connected network (without residual connections or separate convolution streams), we can think of the activations at an intermediate layer as the latent representation. The autoencoder makes this idea precise: the network is clamped to produce itself, and the bottleneck forces a compressed encoding that captures the essential structure of the data.
 
 Assume that we have input data $\mathcal{D} = \{x^{(1)}, \ldots,
   x^{(n)} \}$, where $x^{(i)}\in \mathbb{R}^d$. We seek to learn an autoencoder that will produce a new dataset $\mathcal{D}_{out} =
@@ -121,36 +149,9 @@ If we set $k = d$ (the bottleneck has the same dimension as the input), what wou
 **From compression to downstream tasks.** Once a good encoder has been learned, the decoder can be discarded and the encoder used as a feature extractor. The representations $a = g(x)$ can then be fed into a classifier or regressor trained with supervised learning --- potentially using a much smaller labeled dataset. This connects autoencoders to the semi-supervised learning setting described in @sec-intro_unsupervised: we use a large unlabeled dataset to learn the representation and a small labeled dataset for the downstream task.
 
 
-### Self-supervised learning {#sec-self-supervised}
+### Contrastive and multimodal learning (optional) {#sec-contrastive}
 
-Autoencoders learn representations by compressing and reconstructing data. *Self-supervised learning* takes a broader approach: instead of reconstruction, it creates a supervised learning problem *from the data itself*, using the structure of the data to generate labels automatically.
-
-The key idea is to design a *pretext task* --- an auxiliary prediction problem whose labels are free. By training a network to solve the pretext task, useful representations emerge in its internal layers.
-
-Examples of pretext tasks include:
-
-- **Masked prediction:** Hide part of the input and train the network to predict the missing piece. For images, this might mean masking random patches and predicting their pixel values. For text, this means masking words and predicting them from context (as in BERT).
-- **Context prediction:** Given one part of an input, predict what appears nearby. For example, given one patch of an image, predict which of several candidate patches was its neighbor.
-- **Colorization:** Given a grayscale image, predict the colors. To succeed, the network must understand object boundaries, materials, and semantics.
-
-:::{.column-margin}
-He et al. (2022) showed that masked autoencoders (MAE) --- which mask 75% of image patches and train the network to reconstruct them --- learn representations that rival or exceed those from supervised pretraining.
-:::
-
-In each case, the labels come for free from the data itself --- no human annotation required. The representations that emerge are useful *because* solving these tasks requires understanding the structure of the data. A network that can fill in missing image patches must have learned about textures, object boundaries, and spatial layout. A network that can predict masked words must have learned something about syntax and meaning.
-
-Consider a concrete text example. Given the sentence:
-
-> After the rain, the grass was ____.
-
-A model trained to predict the missing word must learn that "wet" or "green" are likely completions --- which requires understanding something about rain, grass, and their relationship. This is an example of *self-supervision*: the training signal comes from the data itself, not from human labels.
-
-Self-supervised learning has become the dominant paradigm for training large-scale models. Modern language models are trained by predicting the next word in a sequence --- a form of self-supervision that, at scale, produces remarkably capable representations of language.
-
-
-### Contrastive learning (optional) {#sec-contrastive}
-
-*Contrastive learning* takes a different approach to learning without labels: rather than reconstructing or predicting parts of the input, it learns by *comparing* examples.
+The methods above --- self-supervised pretext tasks and autoencoders --- learn representations by predicting or reconstructing data. *Contrastive learning* takes a different approach: rather than reconstructing or predicting parts of the input, it learns by *comparing* examples, directly shaping the geometry of the representation space.
 
 The core idea is simple:
 
@@ -164,12 +165,7 @@ This encourages the network to learn representations that are *invariant* to the
 He et al. (2020) introduced MoCo (Momentum Contrast), which maintains a dynamic queue of negative examples, enabling contrastive learning to scale effectively.
 :::
 
-
-### Multimodal learning (optional) {#sec-multimodal}
-
-The methods above learn representations from a single type of data (images, or text). *Multimodal learning* extends this idea by learning shared representations across different data types --- for instance, images and their text descriptions, or audio and video.
-
-The intuition is that different modalities provide complementary views of the same underlying concept. A photo of a dog and the sentence "a golden retriever playing fetch" both refer to the same scene. By training a model to align representations across modalities, we obtain a shared embedding space where related concepts from different modalities are close together, regardless of their original form.
+**Multimodal learning.** The contrastive principle extends naturally to learning shared representations across different data types --- for instance, images and their text descriptions, or audio and video. The intuition is that different modalities provide complementary views of the same underlying concept. A photo of a dog and the sentence "a golden retriever playing fetch" both refer to the same scene. By training a model to pull together representations of matching image-text pairs (positives) while pushing apart mismatched pairs (negatives), we obtain a shared embedding space where related concepts from different modalities are close together, regardless of their original form.
 
 This idea underlies models like CLIP, which learns a joint embedding space for images and text. Given an image, CLIP can retrieve relevant text descriptions, and vice versa --- all without being explicitly trained on any specific classification task. The shared representation enables flexible "zero-shot" transfer to new tasks simply by describing them in natural language.
 
@@ -189,13 +185,33 @@ Why does this happen? Because *the factors that explain the structure of the dat
 This also helps explain why some pretext tasks work better than others. Tasks that require understanding *meaning* to solve (predicting masked words, reconstructing missing image regions) tend to produce better representations than tasks that can be solved by surface-level shortcuts (e.g., simply memorizing pixel statistics).
 
 
-## Embeddings {#sec-embeddings}
+## Embeddings: a unifying view {#sec-embeddings}
 
-The representations learned by the methods above are, at their core, *embeddings*: mappings from complex, high-dimensional data (images, words, sentences, graphs) into vectors in a lower-dimensional space. The key property of a good embedding is that **geometric relationships in the vector space reflect meaningful relationships in the original data**.
+The representations learned by all the methods above are, at their core, *embeddings*: mappings from complex, high-dimensional data (images, words, sentences, graphs) into vectors in a lower-dimensional space. The key property of a good embedding is that **geometric relationships in the vector space reflect meaningful relationships in the original data**.
 
-### Word embeddings
+Despite the diversity of methods we have encountered, they all share a common goal: imposing constraints that reveal latent structure in data. The differences lie in *what constraint* is used:
 
-In natural language processing, words are represented as vectors, commonly known as *word embeddings*. Semantically related words such as "dog" and "cat" should have vectors close together, while unrelated words like "cat" and "table" should be farther apart.
+| Paradigm | Core constraint | Examples |
+|----------|----------------|----------|
+| **Prediction** | Predict missing or future data | Masked language models, colorization, next-word prediction (@sec-self-supervised) |
+| **Compression** | Reconstruct through a bottleneck | Autoencoders, PCA (@sec-autoencoder-structure) |
+| **Context** | Co-occurring elements should map nearby | Word2Vec, Node2Vec (below) |
+| **Contrast** | Same input under different views should align | SimCLR, CLIP (@sec-contrastive) |
+| **Proximity** | Nearby points in data space should stay nearby | t-SNE, UMAP |
+
+: Five paradigms for learning representations. Each imposes a different constraint, but all produce embeddings where geometry encodes meaning. {#tbl-paradigms}
+
+:::{.column-margin}
+Importantly, embeddings don't need exact coordinates --- it's their *relative positioning* within the vector space that matters.
+:::
+
+These paradigms differ in the strength of their constraints. Proximity-based methods like t-SNE reveal that structure *exists* by preserving neighborhood relationships, but the resulting embeddings are typically not reusable for new data points. Compression forces the model to retain essential information. Prediction and context require inferring missing semantics. Contrastive learning imposes the strongest constraint, explicitly sculpting the geometry of the embedding space by pulling similar items together and pushing dissimilar items apart.
+
+### Learning representations through context {#sec-context-embeddings}
+
+One paradigm not yet covered in detail is *context-based* representation learning, where embeddings are shaped by co-occurrence: elements that appear in similar contexts should have similar representations.
+
+In natural language processing, this idea produces *word embeddings*. Semantically related words such as "dog" and "cat" should have vectors close together, while unrelated words like "cat" and "table" should be farther apart.
 
 Similarity between embeddings is frequently measured using the *inner product* (dot product):
 
@@ -213,13 +229,7 @@ $$\text{embedding}_{\tt paris} - \text{embedding}_{\tt france} + \text{embedding
 
 Such embeddings revealed meaningful semantic relationships like analogies across diverse vocabulary (e.g., *uncle* -- *man* + *woman* $\approx$ *aunt*). The training procedure is a form of self-supervised learning: the network learns to predict a word from its context (or vice versa), and the word vectors that emerge from this training capture distributional semantics --- the principle that "you shall know a word by the company it keeps."
 
-:::{.column-margin}
-Importantly, embeddings don't need exact coordinates --- it's their *relative positioning* within the vector space that matters.
-:::
-
-### Embeddings beyond words
-
-The same principles apply far beyond text:
+The same context-based principle applies far beyond text:
 
 - **Node2Vec** (Grover and Leskovec, 2016) learns embeddings for nodes in a graph by treating random walks as "sentences" and applying a word2vec-like objective. Nodes that appear in similar graph neighborhoods get similar embeddings.
 - **Medical embeddings:** Representations of electronic health records (EHRs) embed patient histories into vector spaces where patients with similar conditions cluster together, enabling better clinical prediction models.
