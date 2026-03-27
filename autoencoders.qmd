@@ -2,10 +2,6 @@
 
 In previous chapters, we have largely focused on supervised learning, using training samples that have both features/inputs and corresponding labels, to learn models that predict labels for new data. A recurring theme, however, has been the importance of *how data is represented*. In @sec-features, we saw that choosing the right feature transformation can make the difference between a model that works and one that doesn't. In @sec-cnn, we saw that convolutional neural networks learn hierarchical features automatically from data. This chapter steps back to ask a broader question: can we learn good representations of data *directly*, and why would we want to?
 
-:::{.column-margin}
-"I stand at the window and see a house, trees, sky. Theoretically I might say there were 327 brightnesses and nuances of colour. Do I have '327'? No. I have sky, house, and trees." --- Max Wertheimer, 1923
-:::
-
 ## What is a representation? {#sec-what-is-representation}
 
 A *representation* is a mapping from raw data to a more compact, structured encoding that captures the essential information while discarding irrelevant detail. Consider a photograph of some trash cans in front of a fence. A camera records millions of pixel values, but if asked to draw the scene from memory, you would produce something much simpler: a sketch with labels like "wooden fence," "grey trash can," "metal." Your brain has compressed the raw sensory input into a compact description that retains the *meaning* of the scene.
@@ -104,7 +100,59 @@ A model trained to predict the missing word must learn that "wet" or "green" are
 Self-supervised learning has become the dominant paradigm for training large-scale models. Modern language models are trained by predicting the next word in a sequence --- a form of self-supervision that, at scale, produces remarkably capable representations of language.
 
 
-### Autoencoders: learning representations through compression {#sec-autoencoder-structure}
+### Context-based learning {#sec-context-embeddings}
+
+Another approach to learning representations without labels relies on *co-occurrence*: elements that appear in similar contexts should have similar representations. This is the principle behind *word embeddings* in natural language processing.
+
+Semantically related words such as "dog" and "cat" should have vectors close together, while unrelated words like "cat" and "table" should be farther apart. Similarity between embeddings is frequently measured using the *inner product* (dot product):
+
+$$a^T b = a \cdot b = \sum_{j} a_j \, b_j$$
+
+:::{.column-margin}
+A related measure is *cosine similarity*, $\frac{a^T b}{\|a\| \, \|b\|}$, which normalizes for vector magnitude and measures only directional alignment.
+:::
+
+The inner product indicates how aligned two vectors are: highly positive values imply strong similarity, negative values indicate opposition, and values near zero suggest no similarity (up to a scaling factor related to the magnitude).
+
+A groundbreaking embedding method, *word2vec* (Mikolov et al., 2013), produced embeddings where vector arithmetic corresponds to semantic relationships:
+
+$$\text{embedding}_{\tt paris} - \text{embedding}_{\tt france} + \text{embedding}_{\tt italy} \approx \text{embedding}_{\tt rome}$$
+
+Such embeddings revealed meaningful semantic relationships like analogies across diverse vocabulary (e.g., *uncle* -- *man* + *woman* $\approx$ *aunt*). The training procedure is a form of self-supervised learning: the network learns to predict a word from its context (or vice versa), and the word vectors that emerge from this training capture distributional semantics --- the principle that "you shall know a word by the company it keeps."
+
+The same context-based principle applies far beyond text:
+
+- **Node2Vec** (Grover and Leskovec, 2016) learns embeddings for nodes in a graph by treating random walks as "sentences" and applying a word2vec-like objective. Nodes that appear in similar graph neighborhoods get similar embeddings.
+- **Medical embeddings:** Representations of electronic health records (EHRs) embed patient histories into vector spaces where patients with similar conditions cluster together, enabling better clinical prediction models.
+- **Image embeddings:** As discussed in @sec-what-is-representation, intermediate layers of CNNs produce embeddings where visually and semantically similar images are nearby.
+
+
+### Contrastive and multimodal learning {#sec-contrastive}
+
+The methods above --- self-supervised pretext tasks and context-based learning --- learn representations by predicting or co-locating data. *Contrastive learning* takes a different approach: rather than reconstructing or predicting parts of the input, it learns by *comparing* examples, directly shaping the geometry of the representation space.
+
+The core idea is simple:
+
+1. Take a data point and create two augmented versions of it (e.g., two different crops/color shifts of the same image). These form a *positive pair*.
+2. Other data points in the batch form *negative pairs*.
+3. Train the network to produce representations where positive pairs are close together and negative pairs are far apart.
+
+This encourages the network to learn representations that are *invariant* to the augmentations (cropping, color changes, etc.) while still distinguishing different inputs. Frameworks like SimCLR and MoCo have shown that contrastive learning can produce representations competitive with supervised pretraining.
+
+:::{.column-margin}
+He et al. (2020) introduced MoCo (Momentum Contrast), which maintains a dynamic queue of negative examples, enabling contrastive learning to scale effectively.
+:::
+
+**Multimodal learning.** The contrastive principle extends naturally to learning shared representations across different data types --- for instance, images and their text descriptions, or audio and video. The intuition is that different modalities provide complementary views of the same underlying concept. A photo of a dog and the sentence "a golden retriever playing fetch" both refer to the same scene. By training a model to pull together representations of matching image-text pairs (positives) while pushing apart mismatched pairs (negatives), we obtain a shared embedding space where related concepts from different modalities are close together, regardless of their original form.
+
+This idea underlies models like CLIP, which learns a joint embedding space for images and text. Given an image, CLIP can retrieve relevant text descriptions, and vice versa --- all without being explicitly trained on any specific classification task. The shared representation enables flexible "zero-shot" transfer to new tasks simply by describing them in natural language.
+
+:::{.column-margin}
+LeCun (2022) argues that learning representations that integrate multiple modalities and enable prediction at multiple time scales is a key step toward more autonomous machine intelligence.
+:::
+
+
+## Autoencoders {#sec-autoencoder-structure}
 
 A special case of self-supervised learning arises when the pretext task is to reconstruct the input $x$ *itself* --- not a masked portion, not a neighboring patch, but the entire input. When this reconstruction is forced through a bottleneck, the result is an *autoencoder*, and the latent representation at the bottleneck becomes very explicit.
 
@@ -146,58 +194,6 @@ If we set $k = d$ (the bottleneck has the same dimension as the input), what wou
 **From compression to downstream tasks.** Once a good encoder has been learned, the decoder can be discarded and the encoder used as a feature extractor. The representations $a = g(x)$ can then be fed into a classifier or regressor trained with supervised learning --- potentially using a much smaller labeled dataset. This connects autoencoders to the semi-supervised learning setting described in @sec-intro_unsupervised: we use a large unlabeled dataset to learn the representation and a small labeled dataset for the downstream task.
 
 
-### Context-based learning {#sec-context-embeddings}
-
-Another approach to learning representations without labels relies on *co-occurrence*: elements that appear in similar contexts should have similar representations. This is the principle behind *word embeddings* in natural language processing.
-
-Semantically related words such as "dog" and "cat" should have vectors close together, while unrelated words like "cat" and "table" should be farther apart. Similarity between embeddings is frequently measured using the *inner product* (dot product):
-
-$$a^T b = a \cdot b = \sum_{j} a_j \, b_j$$
-
-:::{.column-margin}
-A related measure is *cosine similarity*, $\frac{a^T b}{\|a\| \, \|b\|}$, which normalizes for vector magnitude and measures only directional alignment.
-:::
-
-The inner product indicates how aligned two vectors are: highly positive values imply strong similarity, negative values indicate opposition, and values near zero suggest no similarity (up to a scaling factor related to the magnitude).
-
-A groundbreaking embedding method, *word2vec* (Mikolov et al., 2013), produced embeddings where vector arithmetic corresponds to semantic relationships:
-
-$$\text{embedding}_{\tt paris} - \text{embedding}_{\tt france} + \text{embedding}_{\tt italy} \approx \text{embedding}_{\tt rome}$$
-
-Such embeddings revealed meaningful semantic relationships like analogies across diverse vocabulary (e.g., *uncle* -- *man* + *woman* $\approx$ *aunt*). The training procedure is a form of self-supervised learning: the network learns to predict a word from its context (or vice versa), and the word vectors that emerge from this training capture distributional semantics --- the principle that "you shall know a word by the company it keeps."
-
-The same context-based principle applies far beyond text:
-
-- **Node2Vec** (Grover and Leskovec, 2016) learns embeddings for nodes in a graph by treating random walks as "sentences" and applying a word2vec-like objective. Nodes that appear in similar graph neighborhoods get similar embeddings.
-- **Medical embeddings:** Representations of electronic health records (EHRs) embed patient histories into vector spaces where patients with similar conditions cluster together, enabling better clinical prediction models.
-- **Image embeddings:** As discussed in @sec-what-is-representation, intermediate layers of CNNs produce embeddings where visually and semantically similar images are nearby.
-
-
-### Contrastive and multimodal learning (optional) {#sec-contrastive}
-
-The methods above --- self-supervised pretext tasks, autoencoders, and context-based learning --- learn representations by predicting, reconstructing, or co-locating data. *Contrastive learning* takes a different approach: rather than reconstructing or predicting parts of the input, it learns by *comparing* examples, directly shaping the geometry of the representation space.
-
-The core idea is simple:
-
-1. Take a data point and create two augmented versions of it (e.g., two different crops/color shifts of the same image). These form a *positive pair*.
-2. Other data points in the batch form *negative pairs*.
-3. Train the network to produce representations where positive pairs are close together and negative pairs are far apart.
-
-This encourages the network to learn representations that are *invariant* to the augmentations (cropping, color changes, etc.) while still distinguishing different inputs. Frameworks like SimCLR and MoCo have shown that contrastive learning can produce representations competitive with supervised pretraining.
-
-:::{.column-margin}
-He et al. (2020) introduced MoCo (Momentum Contrast), which maintains a dynamic queue of negative examples, enabling contrastive learning to scale effectively.
-:::
-
-**Multimodal learning.** The contrastive principle extends naturally to learning shared representations across different data types --- for instance, images and their text descriptions, or audio and video. The intuition is that different modalities provide complementary views of the same underlying concept. A photo of a dog and the sentence "a golden retriever playing fetch" both refer to the same scene. By training a model to pull together representations of matching image-text pairs (positives) while pushing apart mismatched pairs (negatives), we obtain a shared embedding space where related concepts from different modalities are close together, regardless of their original form.
-
-This idea underlies models like CLIP, which learns a joint embedding space for images and text. Given an image, CLIP can retrieve relevant text descriptions, and vice versa --- all without being explicitly trained on any specific classification task. The shared representation enables flexible "zero-shot" transfer to new tasks simply by describing them in natural language.
-
-:::{.column-margin}
-LeCun (2022) argues that learning representations that integrate multiple modalities and enable prediction at multiple time scales is a key step toward more autonomous machine intelligence.
-:::
-
-
 ## Embeddings: a unifying view {#sec-embeddings}
 
 The representations learned by all the methods above are, at their core, *embeddings*: mappings from complex, high-dimensional data (images, words, sentences, graphs) into vectors in a lower-dimensional space. The key property of a good embedding is that **geometric relationships in the vector space reflect meaningful relationships in the original data**.
@@ -213,9 +209,9 @@ Despite the diversity of methods, they all share a common goal: imposing constra
 | Paradigm | Core constraint | Examples |
 |----------|----------------|----------|
 | **Prediction** | Predict missing or future data | Masked language models, colorization, next-word prediction (@sec-self-supervised) |
-| **Compression** | Reconstruct through a bottleneck | Autoencoders, PCA (@sec-autoencoder-structure) |
 | **Context** | Co-occurring elements should map nearby | Word2Vec, Node2Vec (@sec-context-embeddings) |
 | **Contrast** | Same input under different views should align | SimCLR, CLIP (@sec-contrastive) |
+| **Compression** | Reconstruct through a bottleneck | Autoencoders, PCA (@sec-autoencoder-structure) |
 | **Proximity** | Nearby points in data space should stay nearby | t-SNE, UMAP |
 
 : Five paradigms for learning representations. Each imposes a different constraint, but all produce embeddings where geometry encodes meaning. {#tbl-paradigms}
