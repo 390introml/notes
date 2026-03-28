@@ -68,9 +68,9 @@ Transfer learning is now standard practice in deep learning. Rather than trainin
 
 ## Learning representations without labels
 
-So far, the representations we discussed (CNN features, transferred representations) were learned through supervised training with labeled data. But labeled data is expensive to acquire --- it requires human annotators to examine each example and assign a label. Meanwhile, *unlabeled* data is abundant: the internet contains billions of images, text documents, and audio recordings, none of which come with labels attached.
+Transfer learning reduces the need for labeled data on the target task, but it still relies on supervised pretraining --- someone had to label those million-plus ImageNet images in the first place. This raises a natural question: is all that labeling truly necessary, or can we learn good representations without *any* labels?
 
-Can we learn useful representations from unlabeled data alone? This is the central question of unsupervised and self-supervised representation learning.
+There is reason to think we can. The key insight of *self-supervised learning* is that the data itself can provide the supervision signal --- no human labels required. And beyond self-supervision, *unlabeled* data is simply abundant: the internet contains billions of images, text documents, and audio recordings, none of which come with labels attached. Learning useful representations from this data is the central question of self-supervised and unsupervised representation learning.
 
 
 ### Pretext tasks: from supervised to self-supervised {#sec-self-supervised}
