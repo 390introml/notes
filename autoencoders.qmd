@@ -26,18 +26,6 @@ What makes a representation *good*? Bengio et al. (2013) identify several desira
 
 These properties are sometimes in tension --- for instance, maximizing compactness may sacrifice explanatory power. However, as we saw with overfitting, maximizing explanatory power for the *current* dataset may actually *lower* it for future datasets. Compact representations help with generalization: just as limiting model complexity prevents overfitting, a bottleneck in the representation forces the model to capture the most broadly useful structure rather than dataset-specific noise. Much of representation learning is about navigating these trade-offs.
 
-In fact, we have already seen representation learning at work, even if we didn't call it that. When a CNN is trained to classify images, its internal layers learn a hierarchy of increasingly abstract features.
-
-**Hierarchical feature learning.** We can intuitively understand the types of features learned at different stages by visualizing what individual neurons in a trained CNN respond to. Work by Zeiler and Fergus (2014) showed that early layers learn simple edges and colors, middle layers combine these into textures and object parts, and the deepest layers respond to entire objects and scenes --- mirroring the classical computer vision pipeline, except that here the features are *learned* end-to-end from data rather than hand-designed.
-
-Note that in a CNN trained end-to-end for classification, backpropagation is jointly learning *both* the feature representations (what the filters detect) *and* the fully connected weights (how those features are combined for the final task). The two are coupled: the representations that emerge are shaped by the prediction objective.
-
-**Neuroscience parallels.** This hierarchy shows parallels with what neuroscientists observe in the brain's visual system, which processes information through a series of areas with increasing complexity --- from simple edge detectors in early visual cortex to neurons that respond to whole objects in higher areas. When researchers compare how a deep network and the primate brain each organize visual information, the similarity structures turn out to be closely aligned: images that produce similar neural activation patterns in the brain also produce similar activation patterns in the deep network, and vice versa.
-
-:::{.column-margin}
-Yamins et al. (PNAS 2014) compared the similarity structure of deep network activations with neural recordings from primate visual cortex and found a strong correspondence. More recently, [Goldstein et al. (Nature Communications, 2024)](https://doi.org/10.1038/s41467-024-49168-6) showed that brain embeddings and contextual embeddings from language models share common geometric patterns, suggesting that biological and artificial systems converge on similar representational strategies.
-:::
-
 **Representations as embeddings.** Each layer of a neural network maps its input to a vector of *activations*. We can think of this activation vector as an *embedding* --- a point in a high-dimensional space where position encodes meaning. It is important to distinguish between the *weights* of a layer and the *activations* it produces: the weights are the learned parameters (the filters in a CNN, the entries of a weight matrix), while the activations are the outputs produced when those weights are applied to a specific input. The embedding of a data point is its activation vector, not the weights themselves --- the weights define the *mapping* between embedding spaces, while the activations are the *representation* of a particular input at a given level of abstraction.
 
 :::{.column-margin}
@@ -48,6 +36,18 @@ For example, given an image $x$, the activations at some intermediate layer form
 
 
 ## Transfer learning and finetuning {#sec-transfer}
+
+We have already seen representation learning at work, even if we didn't call it that. When a CNN is trained to classify images, its internal layers learn a hierarchy of increasingly abstract features.
+
+**Hierarchical feature learning.** We can intuitively understand the types of features learned at different stages by visualizing what individual neurons in a trained CNN respond to. Work by Zeiler and Fergus (2014) showed that early layers learn simple edges and colors, middle layers combine these into textures and object parts, and the deepest layers respond to entire objects and scenes --- mirroring the classical computer vision pipeline, except that here the features are *learned* end-to-end from data rather than hand-designed.
+
+Note that in a CNN trained end-to-end for classification, backpropagation is jointly learning *both* the feature representations (what the filters detect) *and* the fully connected weights (how those features are combined for the final task). The two are coupled: the representations that emerge are shaped by the prediction objective.
+
+**Neuroscience parallels.** This hierarchy shows parallels with what neuroscientists observe in the brain's visual system, which processes information through a series of areas with increasing complexity --- from simple edge detectors in early visual cortex to neurons that respond to whole objects in higher areas. When researchers compare how a deep network and the primate brain each organize visual information, the similarity structures turn out to be closely aligned: images that produce similar neural activation patterns in the brain also produce similar activation patterns in the deep network, and vice versa.
+
+:::{.column-margin}
+Yamins et al. (PNAS 2014) compared the similarity structure of deep network activations with neural recordings from primate visual cortex and found a strong correspondence. More recently, [Goldstein et al. (Nature Communications, 2024)](https://doi.org/10.1038/s41467-024-49168-6) showed that brain embeddings and contextual embeddings from language models share common geometric patterns, suggesting that biological and artificial systems converge on similar representational strategies.
+:::
 
 If a deep network's internal representations capture general-purpose features (edges, textures, object parts), then these representations should be useful for tasks *beyond* the one the network was originally trained on. This is the key insight behind *transfer learning*.
 
