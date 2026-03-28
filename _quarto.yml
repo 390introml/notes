@@ -87,6 +87,7 @@ format:
         - key: app
           kind: float
           reference-prefix: Appendix
+    include-in-header: ga.html
     # include-in-header: title-block.html
 
   # pdf:
