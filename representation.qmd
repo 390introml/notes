@@ -118,7 +118,7 @@ A groundbreaking embedding method, *word2vec* (Mikolov et al., 2013), produced e
 
 $$\text{embedding}_{\tt paris} - \text{embedding}_{\tt france} + \text{embedding}_{\tt italy} \approx \text{embedding}_{\tt rome}$$
 
-Such embeddings revealed meaningful semantic relationships like analogies across diverse vocabulary (e.g., *uncle* -- *man* + *woman* $\approx$ *aunt*). The training procedure is a form of self-supervised learning: the network learns to predict a word from its context (or vice versa), and the word vectors that emerge from this training capture distributional semantics --- the principle that "you shall know a word by the company it keeps."
+Such embeddings revealed meaningful semantic relationships like analogies across diverse vocabulary (e.g., $\textit{uncle} - \textit{man} + \textit{woman} \approx \textit{aunt}$). The training procedure is a form of self-supervised learning: the network learns to predict a word from its context (or vice versa), and the word vectors that emerge from this training capture distributional semantics --- the principle that "you shall know a word by the company it keeps."
 
 The same context-based principle applies far beyond text:
 
