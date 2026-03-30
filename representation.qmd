@@ -1,6 +1,6 @@
 # Representation Learning {#sec-autoencoders}
 
-In previous chapters, we have largely focused on supervised learning, using training samples that have both features/inputs and corresponding labels, to learn models that predict labels for new data. A recurring theme, however, has been the importance of *how data is represented*. In @sec-features, we saw that choosing the right feature transformation can make the difference between a model that works and one that doesn't. In @sec-cnn, we saw that convolutional neural networks learn hierarchical features automatically from data. This chapter steps back to ask a broader question: can we learn good representations of data *directly*, and why would we want to?
+In previous chapters, we have largely focused on supervised learning, using training samples that have both features/inputs and corresponding labels/outputs, to learn models that predict labels for new data. A recurring theme, however, has been the importance of *how data is represented*. In @sec-features, we saw that choosing the right feature transformation can make the difference between a model that works and one that doesn't. In @sec-cnn, we saw that convolutional neural networks learn hierarchical features automatically from data. This chapter steps back to ask a broader question: can we learn good representations of data *directly*, and why would we want to?
 
 ## What is a representation? {#sec-what-is-representation}
 
@@ -12,7 +12,11 @@ This example is drawn from experiments by Bartlett (1932) and Intraub & Richards
 
 More formally, given data $x \in \mathbb{R}^d$, a representation is a function $g: \mathbb{R}^d \rightarrow \mathbb{R}^k$ (typically with $k < d$) that maps the data to a new space where downstream tasks --- classification, clustering, retrieval, generation --- become easier.
 
-What makes a representation *good*? Bengio et al. (2013) identify several desirable properties:
+:::{.column-margin}
+While representations are often lower-dimensional ($k < d$), this is not required. In many modern systems (e.g., transformers), representations may actually be higher-dimensional, but are structured in a way that makes relevant information easier to extract.
+:::
+
+What makes a representation *good*? Not all compressions are equally useful — a representation that discards the wrong information is worse than useless. Bengio et al. (2013) identify several desirable properties:
 
 1. **Compact** (*minimal*): the representation uses few dimensions, discarding noise and redundancy.
 2. **Explanatory** (*sufficient*): it retains enough information to reconstruct or reason about the original data.
@@ -24,12 +28,14 @@ What makes a representation *good*? Bengio et al. (2013) identify several desira
 "Generally speaking, a good representation is one that makes a subsequent learning task easier." --- *Deep Learning*, Goodfellow et al. 2016
 :::
 
-These properties are sometimes in tension --- for instance, maximizing compactness may sacrifice explanatory power. However, as we saw with overfitting, maximizing explanatory power for the *current* dataset may actually *lower* it for future datasets. Compact representations help with generalization: just as limiting model complexity prevents overfitting, a bottleneck in the representation forces the model to capture the most broadly useful structure rather than dataset-specific noise. Much of representation learning is about navigating these trade-offs.
+At a high level, a good representation is one that *preserves* the information we care about while *simplifying* the structure of the data.
 
-**Representations as embeddings.** Each layer of a neural network maps its input to a vector of *activations*. We can think of this activation vector as an *embedding* --- a point in a high-dimensional space where position encodes meaning. It is important to distinguish between the *weights* of a layer and the *activations* it produces: the weights are the learned parameters (the filters in a CNN, the entries of a weight matrix), while the activations are the outputs produced when those weights are applied to a specific input. The embedding of a data point is its activation vector, not the weights themselves --- the weights define the *mapping* between embedding spaces, while the activations are the *representation* of a particular input at a given level of abstraction.
+These properties are sometimes in tension --- for instance, maximizing compactness may sacrifice explanatory power (e.g. a one-bit representation is maximally compact but explains almost nothing). However, as we saw with overfitting, maximizing explanatory power for the *current* dataset may actually *lower* it for future datasets. Compact representations help with generalization: just as limiting model complexity prevents overfitting, a bottleneck in the representation forces the model to capture the most broadly useful structure rather than dataset-specific noise. Much of representation learning is about navigating these trade-offs.
+
+**Representations as embeddings.** Each layer of a neural network maps its input to a vector of *activations*. We can think of this activation vector as an *embedding* --- a point in a high-dimensional space where position encodes meaning. It is important to distinguish between the *weights* of a layer and the *activations* it produces: the weights are the learned parameters (the filters in a CNN, the entries of a weight matrix), while the activations are the outputs produced when those weights are applied to a specific input. The embedding of a data point is its activation vector, not the weights themselves --- the weights define the *mapping* between embedding spaces, while the activations are the *representation* of a particular input at a given level of abstraction. Thus, representation learning can be viewed as learning a geometry over the dataset, where distances and directions encode semantic relationships.
 
 :::{.column-margin}
-In a CNN, the learned filters are the "alphabet" or building blocks of the representation. The embedding of a specific image is the vector of filter activations --- how strongly each filter responds at each location. Two images of the same object will produce similar activation patterns even if their pixels differ substantially.
+In a CNN, the learned filters are the "alphabet" or building blocks of the representation. The embedding of a specific image is the vector of filter activations --- how strongly each filter responds at each location. Two images of the same object will produce similar activation patterns even if their pixels differ substantially. (For example, think of the weights as a dictionary — fixed after training, they define what the network knows how to detect. The activations are the result of looking something up in that dictionary for a specific input. Two images of the same dog produce similar activations (similar lookup results) even if their pixel values differ substantially.)
 :::
 
 For example, given an image $x$, the activations at some intermediate layer form a vector that represents the image at a particular level of abstraction. We might call this "im2vec" by analogy with "word2vec" (discussed in @sec-embeddings below). If the network has learned a good representation, then semantically similar images will have embeddings that are close together --- two photos of golden retrievers will be nearby in this space, even if the actual pixel values are very different.
@@ -61,9 +67,11 @@ If a deep network's internal representations capture general-purpose features (e
 The "learned representation" being transferred is precisely the weights and biases of the pretrained network --- these encode the feature detectors that the network has discovered.
 :::
 
-This works because early layers learn general features (edges, textures) that are useful across many visual tasks, while later layers become increasingly task-specific. Finetuning allows the network to adapt its higher-level representations to the new task while preserving the useful lower-level features.
+This works because early layers learn general features (edges, textures) that are useful across many visual tasks, while later layers become increasingly task-specific. Finetuning allows the network to adapt its higher-level representations to the new task while preserving the useful lower-level features. When you finetune, the early layers have already mostly "learned" low-level structure, so gradient updates mostly affect the later layers, which adapt to the new task's semantics. Training from scratch, by contrast, must relearn everything — an expensive and data-hungry process.
 
 Transfer learning is now standard practice in deep learning. Rather than training from scratch, practitioners typically start from a pretrained model and finetune for their specific application. This dramatically reduces the amount of labeled data needed and often yields better results than training from scratch, even with substantial datasets.
+
+In practice, how much of the network to update during finetuning is a design choice. One common strategy is to freeze the early layers entirely (set their gradients to zero) and only train the later layers — this is faster and reduces the risk of overwriting useful low-level features. As a rule of thumb: the more similar task B is to task A, the more layers you can safely freeze.
 
 
 ## Learning representations without labels
@@ -148,7 +156,9 @@ He et al. (2020) introduced MoCo (Momentum Contrast), which maintains a dynamic 
 This idea underlies models like CLIP, which learns a joint embedding space for images and text. Given an image, CLIP can retrieve relevant text descriptions, and vice versa --- all without being explicitly trained on any specific classification task. The shared representation enables flexible "zero-shot" transfer to new tasks simply by describing them in natural language.
 
 :::{.column-margin}
-LeCun (2022) argues that learning representations that integrate multiple modalities and enable prediction at multiple time scales is a key step toward more autonomous machine intelligence.
+LeCun (2022) argues that learning representations that integrate multiple modalities and enable prediction at multiple time scales is a key step toward more autonomous machine intelligence. 
+
+Zero-shot means the model can handle categories it was never explicitly trained on. For example, given an image and the text label "panda," CLIP can decide whether they match, even if it never saw a labeled panda during training.
 :::
 
 
@@ -156,7 +166,7 @@ LeCun (2022) argues that learning representations that integrate multiple modali
 
 A special case of self-supervised learning arises when the pretext task is to reconstruct the input $x$ *itself* --- not a masked portion, not a neighboring patch, but the entire input. When this reconstruction is forced through a bottleneck, the result is an *autoencoder*, and the latent representation at the bottleneck becomes very explicit.
 
-In a simple, linearly connected network (without residual connections or separate convolution streams), we can think of the activations at an intermediate layer as the latent representation. The autoencoder makes this idea precise: the network is clamped to produce itself, and the bottleneck forces a compressed encoding that captures the essential structure of the data.
+In a simple, linearly connected network (without residual connections or separate convolution streams), we can think of the activations at an intermediate layer as the latent representation. The autoencoder makes this idea precise: the network is clamped to produce itself, and the bottleneck enforces an *information constraint* that forces a compressed encoding capturing the essential structure of the data.
 
 Assume that we have input data $\mathcal{D} = \{x^{(1)}, \ldots,
   x^{(n)} \}$, where $x^{(i)}\in \mathbb{R}^d$. We seek to learn an autoencoder that will produce a new dataset $\mathcal{D}_{out} =
@@ -191,7 +201,7 @@ If we set $k = d$ (the bottleneck has the same dimension as the input), what wou
 
 **Linear encoders and PCA.** Even linear encoders and decoders can be powerful. When both $f_1$ and $f_2$ are the identity function, the optimal solution can be obtained in closed form via *principal components analysis* (PCA) using singular value decomposition (SVD). The neural network autoencoders discussed above can be thought of as nonlinear generalizations of PCA, just as a multilayer neural network for regression generalizes linear regression.
 
-**From compression to downstream tasks.** Once a good encoder has been learned, the decoder can be discarded and the encoder used as a feature extractor. The representations $a = g(x)$ can then be fed into a classifier or regressor trained with supervised learning --- potentially using a much smaller labeled dataset. This connects autoencoders to the semi-supervised learning setting described in @sec-intro_unsupervised: we use a large unlabeled dataset to learn the representation and a small labeled dataset for the downstream task.
+**From compression to downstream tasks.** Once a good encoder has been learned, the decoder can be discarded and the encoder used as a feature extractor. The representations $a = g(x)$ can then be fed into a classifier or regressor trained with supervised learning --- potentially using a much smaller labeled dataset. This connects autoencoders to the semi-supervised learning setting described in @sec-self-supervised: we use a large unlabeled dataset to learn the representation and a small labeled dataset for the downstream task.
 
 
 ## Embeddings: a unifying view {#sec-embeddings}
