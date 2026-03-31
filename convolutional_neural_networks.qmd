@@ -86,20 +86,19 @@ Convince yourself that filter $F_2$ can be understood as a detector for isolated
   \begin{scope}[yshift=-2.8cm]
     \draw (0, 0) grid (10, 1);
     \setcounter{col}{1}
-    \foreach \p in {0,1,0,0,-1,1,-1,0,0,0} {
+    \foreach \p in {0,0,1,0,0,-1,1,-1,0,0} {
         \edef\x{\value{col} - 0.5}
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
     \node[left] at (0,0.5) {After convolution (with $F_1$):};
     \draw[very thick] (2, 0) grid (3, 1);
-    \draw[very thick] (5, 0) grid (6, 1);
-    \draw[very thick] (7, 0) grid (8, 1);
+    \draw[very thick] (6, 0) grid (7, 1);
   \end{scope}
   \begin{scope}[yshift=-6.5cm]
     \draw (0, 0) grid (10, 1);
     \setcounter{col}{1}
-    \foreach \p in {-1,0,-1,0,-2,1,-1,0,0,0} {
+    \foreach \p in {0,-1,0,-1,0,-2,1,-1,0,0} {
         \edef\x{\value{col} - 0.5}
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
@@ -107,10 +106,7 @@ Convince yourself that filter $F_2$ can be understood as a detector for isolated
     \node[left] at (0,0.5) {After convolution (with $F_2$):};
     \draw (0, 2) grid (3, 3);
     \node[left] at (0, 2.5) {$F_2$};
-    \draw[very thick] (1, 0) grid (2, 1);
-    \draw[very thick] (3, 0) grid (4, 1);
-    \draw[very thick] (5, 0) grid (6, 1);
-    \draw[very thick] (7, 0) grid (8, 1);
+    \draw[very thick] (6, 0) grid (7, 1);
     \node[anchor=center] at (0.5, 2.5) {-1};
     \node[anchor=center] at (1.5, 2.5) {+1};
     \node[anchor=center] at (2.5, 2.5) {-1};
