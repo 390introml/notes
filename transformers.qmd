@@ -13,7 +13,7 @@ Their key advantages include:
 Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents). Prior to the advent of the transformers architecture, recurrent neural networks (RNNs) briefly dominated the field for their ability to process sequential information. However, RNNs, like many other architectures, processed sequential information in an iterative/sequential fashion, whereby each item of a sequence was individually processed one after another. Transformers offer many advantages over RNNs, including their ability to process all items in a sequence in a *parallel* fashion (as do CNNs).
 :::
 
-Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make Transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
+Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
 
 ## Transformers Overview {#sec-transformers-overview}
 
@@ -116,6 +116,10 @@ $$
 v_i = W_v^T x_i
 $$
 
+The figure below shows how a single input token embedding $x_i \in \mathbb{R}^d$ is linearly projected into three separate vectors by multiplying with three independently learned weight matrices. The same procedure is applied identically and in parallel to every token in the sequence.
+
+![](figures/transformer_qkv_proj.png)
+
 ### Attention Output
 
 Finally, attention outputs are computed as weighted sums of value vectors, using the softmax'd attention scores:
@@ -130,6 +134,11 @@ This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating con
 In principle, one could use the key vectors directly as the weighted contributions. In practice, using a separate learned projection $W_v$
 gives the model more flexibility: the keys can specialize in determining relevance (matching queries), while the values specialize in determining what information to actually pass forward.
 :::
+
+The figure below traces the full computation for a single query token $q_1$
+attending over a four-token sequence. The resulting vector $z_1$ is a context-aware mixture of all value vectors, weighted by relevance.
+
+![](figures/transformer_attn_mech.png)
 
 ## Self-attention Layer {#sec-self-attention}
 
@@ -177,7 +186,11 @@ v_n^\top
 \end{aligned}
 $$
 
-It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. Now, the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
+It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. 
+
+![](figures/transformer_qkv_full_mat.png)
+
+Now, the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
 
 $$\begin{aligned}
 A = \begin{bmatrix}
@@ -232,6 +245,7 @@ $$
 \text{Attention}(Q, K, V) = \text{softmax}_{row}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
 $$
 
+![](figures/transformer_attn_head_compact.png)
 
 
 ### Multi-head Self-attention
@@ -256,6 +270,9 @@ $$
 $$
 where the concatenation operation concatenates $Z^h$ horizontally, yielding a matrix of size $n\times Hd_k$, and $W^O \in \mathbb{R}^{Hd_k \times d}$ is a final linear projection matrix.
 
+The following figure illustrates the multi-head self-attention layer, showing how the input $X$ is processed through multiple attention heads, each producing its own output, which are then concatenated and projected to produce the final output of the layer.
+![](figures/transformer_attn_layer.png)
+
 The purpose of $W^O$ is to mix information across heads — each head produces a $d_k$​-dimensional representation from its own perspective, and $W^O$ projects the concatenated $Hd_k$​-dimensional vector back to the model's $d$-dimensional hidden space, allowing the downstream layers to receive a unified representation.
 
 The table below summarizes the dimensions of the various matrices involved in a multi-head self-attention layer, with $n$ as the number of tokens, $d$ as the input token dimension, $d_k$ as the dimension of each head's query/key/value vectors (embedding dimension), and $H$ as the number of heads.
@@ -268,7 +285,7 @@ We now have all the ingredients to describe a complete **transformer block** —
 Each block consists of two sub-layers:
 
 1. **Multi-head self-attention**, which mixes information across token positions.
-2. **A feed-forward network (FFN)**, which applies a nonlinear transformation independently to each token's representation.
+2. **A multi-layer perceptron (MLP)**, which applies a nonlinear transformation independently to each token's representation.
 
 Critically, both sub-layers are wrapped with **residual connections** and **layer normalization**, giving us the following two-step update:
 
@@ -276,30 +293,15 @@ $$
 X' = \text{LayerNorm}(X + \text{MultiHead}(X))
 $$
 $$
-X'' = \text{LayerNorm}(X' + \text{FFN}(X'))
+X'' = \text{LayerNorm}(X' + \text{MLP}(X'))
 $$
 
 The output $X''$ becomes the input to the next block.
 
-### The Feed-Forward Sublayer
+Residual connections allow gradients to flow directly through many layers without vanishing, making it practical to stack transformer blocks. Layer normalization stabilizes training by normalizing the activations within each token's representation to have zero mean and unit variance at each layer. This prevents the scale of activations from exploding or collapsing across layers, which is especially important in very deep models.
 
-The FFN is applied position-wise — meaning the same two-layer MLP is applied to every token independently:
-
-$$
-\text{FFN}(x_i) = \text{ReLU}(x_i W_1 + b_1) W_2 + b_2
-$$
-
-where $W_1 \in \mathbb{R}^{d \times d_{ff}}$ and $W_2 \in \mathbb{R}^{d_{ff} \times d}$. The hidden dimension $d_{ff}$ is typically set to $4d$ — so for a model with $d = 512$, the FFN expands each token to 2048 dimensions before projecting back. This expansion is where much of the model's expressive capacity lives.
-
-:::{.column-margin}
-A useful way to think about the division of labor: attention layers *mix* information across positions (each token can gather context from anywhere in the sequence), while the FFN layers *deepen* each position's representation independently (each token is individually transformed by a powerful nonlinear function). Both are necessary: attention without FFNs lacks expressive depth; FFNs without attention cannot share information across positions.
-:::
-
-### Residual Connections and Layer Normalization
-
-**Residual connections** (the $X + \text{Sublayer}(X)$ pattern) allow gradients to flow directly through many layers without vanishing, making it practical to stack dozens or even hundreds of transformer blocks. In effect, each block only needs to learn the *correction* to the current representation rather than a full transformation from scratch.
-
-**Layer normalization** stabilizes training by normalizing the activations within each token's representation to have zero mean and unit variance at each layer. This prevents the scale of activations from exploding or collapsing across layers, which is especially important in very deep models.
+The following illustrates the components of a transformer block:
+![](figures/transformer_transformer_block.png)
 
 ### The Full Forward Pass
 
@@ -307,9 +309,10 @@ Putting everything together, here is the complete forward pass for a decoder-sty
 
 1. **Tokenize** the input text into a sequence of $n$ tokens.
 2. **Embed** each token index as a $d$-dimensional vector via a learned embedding matrix $E \in \mathbb{R}^{V \times d}$, where $V$ is the vocabulary size.
-3. **Add positional embeddings** $p_i$ to each token embedding: $x_i^* = x_i + p_i$.
-4. **Pass through $L$ transformer blocks**, each consisting of causal multi-head attention + FFN + residual connections + layer normalization.
-5. **Project** the final token representations to logits over the vocabulary using $W_E^T$ (often the transposed embedding matrix is reused here) and apply softmax to get a probability distribution over the next token.
+3. **Pass through $L$ transformer blocks**, each consisting of causal multi-head attention and an MLP.
+4. **Project** the final token representations to logits over the vocabulary and apply softmax to get a probability distribution over the next token.
+
+![](figures/transformer_full_pipeline.png)
 
 ## Transformers Architecture Details {#sec-transformers-arch-details}
 
@@ -368,6 +371,18 @@ The softmax is performed on each row independently. The attention output is stil
 
 
 Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
+
+This common figure illustrates the hierarchical "zoom-in" structure of a Transformer model, moving from the high-level architecture down to the specific mechanics of a single attention head.
+
+The Three Levels of Detail:
+
+- The Full Model (Left): This shows the global pipeline where raw input data is converted into embeddings, combined with positional information, and passed through $L$ identical stacked transformer blocks before reaching a final softmax layer for prediction.
+- The Transformer Block (Center): This zooms into a single layer, highlighting the multi-head attention layer followed by an MLP (Linear/ReLU layers). Note the "skip connections" (the arrows bypassing the blocks) and Layer Normalization, which help keep training stable.
+- The Attention Head (Right): This is the granular view of how a single head operates. It takes the input and splits it into Query (Q), Key (K), and Value (V) vectors. It performs a Matrix Multiplication between Q and K to determine "attention weights," applies an optional mask, runs it through a Softmax, and uses those weights to scale the V vectors.
+
+Essentially, the figure shows how simple matrix operations inside a single head (right) are scaled up into parallel heads within a block (center), which are then stacked many times to create a powerful deep learning model (left).
+
+![](figures/transformer_paper_fig.png)
 
 ## Training vs. Inference {#sec-training-vs-inference}
 
