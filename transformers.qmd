@@ -77,8 +77,8 @@ For example, consider the partial sentence: "Anqi forgot ___". At this point, th
 Attention allows each token to dynamically gather information from other tokens in the sequence. Each token produces three vectors:
 
 - **Query vector** $q_i$: Represents the token's "question" about which other tokens are relevant.
-- **Key vector** $k_j$: Represents the "answer" that other tokens provide to queries.
-- **Value vector** $v_j$: Represents the actual information that is aggregated based on attention scores.
+- **Key vector** $k_i$: Represents the "answer" that other tokens provide to queries.
+- **Value vector** $v_i$: Represents the actual information that is aggregated based on attention scores.
 
 ### Query Vectors
 
@@ -378,7 +378,7 @@ The Three Levels of Detail:
 
 - The Full Model (Left): This shows the global pipeline where raw input data is converted into embeddings, combined with positional information, and passed through $L$ identical stacked transformer blocks before reaching a final softmax layer for prediction.
 - The Transformer Block (Center): This zooms into a single layer, highlighting the multi-head attention layer followed by an MLP (Linear/ReLU layers). Note the "skip connections" (the arrows bypassing the blocks) and Layer Normalization, which help keep training stable.
-- The Attention Head (Right): This is the granular view of how a single head operates. It takes the input and splits it into Query (Q), Key (K), and Value (V) vectors. It performs a Matrix Multiplication between Q and K to determine "attention weights," applies an optional mask, runs it through a Softmax, and uses those weights to scale the V vectors.
+- The Attention Head (Right): This is the granular view of how a single head operates. It takes the input and splits it into Query ($Q$), Key ($K$), and Value ($V$) vectors. It performs a Matrix Multiplication between $Q$ and $K$ to determine "attention weights," applies an optional mask, runs it through a Softmax, and uses those weights to scale the $V$ vectors.
 
 Essentially, the figure shows how simple matrix operations inside a single head (right) are scaled up into parallel heads within a block (center), which are then stacked many times to create a powerful deep learning model (left).
 
