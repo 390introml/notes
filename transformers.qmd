@@ -388,7 +388,7 @@ Essentially, the figure shows how simple matrix operations inside a single head 
 
 The transformer behaves differently depending on whether it is being **trained** or used for **inference** (generation). Understanding this distinction is important for making sense of both the efficiency of transformers and the role of causal masking.
 
-### Training: Parallel Processing Over the Whole Sequence
+### Training
 
 During training, the model is given an entire sequence at once and asked to predict, for every position $i$, the token that should appear at position $i+1$. Crucially, all of these predictions are computed **simultaneously** in a single forward pass.
 
@@ -405,7 +405,7 @@ This is why **causal masking** is essential during training: even though the ful
 
 Thus, one forward pass simultaneously generates supervised training signal for all $n$ positions in the sequence.
 
-### Inference: Sequential Token-by-Token Generation
+### Inference
 
 At inference time, the model generates text *autoregressively*: it produces one token at a time, appends it to the sequence, and feeds the extended sequence back in to produce the next token.
 
@@ -422,7 +422,7 @@ This is fundamentally *sequential* — each new token requires a new forward pas
 In practice, a technique called **KV-caching** is used to speed up inference. Because the key and value vectors for already-generated tokens don't change as new tokens are added, they can be computed once and stored in a cache. Only the new token's Q, K, and V vectors need to be computed on each step, reducing the per-step computation significantly.
 :::
 
-### Summary: Training vs. Inference at a Glance
+### Summary
 
 |  | Training | Inference |
 |---|---|---|
