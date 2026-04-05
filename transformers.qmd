@@ -258,6 +258,59 @@ where the concatenation operation concatenates $Z^h$ horizontally, yielding a ma
 
 The purpose of $W^O$ is to mix information across heads — each head produces a $d_k$​-dimensional representation from its own perspective, and $W^O$ projects the concatenated $Hd_k$​-dimensional vector back to the model's $d$-dimensional hidden space, allowing the downstream layers to receive a unified representation.
 
+The table below summarizes the dimensions of the various matrices involved in a multi-head self-attention layer, with $n$ as the number of tokens, $d$ as the input token dimension, $d_k$ as the dimension of each head's query/key/value vectors (embedding dimension), and $H$ as the number of heads.
+![](figures/transformer_dimensions_table.png)
+
+## Putting It All Together: The Transformer Block {#sec-transformer-block}
+
+We now have all the ingredients to describe a complete **transformer block** — the repeating unit that is stacked $L$ times to form the full transformer. Each block takes in a matrix $X \in \mathbb{R}^{n \times d}$ and outputs a matrix of the same shape, progressively refining the token representations.
+
+Each block consists of two sub-layers:
+
+1. **Multi-head self-attention**, which mixes information across token positions.
+2. **A feed-forward network (FFN)**, which applies a nonlinear transformation independently to each token's representation.
+
+Critically, both sub-layers are wrapped with **residual connections** and **layer normalization**, giving us the following two-step update:
+
+$$
+X' = \text{LayerNorm}(X + \text{MultiHead}(X))
+$$
+$$
+X'' = \text{LayerNorm}(X' + \text{FFN}(X'))
+$$
+
+The output $X''$ becomes the input to the next block.
+
+### The Feed-Forward Sublayer
+
+The FFN is applied position-wise — meaning the same two-layer MLP is applied to every token independently:
+
+$$
+\text{FFN}(x_i) = \text{ReLU}(x_i W_1 + b_1) W_2 + b_2
+$$
+
+where $W_1 \in \mathbb{R}^{d \times d_{ff}}$ and $W_2 \in \mathbb{R}^{d_{ff} \times d}$. The hidden dimension $d_{ff}$ is typically set to $4d$ — so for a model with $d = 512$, the FFN expands each token to 2048 dimensions before projecting back. This expansion is where much of the model's expressive capacity lives.
+
+:::{.column-margin}
+A useful way to think about the division of labor: attention layers *mix* information across positions (each token can gather context from anywhere in the sequence), while the FFN layers *deepen* each position's representation independently (each token is individually transformed by a powerful nonlinear function). Both are necessary: attention without FFNs lacks expressive depth; FFNs without attention cannot share information across positions.
+:::
+
+### Residual Connections and Layer Normalization
+
+**Residual connections** (the $X + \text{Sublayer}(X)$ pattern) allow gradients to flow directly through many layers without vanishing, making it practical to stack dozens or even hundreds of transformer blocks. In effect, each block only needs to learn the *correction* to the current representation rather than a full transformation from scratch.
+
+**Layer normalization** stabilizes training by normalizing the activations within each token's representation to have zero mean and unit variance at each layer. This prevents the scale of activations from exploding or collapsing across layers, which is especially important in very deep models.
+
+### The Full Forward Pass
+
+Putting everything together, here is the complete forward pass for a decoder-style (autoregressive) transformer:
+
+1. **Tokenize** the input text into a sequence of $n$ tokens.
+2. **Embed** each token index as a $d$-dimensional vector via a learned embedding matrix $E \in \mathbb{R}^{V \times d}$, where $V$ is the vocabulary size.
+3. **Add positional embeddings** $p_i$ to each token embedding: $x_i^* = x_i + p_i$.
+4. **Pass through $L$ transformer blocks**, each consisting of causal multi-head attention + FFN + residual connections + layer normalization.
+5. **Project** the final token representations to logits over the vocabulary using $W_E^T$ (often the transposed embedding matrix is reused here) and apply softmax to get a probability distribution over the next token.
+
 ## Transformers Architecture Details {#sec-transformers-arch-details}
 
 ### Positional Embeddings 
@@ -315,6 +368,54 @@ The softmax is performed on each row independently. The attention output is stil
 
 
 Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
+
+## Training vs. Inference {#sec-training-vs-inference}
+
+The transformer behaves differently depending on whether it is being **trained** or used for **inference** (generation). Understanding this distinction is important for making sense of both the efficiency of transformers and the role of causal masking.
+
+### Training: Parallel Processing Over the Whole Sequence
+
+During training, the model is given an entire sequence at once and asked to predict, for every position $i$, the token that should appear at position $i+1$. Crucially, all of these predictions are computed **simultaneously** in a single forward pass.
+
+For example, given the sequence "A robot must obey," the model is trained on four prediction tasks at once:
+
+| Input context | Target |
+|---|---|
+| "A" | "robot" |
+| "A robot" | "must" |
+| "A robot must" | "obey" |
+| "A robot must obey" | \<next token\> |
+
+This is why **causal masking** is essential during training: even though the full sequence is fed in simultaneously, position $i$ must not be able to see positions $j > i$ when producing its prediction. The causal mask enforces this constraint, ensuring the model cannot "cheat" by looking at the answer.
+
+Thus, one forward pass simultaneously generates supervised training signal for all $n$ positions in the sequence.
+
+### Inference: Sequential Token-by-Token Generation
+
+At inference time, the model generates text *autoregressively*: it produces one token at a time, appends it to the sequence, and feeds the extended sequence back in to produce the next token.
+
+For example, starting from the prompt "A robot must," the process unfolds as:
+
+1. Feed "A robot must" → sample "obey" from predicted distribution
+2. Feed "A robot must obey" → sample "the" from predicted distribution
+3. Feed "A robot must obey the" → sample "orders" from predicted distribution
+4. ... continue until a special end-of-sequence token is produced
+
+This is fundamentally *sequential* — each new token requires a new forward pass. As a result, generating a sequence of $n$ tokens requires $n$ separate forward passes, whereas training on that same sequence requires only one. This is the primary reason why inference is comparatively slow and expensive relative to the training throughput.
+
+:::{.column-margin}
+In practice, a technique called **KV-caching** is used to speed up inference. Because the key and value vectors for already-generated tokens don't change as new tokens are added, they can be computed once and stored in a cache. Only the new token's Q, K, and V vectors need to be computed on each step, reducing the per-step computation significantly.
+:::
+
+### Summary: Training vs. Inference at a Glance
+
+|  | Training | Inference |
+|---|---|---|
+| **Input** | Full sequence at once | Tokens generated one at a time |
+| **Forward passes needed** | 1 per sequence | $n$ per sequence of length $n$ |
+| **Causal mask** | Required (prevents looking ahead) | Naturally satisfied (future tokens don't exist yet) |
+| **Speed** | Fast (fully parallel) | Slow (sequential) |
+| **Goal** | Minimize cross-entropy loss | Sample next token from predicted distribution |
 
 
 <!--
