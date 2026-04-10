@@ -11,7 +11,7 @@ In this chapter, we'll first study *Markov decision processes* (MDPs), which pro
 Formally, a Markov decision process is $\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
   \gamma\rangle$ where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, and:
 
--   $\mathrm{T} : \mathcal S \times \mathcal A \times \mathcal S \rightarrow \mathbb{R}$ is a *transition model*, where 
+-   $\mathrm{T} : \mathcal S \times \mathcal A \times \mathcal S \rightarrow \in [0, 1]$ is a *transition model*, where 
 $$
 \mathrm{T}(s, a, s') = Pr(S_t = s'|S_{t - 1} = s,
               A_{t - 1} = a)\;\;,
@@ -31,7 +31,7 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 MDPs also satisfy the Markov property, which means the next-state distribution depends only on the current state and action, not on the  Past. Formally, the Markov property is expressed as:
 $$
-Pr(S_{t+1} = s_{t+1} | S_t = s_t, A_t = a_t, S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1}, \ldots, S_0 = s_0, A_0 = a_0) = Pr(S_{t+1} = s_{t+1} | S_t = s_t, A_t = a_t)
+Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1}, \ldots, S_0 = s_0, A_0 = a_0) = Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1})
 $$
 
 In other words, the future is only dependent on the present, and not on the past.
@@ -162,7 +162,7 @@ $${#eq-exp_infinite}
 Note that the $t$ indices here are not the number of steps to go, but actually the number of steps forward from the starting state (there is no sensible notion of "steps to go" in the infinite horizon case).
 
 :::{.callout-note}
-@eq-exp_finite and @eq-exp_infinite are a conceptual stepping stone. Our main objective is to get to @eq-inf_horiz_value, which can also be viewed as including $\gamma$ in @eq-finite_value, with the appropriate definition of the infinite-horizon value.
+@eq-exp_finite and @eq-exp_infinite are a conceptual stepping stone. @eq-inf_horiz_value is the infinite-horizon analogue of @eq-finite_value.
 :::
 
 There are two good intuitive motivations for discounting. One is related to economic theory and the present value of money: you'd generally rather have some money today than that same amount of money next week (because you could use it now or invest it). The other is to think of the whole process terminating, with probability $1-\gamma$ on each step of the interaction. (At every
@@ -250,7 +250,7 @@ We can also define the action-value function for a fixed policy $\pi$, denoted b
 Similar to $\mathrm{V}^{\pi}_h(s)$, $\mathrm{Q}^{\pi}_h(s,a)$ satisfies the Bellman recursion/equations introduced earlier. In fact, for a deterministic policy $\pi$:
 
 $$
-\mathrm{Q}^{\pi}_h(s,\pi(s)) = \mathrm{V}^{\pi}_h(s).
+\mathrm{Q}^{\pi}_h(s,\pi_h(s)) = \mathrm{V}^{\pi}_h(s).
 $$
 
 However, since our primary goal in dealing with action values is typically to identify an *optimal* policy, we will not dwell extensively on ($\mathrm{Q}^{\pi}_h(s,a)$). Instead, we will place more emphasis on the optimal action-value functions $\mathrm{Q}^{*}_h(s,a)$.
