@@ -22,7 +22,7 @@ book:
     - feature_representation.qmd
     - neural_networks.qmd
     - convolutional_neural_networks.qmd
-    - autoencoders.qmd
+    - representation.qmd
     - transformers.qmd
     - non_parametric.qmd
     - mdp.qmd
@@ -87,6 +87,7 @@ format:
         - key: app
           kind: float
           reference-prefix: Appendix
+    include-in-header: ga.html
     # include-in-header: title-block.html
 
   # pdf:
