@@ -34,7 +34,7 @@ In this class, we assume the rewards are deterministic functions. Further, in th
 :::{.callout-note}
 # Example
 
-The following description of a simple machine as Markov decision process provides a concrete example of an MDP.
+The following description of a simple machine as a Markov decision process provides a concrete example of an MDP.
 
 The machine has three possible operations (*actions*): `wash`, `paint`, and `eject` (each with a corresponding button). Objects are put into the machine, and each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: `dirty`, `clean`, `painted`, or `ejected`.
 
@@ -118,7 +118,7 @@ for any given state–action pair $(s, a)$?
 :::
 
 :::{.study-question-callout}
-Convince yourself that the definitions in @eq-finite_val_0 and @eq-finite_val_2 are special cases of the more general formulation in @eq-finite_value.
+Convince yourself that the definitions in @eq-finite_val_1 and @eq-finite_val_2 are special cases of the more general formulation in @eq-finite_value.
 :::
 
 
@@ -126,7 +126,7 @@ Then we can say that a policy $\pi$ is better than policy $\bar{\pi}$ for horizo
 
 ### Infinite-horizon value functions {#sec-mdp_infinite_horizon}
 
-More typically, the actual finite horizon is not known, i.e., when you don't know when the game will be over! This is called the *infinite horizon* version of the problem. How does one evaluate the goodness of a policy in the infinite horizon case?
+More typically, the actual finite horizon is not known, i.e., when you don't know when the game will be over! When we model decision-making without a fixed terminal time, we use the *infinite-horizon* setting. How does one evaluate the goodness of a policy in the infinite horizon case?
 
 If we tried to simply take our definitions above and use them for an infinite horizon, we could get in trouble. Imagine we get a reward of 1 at each step under one policy and a reward of 2 at each step under a different policy. Then the reward as the number of steps grows in each case keeps growing to become infinite in the limit of more and more steps. Even though it seems intuitive that the second policy should be better, we can't justify that by saying $\infty < \infty$.
 
