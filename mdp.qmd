@@ -345,12 +345,12 @@ We can iteratively solve for the $\mathrm{Q}^*$ values with the infinite-horizon
 
 There are a lot of nice theoretical results about infinite-horizon value iteration. For some given (not necessarily optimal) $\mathrm{Q}$ function, define $\pi_{\mathrm{Q}}(s) = \arg\max_{a}\mathrm{Q}(s, a)$.
 
--   After executing infinite-horizon value iteration with convergence hyper-parameter $\epsilon$, $$\lVert  \mathrm{V}^{\pi_{\mathrm{Q}_{\text{new}}}} - \mathrm{V}^{\pi^*} \rVert_{\text{max}} < \epsilon \;\; .$$
+-   After infinite-horizon value iteration stops with $\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\text{max}} < \epsilon$, $$\lVert  \mathrm{V}^{\pi_{\mathrm{Q}_{\text{new}}}} - \mathrm{V}^{\pi^*} \rVert_{\text{max}} \le \frac{2\gamma\epsilon}{(1-\gamma)^2}\;\; . $$
 
 -   There is a value of $\epsilon$ such that 
 $$\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\text{max}} < \epsilon \Longrightarrow \pi_{\mathrm{Q}_{\text{new}}} = \pi^*
 $$
 
--   As the algorithm executes, $\lVert \mathrm{V}^{\pi_{\mathrm{Q}_{\text{new}}}} - \mathrm{V}^{\pi^*} \Vert_{\text{max}}$ decreases monotonically on each iteration.
+-   As the algorithm executes, $\lVert \mathrm{Q}_{\text{new}} - \mathrm{Q}^{*} \Vert_{\text{max}}$ decreases monotonically on each iteration.
 
 -   The algorithm can be executed asynchronously, in parallel: as long as all $(s, a)$ pairs are updated infinitely often in an infinite run, it still converges to the optimal value.
