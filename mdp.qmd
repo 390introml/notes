@@ -29,7 +29,7 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 -   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
 
-MDPs also satisfy the Markov property, which means the next-state distribution depends only on the current state and action, not on the  Past. Formally, the Markov property is expressed as:
+MDPs also satisfy the Markov property, which means the next-state distribution depends only on the current state and action, not on the past. Formally, the Markov property is expressed as:
 $$
 Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1}, \ldots, S_0 = s_0, A_0 = a_0) = Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1})
 $$
