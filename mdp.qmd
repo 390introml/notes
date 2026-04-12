@@ -13,7 +13,7 @@ Formally, a Markov decision process is $\langle \mathcal S, \mathcal A, \mathrm{
 
 -   $\mathrm{T} : \mathcal S \times \mathcal A \times \mathcal S \to [0, 1]$ is a *transition model*, where 
 $$
-\mathrm{T}(s, a, s') = Pr(S_t = s'|S_{t - 1} = s,
+\mathrm{T}(s, a, s') = \Pr(S_t = s'|S_{t - 1} = s,
               A_{t - 1} = a)\;\;,
 $$ 
 specifying a conditional probability distribution;
@@ -29,12 +29,7 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 -   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
 
-MDPs also satisfy the Markov property, which means the next-state distribution depends only on the current state and action, not on the past. Formally, the Markov property is expressed as:
-$$
-Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1}, \ldots, S_0 = s_0, A_0 = a_0) = Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1})
-$$
-
-In other words, the future is only dependent on the present, and not on the past.
+MDPs also satisfy the Markov property: the next-state distribution depends only on the current state and action, not on the past.
 
 In this class, we also assume the rewards are deterministic functions. Further, in this MDP chapter, we assume the state space and action space are discrete and finite.
 
@@ -147,7 +142,7 @@ where $\mathrm{R}_t$ is the reward received at time $t$.
 
 :::{.callout-note}
 # Note
-What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates an *expectation*, i.e., an average taken over all the random possibilities which may occur for the argument. Here, the expectation is taken over the *conditional probability* $Pr(\mathrm{R}_t = r \mid \pi, s_0)$, where $\mathrm{R}_t$ is the random variable for the reward, subject to the policy being $\pi$ and the state being $s_0$. Since $\pi$ is a function, this notation is shorthand for conditioning on all of the random variables implied by policy $\pi$ and the stochastic transitions of the MDP.
+What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates an *expectation*, i.e., an average taken over all the random possibilities which may occur for the argument. Here, the expectation is taken over the *conditional probability* $\Pr(\mathrm{R}_t = r \mid \pi, s_0)$, where $\mathrm{R}_t$ is the random variable for the reward, subject to the policy being $\pi$ and the state being $s_0$. Since $\pi$ is a function, this notation is shorthand for conditioning on all of the random variables implied by policy $\pi$ and the stochastic transitions of the MDP.
 
 A very important point is that $\mathrm{R}(s,a)$ is always deterministic (in this class) for any given $s$ and $a$. Here $\mathrm{R}_t$ represents the set of all possible $\mathrm{R}(s_t,a)$ at time step $t$; this $\mathrm{R}_t$ is a random variable because the state we're in at step $t$ is itself a random variable, due to prior stochastic state transitions up to but not including at step $t$ and prior (deterministic) actions dictated by policy $\pi.$
 :::
