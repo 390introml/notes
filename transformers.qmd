@@ -23,14 +23,12 @@ Transformers are powerful neural architectures designed primarily for sequential
 Suppose our training data contains this sentence: "To date, the cleverest thinker was Isaac." The transformer model will learn to predict the next token in the sequence, given the previous tokens. For example, when predicting the token "cleverest," the model will condition its prediction on the tokens "To," "date," and "the." This process continues until the entire sequence is generated.
 ![](figures/auto-regressive.gif)
 
-The animation above illustrates the auto-regressive nature of transformers. 
-
-Below is another example. Suppose the sentence is the 2nd law of robotics: "A robot must obey the orders given it by human beings..." The training objective of a transformer would be to make each token's prediction, conditioning on previously generated tokens, forming a step-by-step probability distribution over the vocabulary.
+The animation above illustrates the auto-regressive nature of transformers. Below is another example, using the 2nd law of robotics: "A robot must obey the orders given it by human beings..."
 ![](figures/auto-regressive.png)
 
-The image above illustrates auto-regressive training, where the model learns to predict the next token in a sequence based on the preceding tokens. Each token's prediction is conditioned on the context provided by the previous tokens, allowing the model's predicted probability distribution over the next token to be computed using the prior ones as input — not just the most recent one. This can be written formally as: 
+Each token's prediction is conditioned on all previous tokens, allowing the model's predicted probability distribution over the next token to be computed using the prior ones as input — not just the most recent one. This can be written formally as: 
 $$
-P(x_1, x_2, \ldots, x_n) = \prod_{i=1}^n P(x_i | x_1, x_2, \ldots, x_{i-1})
+\Pr(x_1, x_2, \ldots, x_n) = \prod_{i=1}^n \Pr(x_i \mid x_1, x_2, \ldots, x_{i-1})
 $$
 where $x_i$ represents the $i$-th token in the sequence.
 Transformers themselves are not inherently auto-regressive; they can be trained in various ways, including masked language modeling (@sec-causal-attention) or sequence-to-sequence tasks. Decoder-based transformers — such as the GPT family — are trained autoregressively: they generate one token at a time, each conditioned on all previously generated tokens. Encoder-based transformers (e.g., BERT) process entire sequences simultaneously for tasks like classification or retrieval. 
