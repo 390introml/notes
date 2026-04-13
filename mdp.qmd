@@ -246,7 +246,7 @@ For the finite-horizon case, we define $\mathrm{Q}_h^{*}(s, a)$ to be the expect
 :::{.column-margin}
 We can also define the action-value function for a fixed policy $\pi$, denoted by $\mathrm{Q}^{\pi}_h(s,a)$. This quantity represents the expected sum of discounted rewards obtained by taking action $a$ in state $s$ and thereafter following the policy $\pi$ over the remaining horizon of $h - 1$ steps.
 
-Similar to $\mathrm{V}^{\pi}_h(s)$, $\mathrm{Q}^{\pi}_h(s,a)$ satisfies the Bellman recursion/equations introduced earlier. In fact, for a deterministic policy $\pi$:
+Similar to $\mathrm{V}^{\pi}_h(s)$, $\mathrm{Q}^{\pi}_h(s,a)$ satisfies the Bellman recursion/equations introduced earlier. In fact, for a deterministic finite-horizon policy $\pi_h$:
 
 $$
 \mathrm{Q}^{\pi}_h(s,\pi_h(s)) = \mathrm{V}^{\pi}_h(s).
