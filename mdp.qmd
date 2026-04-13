@@ -6,7 +6,7 @@ This sequential and dynamical nature demands mathematical tools beyond the more 
 
 In this chapter, we'll first study *Markov decision processes* (MDPs), which provide the mathematical foundation for understanding and solving sequential decision making problems like RL. MDPs formalize the interaction between an agent and its environment, capturing the key elements of states, actions, rewards, and transitions.
 
-## Definition and value functions {#sec_mdps}
+## Definition and value functions {#sec-mdps}
 
 Formally, a Markov decision process is a tuple $\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
   \gamma\rangle$ where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, and:
@@ -226,7 +226,7 @@ where $\mathrm{R}_t$ is the stage reward realized at time $t$ and the expectatio
 
 The definition for the infinite horizon case is analogous with the upper limit in the summation replaced with the $\infty$, and we may use $\mathrm{Q}_{\infty}^*(s,a)$ to make the horizon explicit. 
 
-Similar to $\mathrm{V}^*(s),$ $\mathrm{Q}^*(s,a)$ satisfy the Bellman resursion or Bellman equations introduced earlier. In fact, the two value functions are closely related: for a deterministic policy $\pi$:
+Similar to $\mathrm{V}^*(s),$ $\mathrm{Q}^*(s,a)$ satisfy the Bellman recursion or Bellman equations introduced earlier. In fact, the two value functions are closely related: for a deterministic policy $\pi$:
 $$
 \mathrm{Q}^*(s,\pi(s)) = \mathrm{V}^*(s).
 $$
