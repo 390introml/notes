@@ -8,13 +8,13 @@ In this chapter, we'll first study *Markov decision processes* (MDPs), which pro
 
 ## Definition and value functions {#sec_mdps}
 
-Formally, a Markov decision process is a tuple$\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
+Formally, a Markov decision process is a tuple $\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
   \gamma\rangle$ where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, and:
 
 -   $\mathrm{T} : \mathcal S \times \mathcal A \times \mathcal S \to [0, 1]$ is a *transition model*, where 
 $$
-\mathrm{T}(s, a, s') = \Pr(S_t = s'|S_{t - 1} = s,
-              A_{t - 1} = a)\;\;,
+\mathrm{T}(s, a, s') = \Pr(S_{t + 1} = s'|S_t = s,
+              A_t = a)\;\;,
 $$ 
 is the probability of reaching state $s'$ when action $a$ is selected at state $s$.
 
@@ -38,7 +38,7 @@ For simplicity, in this class, we will assume that rewards are deterministic, an
 
 The following description of a simple state machine as a Markov decision process provides a concrete example of an MDP.
 
-The *state* machine has three possible operations (*actions*): `wash`, `paint`, and `eject` (each with a corresponding button). Objects are put into the machine, and each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: `dirty`, `clean`, `painted`, or `ejected`.
+The state machine has three possible operations (*actions*): `wash`, `paint`, and `eject` (each with a corresponding button). Objects are put into the machine, and each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: `dirty`, `clean`, `painted`, or `ejected`.
 
 For each action, this is what is done to the object:
 
