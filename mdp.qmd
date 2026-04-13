@@ -6,7 +6,7 @@ This sequential and dynamical nature demands mathematical tools beyond the more 
 
 In this chapter, we'll first study *Markov decision processes* (MDPs), which provide the mathematical foundation for understanding and solving sequential decision making problems like RL. MDPs formalize the interaction between an agent and its environment, capturing the key elements of states, actions, rewards, and transitions.
 
-## Definition and value functions {#sec-mdps}
+## Definition and value functions {#sec_mdps}
 
 Formally, a Markov decision process is a tuple $\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
   \gamma\rangle$ where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, and:
