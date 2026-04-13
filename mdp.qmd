@@ -30,7 +30,8 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 -   $\gamma \in [0, 1)$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
 
 :::{.column-margin}
-The standard assumption is $0 \leq \gamma < 1$. Setting $\gamma = 1$ can be problematic in the infinite-horizon setting, leading to unbounded costs and rewards which cannot be mathematically optimized.
+The standard assumption is $0 \leq \gamma < 1$. Setting $\gamma = 1$ (no discounting) can be problematic in the infinite-horizon setting, causing returns to diverge or become ill-defined. 
+Consider an MDP with a single state and transition that always gives reward 1. The return under a policy that takes action $a$ is $1 + 1 + 1 + \cdots$, which diverges to infinity.
 :::
 
 MDPs satisfy the Markov property: the next-state distribution depends only on the current state and action, not on the past.
@@ -151,7 +152,7 @@ What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates 
 A very important point is that $\mathrm{R}(s,a)$ is always deterministic (in this class) for any given $s$ and $a$. Here $\mathrm{R}_t$ represents the set of all possible $\mathrm{R}(s_t,a)$ at time step $t$; this $\mathrm{R}_t$ is a random variable because the state we're in at step $t$ is itself a random variable, due to prior stochastic state transitions up to but not including at step $t$ and prior (deterministic) actions dictated by policy $\pi.$
 :::
 
-Now, for the infinite-horizon case, we select a discount factor $0 \leq \gamma \leq 1$, and evaluate a policy based on its expected *infinite horizon value*: 
+Now, for the infinite-horizon case, we select a discount factor $0 \leq \gamma < 1$, and evaluate a policy based on its expected *infinite horizon value*: 
 
 $$
 \mathbb{E}\left[\sum_{t = 0}^{\infty}\gamma^t\mathrm{R}_t \mid \pi, s_0\right]
