@@ -27,7 +27,11 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 -   $\mathrm{R}: \mathcal S \times \mathcal A \rightarrow \mathbb{R}$ is a *reward function*, where $\mathrm{R}(s, a)$ specifies an immediate reward for taking action $a$ when in state $s$; and
 
--   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
+-   $\gamma \in [0, 1)$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
+
+:::{.column-margin}
+The standard assumption is $0 \leq \gamma < 1$. Setting $\gamma = 1$ can be problematic in the infinite-horizon setting, leading to unbounded costs and rewards which cannot be mathematically optimized.
+:::
 
 MDPs satisfy the Markov property: the next-state distribution depends only on the current state and action, not on the past.
 
