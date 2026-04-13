@@ -8,15 +8,15 @@ In this chapter, we'll first study *Markov decision processes* (MDPs), which pro
 
 ## Definition and value functions {#sec_mdps}
 
-Formally, a Markov decision process is $\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
+Formally, a Markov decision process is a tuple $\langle \mathcal S, \mathcal A, \mathrm{T}, \mathrm{R},
   \gamma\rangle$ where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, and:
 
--   $\mathrm{T} : \mathcal S \times \mathcal A \times \mathcal S \rightarrow \in [0, 1]$ is a *transition model*, where 
+-   $\mathrm{T} : \mathcal S \times \mathcal A \times \mathcal S \to [0, 1]$ is a *transition model*, where 
 $$
-\mathrm{T}(s, a, s') = Pr(S_t = s'|S_{t - 1} = s,
-              A_{t - 1} = a)\;\;,
+\mathrm{T}(s, a, s') = \Pr(S_{t + 1} = s'|S_t = s,
+              A_t = a)\;\;,
 $$ 
-specifying a conditional probability distribution;
+is the probability of reaching state $s'$ when action $a$ is selected at state $s$.
 
 :::{.column-margin}
 The notation $S_t = s'$ uses a capital letter $S$ to stand for
@@ -27,23 +27,23 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 -   $\mathrm{R}: \mathcal S \times \mathcal A \rightarrow \mathbb{R}$ is a *reward function*, where $\mathrm{R}(s, a)$ specifies an immediate reward for taking action $a$ when in state $s$; and
 
--   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
+-   $\gamma \in [0, 1)$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
 
-MDPs also satisfy the Markov property, which means the next-state distribution depends only on the current state and action, not on the  Past. Formally, the Markov property is expressed as:
-$$
-Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1}, \ldots, S_0 = s_0, A_0 = a_0) = Pr(S_{t} = s_{t} | S_{t-1} = s_{t-1}, A_{t-1} = a_{t-1})
-$$
+:::{.column-margin}
+The standard assumption is $0 \leq \gamma < 1$. Setting $\gamma = 1$ (no discounting) can be problematic in the infinite-horizon setting, causing returns to diverge or become ill-defined. 
+Consider an MDP with a single state and transition that always gives reward 1. The return under a policy that takes action $a$ is $1 + 1 + 1 + \cdots$, which diverges to infinity.
+:::
 
-In other words, the future is only dependent on the present, and not on the past.
+MDPs satisfy the Markov property: the next-state distribution depends only on the current state and action, not on the past.
 
-In this class, we also assume the rewards are deterministic functions. Further, in this MDP chapter, we assume the state space and action space are discrete and finite.
+For simplicity, in this class, we will assume that rewards are deterministic, and that the state and action spaces are finite.
 
 :::{.callout-note}
 # Example
 
-The following description of a simple machine as a Markov decision process provides a concrete example of an MDP.
+The following description of a simple state machine as a Markov decision process provides a concrete example of an MDP.
 
-The machine has three possible operations (*actions*): `wash`, `paint`, and `eject` (each with a corresponding button). Objects are put into the machine, and each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: `dirty`, `clean`, `painted`, or `ejected`.
+The state machine has three possible operations (*actions*): `wash`, `paint`, and `eject` (each with a corresponding button). Objects are put into the machine, and each time you push a button, something is done to the object. However, it's an old machine, so it's not very reliable. The machine has a camera inside that can clearly detect what is going on with the object and will output the state of the object: `dirty`, `clean`, `painted`, or `ejected`.
 
 For each action, this is what is done to the object:
 
@@ -147,12 +147,12 @@ where $\mathrm{R}_t$ is the reward received at time $t$.
 
 :::{.callout-note}
 # Note
-What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates an *expectation*, i.e., an average taken over all the random possibilities which may occur for the argument. Here, the expectation is taken over the *conditional probability* $Pr(\mathrm{R}_t = r \mid \pi, s_0)$, where $\mathrm{R}_t$ is the random variable for the reward, subject to the policy being $\pi$ and the state being $s_0$. Since $\pi$ is a function, this notation is shorthand for conditioning on all of the random variables implied by policy $\pi$ and the stochastic transitions of the MDP.
+What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates an *expectation*, i.e., an average taken over all the random possibilities which may occur for the argument. Here, the expectation is taken over the *conditional probability* $\Pr(\mathrm{R}_t = r \mid \pi, s_0)$, where $\mathrm{R}_t$ is the random variable for the reward, subject to the policy being $\pi$ and the state being $s_0$. Since $\pi$ is a function, this notation is shorthand for conditioning on all of the random variables implied by policy $\pi$ and the stochastic transitions of the MDP.
 
 A very important point is that $\mathrm{R}(s,a)$ is always deterministic (in this class) for any given $s$ and $a$. Here $\mathrm{R}_t$ represents the set of all possible $\mathrm{R}(s_t,a)$ at time step $t$; this $\mathrm{R}_t$ is a random variable because the state we're in at step $t$ is itself a random variable, due to prior stochastic state transitions up to but not including at step $t$ and prior (deterministic) actions dictated by policy $\pi.$
 :::
 
-Now, for the infinite-horizon case, we select a discount factor $0 \leq \gamma \leq 1$, and evaluate a policy based on its expected *infinite horizon value*: 
+Now, for the infinite-horizon case, we select a discount factor $0 \leq \gamma < 1$, and evaluate a policy based on its expected *infinite horizon value*: 
 
 $$
 \mathbb{E}\left[\sum_{t = 0}^{\infty}\gamma^t\mathrm{R}_t \mid \pi, s_0\right]
@@ -247,7 +247,7 @@ For the finite-horizon case, we define $\mathrm{Q}_h^{*}(s, a)$ to be the expect
 :::{.column-margin}
 We can also define the action-value function for a fixed policy $\pi$, denoted by $\mathrm{Q}^{\pi}_h(s,a)$. This quantity represents the expected sum of discounted rewards obtained by taking action $a$ in state $s$ and thereafter following the policy $\pi$ over the remaining horizon of $h - 1$ steps.
 
-Similar to $\mathrm{V}^{\pi}_h(s)$, $\mathrm{Q}^{\pi}_h(s,a)$ satisfies the Bellman recursion/equations introduced earlier. In fact, for a deterministic policy $\pi$:
+Similar to $\mathrm{V}^{\pi}_h(s)$, $\mathrm{Q}^{\pi}_h(s,a)$ satisfies the Bellman recursion/equations introduced earlier. In fact, for a deterministic finite-horizon policy $\pi_h$:
 
 $$
 \mathrm{Q}^{\pi}_h(s,\pi_h(s)) = \mathrm{V}^{\pi}_h(s).
@@ -345,12 +345,16 @@ We can iteratively solve for the $\mathrm{Q}^*$ values with the infinite-horizon
 
 There are a lot of nice theoretical results about infinite-horizon value iteration. For some given (not necessarily optimal) $\mathrm{Q}$ function, define $\pi_{\mathrm{Q}}(s) = \arg\max_{a}\mathrm{Q}(s, a)$.
 
--   After infinite-horizon value iteration stops with $\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\text{max}} < \epsilon$, $$\lVert  \mathrm{V}^{\pi_{\mathrm{Q}_{\text{new}}}} - \mathrm{V}^{\pi^*} \rVert_{\text{max}} \le \frac{2\gamma\epsilon}{(1-\gamma)^2}\;\; . $$
+-   After infinite-horizon value iteration stops with $\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\infty} < \epsilon$, $$\lVert  \mathrm{V}^{\pi_{\mathrm{Q}_{\text{new}}}} - \mathrm{V}^{\pi^*} \rVert_{\infty} \le \frac{2\gamma\epsilon}{(1-\gamma)^2}\;\; . $$
 
--   There is a value of $\epsilon$ such that 
-$$\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\text{max}} < \epsilon \Longrightarrow \pi_{\mathrm{Q}_{\text{new}}} = \pi^*
+:::{.column-margin}
+Recall that the infinity norm returns the largest element in the vector.
+:::
+
+-   If every state has a unique optimal action and the optimal action-gap is uniformly positive ($$\Delta(s) = Q^*(s, a^*) - \max_{a \neq a^*} Q^*(s, a) > 0$$), then there is a value of $\epsilon$ such that 
+$$\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\infty} < \epsilon \Longrightarrow \pi_{\mathrm{Q}_{\text{new}}} = \pi^*
 $$
 
--   As the algorithm executes, $\lVert \mathrm{Q}_{\text{new}} - \mathrm{Q}^{*} \Vert_{\text{max}}$ decreases monotonically on each iteration.
+-   As the algorithm executes, $\lVert \mathrm{Q}_{\text{new}} - \mathrm{Q}^{*} \Vert_{\infty}$ decreases monotonically on each iteration.
 
 -   The algorithm can be executed asynchronously, in parallel: as long as all $(s, a)$ pairs are updated infinitely often in an infinite run, it still converges to the optimal value.
