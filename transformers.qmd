@@ -240,7 +240,7 @@ where $V\in \mathbb{R}^{n \times d_k}$ is the matrix of value vectors stacked ro
 You will also see this compact notation `Attention` in the literature, which is an operation of three arguments $Q$, $K$, and $V$ (and we add an emphasis that the softmax is performed on each row):
 
 $$
-\text{Attention}(Q, K, V) = \text{softmax}_{row}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
+\text{Attention}(Q, K, V) = \text{softmax}_{\text{row}}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
 $$
 
 ![](figures/transformer_attn_head_compact.png)
