@@ -27,7 +27,7 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 -   $\mathrm{R}: \mathcal S \times \mathcal A \rightarrow \mathbb{R}$ is a *reward function*, where $\mathrm{R}(s, a)$ specifies an immediate reward for taking action $a$ when in state $s$; and
 
--   $\gamma \in [0, 1)$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
+-   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
 
 :::{.column-margin}
 The standard assumption is $0 \leq \gamma < 1$. Setting $\gamma = 1$ (no discounting) can be problematic in the infinite-horizon setting, causing returns to diverge or become ill-defined. 
@@ -119,9 +119,7 @@ $${#eq-finite_value}
  The sum over $s'$ is an *expectation*: it considers all possible next states $s'$, and computes an average of their $(h-1)$-horizon values, weighted by the probability that the transition function from state $s$ with the action chosen by the policy $\pi_h(s)$ assigns to arriving in state $s'$, and discounted by $\gamma$.
 
 :::{.study-question-callout}
-What is the value of 
-$$\sum_{s'} \mathrm{T}(s, a, s')$$ 
-for any given state–action pair $(s, a)$?
+What is the value of $\sum_{s'} \mathrm{T}(s, a, s')$ for any given state–action pair $(s, a)$?
 :::
 
 :::{.study-question-callout}
@@ -139,7 +137,7 @@ If we tried to simply take our definitions above and use them for an infinite ho
 
 One standard approach to deal with this problem is to consider the *discounted* infinite horizon. We will generalize from the finite-horizon case by adding a discount factor.
 
-In the finite-horizon case, we valued a policy based on an expected finite-horizon value: 
+In the finite-horizon case, we valued a policy based on an expected finite-horizon value:
 
 $$\mathbb{E}\left[\sum_{t = 0}^{h-1} \gamma^t \mathrm{R}_t \mid \pi, s_0\right]\;\;,
 $${#eq-exp_finite} 
@@ -152,7 +150,7 @@ What is $\mathbb{E}\left[ \cdot \right ]$? This mathematical notation indicates 
 A very important point is that $\mathrm{R}(s,a)$ is always deterministic (in this class) for any given $s$ and $a$. Here $\mathrm{R}_t$ represents the set of all possible $\mathrm{R}(s_t,a)$ at time step $t$; this $\mathrm{R}_t$ is a random variable because the state we're in at step $t$ is itself a random variable, due to prior stochastic state transitions up to but not including at step $t$ and prior (deterministic) actions dictated by policy $\pi.$
 :::
 
-Now, for the infinite-horizon case, we select a discount factor $0 \leq \gamma < 1$, and evaluate a policy based on its expected *infinite horizon value*: 
+Now, for the infinite-horizon case, we typically select a discount factor $0 \leq \gamma < 1$, and evaluate a policy based on its expected *infinite horizon value*: 
 
 $$
 \mathbb{E}\left[\sum_{t = 0}^{\infty}\gamma^t\mathrm{R}_t \mid \pi, s_0\right]
@@ -169,11 +167,11 @@ There are two good intuitive motivations for discounting. One is related to econ
   step, your expected future lifetime, given that you have survived
   until now, is $1 / (1 - \gamma)$.) This value is the expected amount of reward the agent would gain under this terminating model.
 
-:::{.study-question-callout}
+<!-- :::{.study-question-callout}
 Verify this fact: if, on every day you wake up, there is a
   probability of $1 - \gamma$ that today will be your last day, then
   your expected lifetime is $1 / (1 - \gamma)$ days.
-:::
+::: -->
 
 Let us now evaluate a policy in terms of the expected discounted infinite-horizon value that the agent will get in the MDP if it executes that policy. We define the infinite-horizon value of a state $s$ under policy $\pi$ as 
 $$
@@ -197,11 +195,10 @@ $$\begin{aligned}
 \end{aligned}
 $${#eq-inf_horiz_value}
 
-<!-- :::{.column-margin}
+:::{.column-margin}
 This is *so* cool!  In a discounted model, if you find that you survived this round and landed in some state $s'$, then you have the same expected future lifetime as you did before. So the value
 function that is relevant in that state is exactly the same one as in state $s$.
-::: -->
-
+:::
 
 The equation defined in @eq-inf_horiz_value is known as the Bellman Equation, which breaks down the value function into the immediate reward and the (discounted) future value function. You could write down one of these equations for each of the $n = |\mathcal S|$ states. There are $n$ unknowns $\mathrm{V}^{\pi}(s)$. These are linear equations, and standard software (e.g., using Gaussian elimination or other linear algebraic methods) will, in most cases, enable us to find the value of each state under this policy.
 
@@ -348,7 +345,7 @@ There are a lot of nice theoretical results about infinite-horizon value iterati
 -   After infinite-horizon value iteration stops with $\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\infty} < \epsilon$, $$\lVert  \mathrm{V}^{\pi_{\mathrm{Q}_{\text{new}}}} - \mathrm{V}^{\pi^*} \rVert_{\infty} \le \frac{2\gamma\epsilon}{(1-\gamma)^2}\;\; . $$
 
 :::{.column-margin}
-Recall that the infinity norm returns the largest *absolute* element in the vector.
+Recall that the infinity norm returns the largest absolute value of an element in the vector.
 :::
 -   If every state has a unique optimal action and the optimal action-gap is uniformly positive ($\Delta(s) = Q^*(s, a^*) - \max_{a \neq a^*} Q^*(s, a) > 0$), then there is a value of $\epsilon$ such that 
 $$\Vert \mathrm{Q}_{\text{old}} - \mathrm{Q}_{\text{new}} \rVert_{\infty} < \epsilon \Longrightarrow \pi_{\mathrm{Q}_{\text{new}}} = \pi^*
