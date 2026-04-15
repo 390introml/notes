@@ -27,14 +27,19 @@ The notation $S_t = s'$ uses a capital letter $S$ to stand for
 
 -   $\mathrm{R}: \mathcal S \times \mathcal A \rightarrow \mathbb{R}$ is a *reward function*, where $\mathrm{R}(s, a)$ specifies an immediate reward for taking action $a$ when in state $s$; and
 
--   $\gamma \in [0, 1]$ is a *discount factor*, which we'll discuss in @sec-mdp_infinite_horizon.
+-   $\gamma \in [0, 1]$ is a *discount factor* that down-weights future rewards, which we'll discuss in @sec-mdp_infinite_horizon.
 
 :::{.column-margin}
 The standard assumption is $0 \leq \gamma < 1$. Setting $\gamma = 1$ (no discounting) can be problematic in the infinite-horizon setting, causing returns to diverge or become ill-defined. 
 Consider an MDP with a single state and transition that always gives reward 1. The return under a policy that takes action $a$ is $1 + 1 + 1 + \cdots$, which diverges to infinity.
 :::
 
-MDPs satisfy the Markov property: the next-state distribution depends only on the current state and action, not on the past.
+MDPs satisfy the Markov property: the next-state distribution depends only on the current state and action, not on the past. Formally, for all $t \geq 0$,
+
+$$\Pr(S_{t + 1}|S_t, A_t, S_{t - 1}, A_{t - 1}, \ldots, S_0, A_0) = \Pr(S_{t + 1}|S_t, A_t)\;\;.
+$$
+
+That is, the future depends only on the current state and action, not the full history.
 
 For simplicity, in this class, we will assume that rewards are deterministic, and that the state and action spaces are finite.
 
