@@ -105,15 +105,3 @@ These custom macros are used across course materials. Any shared `.sty` or pream
 | `\ml{\theta}` | `\theta_{ml}` | ML estimate |
 | `\erm{\theta}` | `\theta_{erm}` | ERM estimate |
 
-## Writing Style
-
-- Use **"Calculate"** when asking for numerical answers
-- Use **"Write out"**, **"Express"**, or **"Derive"** when asking for general expressions or symbolic formulas
-- Explanation prompts: use **"Briefly explain:"** (not "Explanation:" or other variants)
-- Problems use narrative framing (Alice/Bob arguments, scenario-based setups)
-- Parts escalate in difficulty within a problem
-- Solutions include brief explanations, not just answers
-
-## Topic Coverage (Spring 2026)
-
-Introductory material, linear regression, ridge regularization, gradient descent, binary/multi-class logistic regression, neural networks, CNNs, attention, MDPs, and reinforcement learning.
