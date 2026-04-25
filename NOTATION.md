@@ -1,6 +1,6 @@
 # 6.390 Notation and Style Guide
 
-Consistent notation across all course materials: notes, exams, labs, homework, and recitations. If in doubt, the course notes and most recent exams are the canonical reference.
+Consistent notation across all course materials: notes, exams, labs, homework, and recitations. If in doubt, the course notes, Shen's lecture slides, and most recent exams are the canonical reference.
 
 ## Mathematical Notation Conventions
 
@@ -88,20 +88,4 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Sets: calligraphic `\mathcal{}` -- `\data`, `\model`, `\mathcal{H}`
 - Real numbers: `\R` (renders `\mathbb{R}`)
 - Iteration/time index: superscript in parens `\theta^{(t)}`
-
-## LaTeX Macros
-
-These custom macros are used across course materials. Any shared `.sty` or preamble should define them.
-
-| Macro | Expansion | Usage |
-|-------|-----------|-------|
-| `\R` | `\mathbb{R}` | Real numbers |
-| `\bx` | `\mathbf{x}` | Bold x vector |
-| `\ex{x}{i}` | `x^{(i)}` | i-th example |
-| `\data` | `\mathcal{D}` | Dataset |
-| `\model` | `\mathcal{M}` | Model class |
-| `\norm{\cdot}` | `\|\cdot\|` | Norm |
-| `\abs{\cdot}` | `|\cdot|` | Absolute value |
-| `\ml{\theta}` | `\theta_{ml}` | ML estimate |
-| `\erm{\theta}` | `\theta_{erm}` | ERM estimate |
 
