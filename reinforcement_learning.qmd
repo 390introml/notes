@@ -304,21 +304,23 @@ Here, we can see the exploration/exploitation dilemma in action: from the perspe
 Determine the Q value functions that result from always executing the “move left” policy.
 :::
 
-## Function approximation: Deep Q learning
+## Q-learning with function approximation
 
 In our Q-learning algorithm above, we essentially keep track of each $Q$ value in a table, indexed by $s$ and $a$. What do we do if $\mathcal{S}$ and/or $\mathcal{A}$ are large (or continuous)?
 
 We can use a function approximator like a neural network to store Q values. For example, we could design a neural network that takes inputs $s$ and $a$, and outputs $Q(s,a)$. We can treat this as a regression problem, optimizing this loss:
 
 $$
-\left(Q(s,a) - (r + \gamma \max_{a'}Q(s',a'))\right)^2
+\mathcal{L}(\theta) \;=\; \bigl(Q_\theta(s,a) \;-\; y\bigr)^2,
+\qquad
+y \;=\; r + \gamma \max_{a'} Q_\theta(s', a')
 $$
 
 :::{.column-margin}
 This is the so-called squared Bellman error; as the name suggests, it's closely related to the Bellman equation we saw in **MDPs** in Chapter @sec-mdps. Roughly speaking, this error measures how much the Bellman equality is violated.
 :::
 
-where $Q(s, a)$ is now the output of the neural network.
+where $Q_\theta(s, a)$ is the output of a neural network with parameters $\theta$. An important subtlety: the target $y$ also depends on $\theta$ (through $Q_\theta(s', a')$), but we treat it as a constant when computing the gradient. The fitted-Q algorithm below makes this explicit by freezing the target as a regression label.
 
 There are several different architectural choices for using a neural network to approximate $Q$ values:
 
@@ -344,12 +346,15 @@ But when a learning agent, such as a robot, is moving through an environment, th
 
 One way to handle this is to use *experience replay*, where we save our $(s,a,s',r)$ experiences in a *replay buffer*. Whenever we take a step in the world, we add the $(s,a,s',r)$ to the replay buffer and use it to do a Q-learning update. Then we also randomly select some number of tuples from the replay buffer, and do Q-learning updates based on them as well. In general, it may help to keep a *sliding window* of just the 1000 most recent experiences in the replay buffer. (A larger buffer will be necessary for situations when the optimal policy might visit a large part of the state space, but we like to keep the buffer size small for memory reasons and also so that we don't focus on parts of the state space that are irrelevant for the optimal policy.) The idea is that it will help us propagate reward values through our state space more efficiently if we do these updates. We can see it as doing something like value iteration, but using samples of experience rather than a known model.
 
+:::{.callout-note}
+## Connection to DQN
+The combination of (i) a neural-network $Q$ approximator, (ii) an experience replay buffer, and (iii) a separate *target network*, is the recipe known as *Deep Q-Networks* (DQN). The target network is a copy of $Q_\theta$ whose parameters are held fixed for many SGD steps and only periodically refreshed from the online network; the targets $y = r + \gamma \max_{a'} Q_{\theta^-}(s', a')$ use those frozen parameters $\theta^-$. Stop-gradient prevents the target from moving *within* a single update; the target network keeps it from drifting *across* many updates. We don't cover target networks in detail here, but they are the third standard ingredient in any DQN implementation.
+:::
 
-
-### Fitted Q-learning
+### Fitted Q-learning {#sec-fitted_q}
 An alternative strategy for learning the $Q$ function that is somewhat
 more robust than the standard $Q$-learning algorithm is a method
-called *fitted Q*.
+called *fitted Q*. It uses the same Bellman-error idea as above, but cleanly separates the two phases: first freeze the bootstrapped targets $y = r + \gamma \max_{a'} Q(s', a')$ into a static dataset, then run ordinary supervised regression to fit $Q$ to those targets.
 
 
 ```pseudocode
@@ -360,8 +365,9 @@ called *fitted Q*.
 #| html-no-end: false
 #| pdf-placement: "htb!"
 #| pdf-line-number: true
-#| label: Q-Learning
+#| label: Fitted-Q-Learning
 
+\begin{algorithm}
 \begin{algorithmic}[1]
   \Procedure{Fitted-Q-Learning}{$\mathcal{A}, s_0, \gamma, \alpha, \epsilon, m$}
     \State $s \gets s_0$ \Comment{e.g., $s_0$ can be drawn randomly from $\mathcal{S}$}
@@ -376,11 +382,11 @@ called *fitted Q*.
         \State $y \gets r + \gamma \max_{a' \in \mathcal{A}} Q(s', a')$
         \State $\mathcal{D}_\text{supervised} \gets \mathcal{D}_\text{supervised} \cup \{(x,y)\}$
       \EndFor
-      \State re-initialize neural-network representation of $Q$
       \State $Q \gets \text{supervised-NN-regression}(\mathcal{D}_\text{supervised})$
     \EndWhile
   \EndProcedure
 \end{algorithmic}
+\end{algorithm}
 ```
 
 
@@ -392,9 +398,11 @@ function on the whole data set.  This method does not mix the
 dynamic-programming phase (computing new $Q$ values based on old ones)
 with the function approximation phase (supervised training of the
 neural network) and avoids catastrophic forgetting.  The regression
-training in line 10 typically uses squared error as a loss function and
+training typically uses squared error as a loss function and
 would be trained until the fit is good (possibly measured on held-out
 data).
+
+Note that fitted-Q and the experience-replay version of online Q-learning above are not so much rival algorithms as two points on a spectrum: both store past transitions and both fit a network to bootstrapped Bellman targets. They differ in *how often* the targets get refreshed (every gradient step vs. once per outer iteration) and in *how many* gradient steps are taken between refreshes.
 
 ## Policy gradient {#sec-rl_policy_search}
 
