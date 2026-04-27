@@ -342,6 +342,10 @@ But when a learning agent, such as a robot, is moving through an environment, th
 
 One way to handle this is to use *experience replay*, where we save our $(s,a,s',r)$ experiences in a *replay buffer*. Whenever we take a step in the world, we add the $(s,a,s',r)$ to the replay buffer and use it to do a Q-learning update. Then we also randomly select some number of tuples from the replay buffer, and do Q-learning updates based on them as well. In general, it may help to keep a *sliding window* of just the 1000 most recent experiences in the replay buffer. (A larger buffer will be necessary for situations when the optimal policy might visit a large part of the state space, but we like to keep the buffer size small for memory reasons and also so that we don't focus on parts of the state space that are irrelevant for the optimal policy.) The idea is that it will help us propagate reward values through our state space more efficiently if we do these updates. We can see it as doing something like value iteration, but using samples of experience rather than a known model.
 
+:::{.column-margin}
+Combining a neural-network $\mathrm{Q}$ approximator, experience replay, and a *target network* (a copy of $Q_\theta$ whose parameters $\theta^-$ are held fixed for many SGD steps and only periodically refreshed) is the recipe known as *Deep Q-Networks* (DQN). The target network keeps the bootstrapped target stable across many updates.
+:::
+
 ### Fitted Q-learning {#sec-fitted_q}
 An alternative strategy for learning the $\mathrm{Q}$ function that is somewhat
 more robust than the standard Q-learning algorithm is a method
