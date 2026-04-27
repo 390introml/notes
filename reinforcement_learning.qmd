@@ -47,7 +47,7 @@ Similar to MDP @sec-mdps, in an RL problem, the agent's goal is to learn a *poli
 
 <!-- Most of the focus is on the first criterion (which is called “sample efficiency”), because the second one is very difficult. The first criterion is reasonable when the learning can take place somewhere safe (imagine a robot learning, inside the robot factory, where it can’t hurt itself too badly) or in a simulated environment. -->
 
-Approaches to reinforcement learning differ significantly according to what kind of hypothesis or model is being learned. Roughly speaking, RL methods can be categorized into model-free methods and model-based methods. The main distinction is that model-based methods explicitly learn the transition and reward models to assist the end-goal of learning a policy; model-free methods do not. We will start our discussion with the model-free methods, and introduce two of the arguably most popular types of algorithms, Q-learning @sec-q_learning and policy gradient @sec-rl_policy_search. We then describe model-based methods @sec-rl_model_based. Finally, we briefly consider "bandit" problems @sec-bandit, which can be viewed as a simplified RL setting with no state transitions (or a trivial one-state MDP), where the main issue is exploration versus exploitation across actions.
+Approaches to reinforcement learning differ significantly according to what kind of hypothesis or model is being learned. Roughly speaking, RL methods can be categorized into model-free methods and model-based methods. The main distinction is that model-based methods explicitly learn the transition and reward models to assist the end-goal of learning a policy; model-free methods do not. We will start our discussion with the model-free methods, and introduce two of the arguably most popular types of algorithms, Q-learning @sec-q_learning and policy gradient @sec-rl_policy_search. We then describe model-based methods @sec-rl_model_based. Finally, we briefly consider "bandit" problems @sec-bandit, which differ from our MDP learning context by having probabilistic rewards.
 
 ### Model-free methods
 
@@ -92,7 +92,7 @@ reward function $R$, and instead rely on samples to perform the updates.
   \EndFor
   \State $s \gets s_0$
   \While{$i < \text{max\_iter}$}
-    \State $a \gets \text{select\_action}\bigl(s,\,Q_{\text{old}}\bigr)$
+    \State $a \gets \text{select\_action}\bigl(s,\,Q_{\text{old}}(s,a)\bigr)$
     \State $(r, s') \gets \text{execute}(a)$
     \State $Q_{\text{new}}(s, a) \gets (1-\alpha)\,Q_{\text{old}}(s,a)\;+\;\alpha\bigl(r + \gamma \max_{a'}Q_{\text{old}}(s',a')\bigr)$
     \State $s \gets s'$
@@ -128,7 +128,7 @@ would allow the action to be drawn from, e.g., a continuous range of
 numbers. There are now many extensions developed based on Q-learning
 that can handle continuous state and action spaces (we'll look at one
 soon), and therefore the algorithm above is also sometimes referred to
-more specifically as tabular Q-learning.
+more  specifically as tabular Q-learning.
 
 
 In the Q-learning update rule
@@ -176,8 +176,8 @@ A typical action-selection strategy that attempts to address this *exploration v
 
 where the $\epsilon$ probability of choosing a random action helps the agent to explore and try out actions that might not seem so desirable at the moment.
 
-Q-learning has the surprising property that under some standard assumptions, it is *guaranteed* to
-converge to the actual optimal $Q$ function! The conditions it needs to satisfy are: having a finite state-action space, visiting every state-action pair infinitely often, and the learning rate $\alpha$ must satisfy a scheduling condition. This implies that for exploration strategy specifically, any strategy is okay as long as it tries every state-action infinitely often on an infinite run (so that it doesn't converge prematurely to a bad action choice).
+Q-learning has the surprising property that it is *guaranteed* to
+converge to the actual optimal $Q$ function! The conditions specified in the theorem are: visit every state-action pair infinitely often, and the learning rate $\alpha$ satisfies a scheduling condition. This implies that for exploration strategy specifically, any strategy is okay as long as it tries every state-action infinitely often on an infinite run (so that it doesn't converge prematurely to a bad action choice).
 
 Q-learning can be very inefficient. Imagine a robot that has a
 choice between moving to the left and getting a reward of 1, then
@@ -323,7 +323,7 @@ where $Q(s, a)$ is now the output of the neural network.
 There are several different architectural choices for using a neural network to approximate $Q$ values:
 
 - One network for each action $a$, that takes $s$ as input and produces $Q(s, a)$ as output;
-- One single network that takes $s$ as input and produces a vector consisting of the $Q$ values for each action (where the $i$th component represents $Q(s,a_i)$); or
+- One single network that takes $s$ as input and produces a vector $Q(s, \cdot)$, consisting of the $Q$ values for each action; or
 - One single network that takes $s, a$ concatenated into a vector (if $a$ is discrete, we would probably use a one-hot encoding, unless it had some useful internal structure) and produces $Q(s, a)$ as output.
 
 :::{.column-margin}
@@ -363,7 +363,7 @@ called *fitted Q*.
 #| label: Q-Learning
 
 \begin{algorithmic}[1]
-  \Procedure{Fitted-Q-Learning}{$\mathcal{A}, s_0, \gamma, \epsilon, m$}
+  \Procedure{Fitted-Q-Learning}{$\mathcal{A}, s_0, \gamma, \alpha, \epsilon, m$}
     \State $s \gets s_0$ \Comment{e.g., $s_0$ can be drawn randomly from $\mathcal{S}$}
     \State $\mathcal{D} \gets \emptyset$
     \State initialize neural-network representation of $Q$
@@ -392,7 +392,7 @@ function on the whole data set.  This method does not mix the
 dynamic-programming phase (computing new $Q$ values based on old ones)
 with the function approximation phase (supervised training of the
 neural network) and avoids catastrophic forgetting.  The regression
-training in line 15 typically uses squared error as a loss function and
+training in line 10 typically uses squared error as a loss function and
 would be trained until the fit is good (possibly measured on held-out
 data).
 
@@ -433,7 +433,7 @@ Conceptually, this is similar to having "initialized" our estimate for the trans
 
 Adding 1 and $|\mathcal{S}|$ to the numerator and denominator, respectively, is a form of smoothing called the *Laplace correction*. It ensures that we never estimate that a probability is 0, and keeps us from dividing by 0. As the amount of data we gather increases, the influence of this correction fades away.
 
-Given our assumption that rewards are deterministic functions of $(s,a)$, a single observed reward is sufficient to determine $R(s,a)$. Our model $\hat{R}$ can simply be a record of observed rewards, such that $\hat{R}(s, a) = r = R(s,a)$.
+In contrast, the reward function $R(s, a)$ is a *deterministic* function, such that knowing the reward $r$ for a given $(s, a)$ is sufficient to fully determine the function at that point. Our model $\hat{R}$ can simply be a record of observed rewards, such that $\hat{R}(s, a) = r = R(s,a)$.
 
 Given empirical models $\hat{T}$ and $\hat{R}$ for the transition and reward functions, we can now solve the MDP $(\mathcal{S}, \mathcal{A}, \hat{T}, \hat{R})$ to find an optimal policy using value iteration, or use a search algorithm to find an action to take for a particular state.
 
