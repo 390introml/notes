@@ -400,24 +400,17 @@ data).
 Note that fitted-Q and the experience-replay version of Q-learning above are not so much rival algorithms as two points on a spectrum: both store past transitions and both fit a network to bootstrapped Bellman targets. They differ in *how often* the targets get refreshed (every gradient step vs. once per outer iteration) and in *how many* gradient steps are taken between refreshes.
 
 ## Policy gradient {#sec-rl_policy_search}
-A different model-free strategy is to search directly for a good policy, rather than first estimating a value function or transition model. For example, when the action space is large or continuous and it is awkward to search over actions using a value function, it can be easier to learn a policy that outputs actions directly than to learn a Q-function and repeatedly solve
-$\arg\max_a Q(s,a)$. The idea is to choose a parameterized family of policies $\pi_\theta(a \mid s)$, where $\theta$ denotes the parameters to be learned from experience. In most policy-gradient methods, $\pi_\theta(a \mid s)$ is chosen to be differentiable with respect to $\theta$, so that we can improve the policy using gradient-based optimization.
+A different model-free strategy is to search directly for a good policy, rather than first estimating a value function or transition model. This is especially useful when the action space is large or continuous and it is awkward to repeatedly solve $\arg\max_a \mathrm{Q}(s,a)$. The idea is to choose a parameterized family of policies $\pi_\theta(a \mid s)$, differentiable with respect to $\theta$ so that we can improve the policy using gradient-based optimization.
 
-Here, $\pi_\theta(a \mid s)$ is a conditional probability distribution over actions given the current state. In other words, when the agent is in state $s$, it chooses action $a$ with probability $\pi_\theta(a \mid s)$. Using a stochastic policy like this is often helpful during learning, because it naturally incorporates exploration.
+Here, $\pi_\theta(a \mid s)$ is a conditional probability distribution over actions: when the agent is in state $s$, it chooses action $a$ with probability $\pi_\theta(a \mid s)$. Stochastic policies like this naturally incorporate exploration during learning.
 
-Our goal is to choose $\theta$ to maximize the expected cumulative reward obtained by following $\pi_\theta$. If $\rho_0$ denotes the initial-state distribution, one natural objective is
+Our goal is to choose $\theta$ to maximize the expected cumulative reward $J(\theta)$ obtained by following $\pi_\theta$:
 $$
-J(\theta) = \mathbb{E}\left[\sum_{t=0}^{\infty}\gamma^t R_t \,\middle|\, s_0 \sim \rho_0,\; a_t \sim \pi_\theta(\cdot \mid S_t)\right].
+J(\theta) = \mathbb{E}\left[\sum_{t=0}^{\infty}\gamma^t R_t \,\middle|\, a_t \sim \pi_\theta(\cdot \mid S_t)\right],
 $$
-We then update the parameters in the direction that increases this objective:
-$$
-\theta \leftarrow \theta + \alpha \nabla_\theta J(\theta),
-$$
-where $\alpha > 0$ is a step size. This is gradient ascent, since we are trying to maximize reward. Equivalently, one could minimize $-J(\theta)$ using gradient descent.
+which we maximize by gradient ascent: $\theta \leftarrow \theta + \alpha \nabla_\theta J(\theta)$, with learning rate $\alpha > 0$.
 
-When $\theta$ has relatively low dimension, one can estimate the gradient numerically by evaluating the policy at several nearby parameter values and comparing the resulting returns. This is conceptually simple, but it becomes expensive as the number of parameters grows.
-
-When $\theta$ has high dimension, for example when $\pi_\theta$ is represented by a neural network, it is more common to estimate $\nabla_\theta J(\theta)$ directly from sampled trajectories. One classic method for doing this is REINFORCE. Roughly speaking, REINFORCE increases the probability of actions that led to high return and decreases the probability of actions that led to low return. These methods can work well, but they are often noisy and can be difficult to tune in practice.
+To run gradient ascent we need an estimate of $\nabla_\theta J(\theta)$. The classic approach is *REINFORCE*, which estimates the gradient from sampled trajectories by increasing the probability of actions that led to high return and decreasing the probability of actions that led to low return. These methods can work well, but they are often noisy and difficult to tune in practice.
 
 ## Model-based RL {#sec-rl_model_based}
 
