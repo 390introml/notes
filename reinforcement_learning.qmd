@@ -414,29 +414,21 @@ To run gradient ascent we need an estimate of $\nabla_\theta J(\theta)$. The cla
 
 ## Model-based RL {#sec-rl_model_based}
 
-The conceptually simplest approach to RL is to model $R$ and $T$ from the data we have gotten so far, and then use those models, together with an algorithm for solving MDPs (such as value iteration) to find a policy that is near-optimal given the current models.
+The conceptually simplest approach to RL is to estimate $\mathrm{T}$ and $\mathrm{R}$ from interaction data, and then solve the resulting MDP $(\mathcal{S}, \mathcal{A}, \hat{\mathrm{T}}, \hat{\mathrm{R}})$ with value iteration (or another MDP-solving algorithm).
 
-Assume that we have had some set of interactions with the environment, which can be characterized as a set of tuples of the form $(s^{(t)}, a^{(t)}, s^{(t+1)}, r^{(t)})$.
-
-Because the transition function $T(s, a, s')$ specifies probabilities, multiple observations of $(s, a, s')$ may be needed to model the transition function. One approach to building a model $\hat{T}(s, a, s')$ for the true $T(s,a,s')$ is to estimate it using a simple counting strategy:
-
+Suppose we have collected experience as tuples $(s^{(t)}, a^{(t)}, s^{(t+1)}, r^{(t)})$. Since $\mathrm{T}(s,a,s')$ is a probability, we estimate it by counting:
 $$
-\hat{T}(s,a,s') = \frac{\#(s,a,s') + 1}{\#(s,a) + |\mathcal{S}|}.
+\hat{\mathrm{T}}(s,a,s') = \frac{\#(s,a,s') + 1}{\#(s,a) + |\mathcal{S}|},
 $$
-
-Here, $\#(s, a, s')$ represents the number of times in our data set we have the situation where $s^{(t)} = s$, $a^{(t)} = a$, $s^{(t+1)} = s'$, and $\#(s, a)$ represents the number of times in our data set we have the situation where $s^{(t)} = s$, $a^{(t)} = a$.
+where $\#(s,a,s')$ counts transitions matching $(s,a,s')$ in the data and $\#(s,a)$ counts visits to $(s,a)$. The added $1$ and $|\mathcal{S}|$ are *Laplace smoothing*: they prevent zero-probability estimates and division by zero, and their effect fades as data accumulates.
 
 :::{.column-margin}
 Conceptually, this is similar to having "initialized" our estimate for the transition function with uniform random probabilities before making any observations.
 :::
 
-Adding 1 and $|\mathcal{S}|$ to the numerator and denominator, respectively, is a form of smoothing called the *Laplace correction*. It ensures that we never estimate that a probability is 0, and keeps us from dividing by 0. As the amount of data we gather increases, the influence of this correction fades away.
+Since rewards are deterministic in $(s,a)$, a single observation suffices: $\hat{\mathrm{R}}(s,a) = r$.
 
-Given our assumption that rewards are deterministic functions of $(s,a)$, a single observed reward is sufficient to determine $R(s,a)$. Our model $\hat{R}$ can simply be a record of observed rewards $r$, such that $\hat{R}(s, a) = r = R(s,a)$.
-
-Given empirical models $\hat{T}$ and $\hat{R}$ for the transition and reward functions, we can now solve the MDP $(\mathcal{S}, \mathcal{A}, \hat{T}, \hat{R})$ to find an optimal policy using value iteration, or use a search algorithm to find an action to take for a particular state.
-
-This approach is effective for problems with small state and action spaces, where it is not too hard to get enough experience to model $T$ and $R$ well; but it is difficult to generalize this method to handle continuous (or very large discrete) state spaces, and is a topic of current research.
+This approach is effective for small discrete state and action spaces, but generalizing to continuous or very large state spaces is an active research area.
 
 ## Bandit problems {#sec-bandit}
 
