@@ -316,6 +316,8 @@ $$
 This is the so-called squared Bellman error; as the name suggests, it's closely related to the Bellman equation we saw in **MDPs** in @sec-mdps. Roughly speaking, this error measures how much the Bellman equality is violated.
 :::
 
+An important subtlety: the target $y$ also depends on $\theta$ (through $Q_\theta(s', a')$), but we treat it as a constant when computing the gradient. The fitted-Q algorithm below makes this explicit by freezing the target as a regression label.
+
 There are several different architectural choices for using a neural network to approximate $\mathrm{Q}$ values:
 
 - One network for each action $a$, that takes $s$ as input and produces $Q_\theta(s, a)$ as output;
@@ -339,6 +341,10 @@ And, in fact, we routinely shuffle their order in the data file, anyway.
 But when a learning agent, such as a robot, is moving through an environment, the sequence of states it encounters will be temporally correlated. For example, the robot might spend 12 hours in a dark environment and then 12 in a light one. This can mean that while it is in the dark, the neural-network weight-updates will make $Q_\theta$ \"forget\" the value function for when it's light.
 
 One way to handle this is to use *experience replay*, where we save our $(s,a,s',r)$ experiences in a *replay buffer*. Whenever we take a step in the world, we add the $(s,a,s',r)$ to the replay buffer and use it to do a Q-learning update. Then we also randomly select some number of tuples from the replay buffer, and do Q-learning updates based on them as well. In general, it may help to keep a *sliding window* of just the 1000 most recent experiences in the replay buffer. (A larger buffer will be necessary for situations when the optimal policy might visit a large part of the state space, but we like to keep the buffer size small for memory reasons and also so that we don't focus on parts of the state space that are irrelevant for the optimal policy.) The idea is that it will help us propagate reward values through our state space more efficiently if we do these updates. We can see it as doing something like value iteration, but using samples of experience rather than a known model.
+
+:::{.column-margin}
+Combining a neural-network $\mathrm{Q}$ approximator, experience replay, and a *target network* (a copy of $Q_\theta$ whose parameters are held fixed for many SGD steps and only periodically refreshed) is the recipe known as *Deep Q-Networks* (DQN). The target network keeps the bootstrapped target stable across many updates.
+:::
 
 ### Fitted Q-learning {#sec-fitted_q}
 An alternative strategy for learning the $\mathrm{Q}$ function that is somewhat
