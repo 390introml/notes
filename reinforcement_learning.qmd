@@ -404,7 +404,7 @@ data).
 Note that fitted-Q and the experience-replay version of online Q-learning above are not so much rival algorithms as two points on a spectrum: both store past transitions and both fit a network to bootstrapped Bellman targets. They differ in *how often* the targets get refreshed (every gradient step vs. once per outer iteration) and in *how many* gradient steps are taken between refreshes.
 
 ## Policy gradient {#sec-rl_policy_search}
-
+OLD: 
 A different model-free strategy is to search directly for a good policy. The strategy here is to define a functional form $f(s;\theta) = a$ for the policy, where $\theta$ represents the parameters we learn from experience. We choose $f$ to be differentiable, and often define 
 
 :::{.column-margin}
@@ -419,6 +419,21 @@ Now, we can train the policy parameters using gradient descent:
 - When $\theta$ has higher dimensions (e.g., it represents the set of parameters in a complicated neural network), there are more clever algorithms, e.g., one called *REINFORCE*, but they can often be difficult to get to work reliably.
 
 Policy search is a good choice when the policy has a simple known form, but the MDP would be much more complicated to estimate.
+
+NEW:
+
+A different model-free strategy is to search directly for a good policy, rather than first estimating a value function or transition model. The idea is to choose a parameterized family of policies
+$\pi_\theta(a \mid s)$,
+where $\theta$ denotes the parameters to be learned from experience. In most policy-gradient methods, $\pi_\theta(a \mid s)$ is chosen to be differentiable with respect to $\theta$, so that we can improve the policy using gradient-based optimization.
+Here, $\pi_\theta(a \mid s)$ is a conditional probability distribution over actions given the current state. In other words, when the agent is in state $s$, it chooses action $a$ with probability $\pi_\theta(a \mid s)$. Using a stochastic policy like this is often helpful during learning, because it naturally incorporates exploration.
+Our goal is to choose $\theta$ to maximize the expected cumulative reward obtained by following $\pi_\theta$. If $\rho_0$ denotes the initial-state distribution, one natural objective is $J(\theta) = \mathbb{E}\left[\sum_{t=0}^{\infty}\gamma^t R_t \,\middle|\, s_0 \sim \rho_0,\; a_t \sim \pi_\theta(\cdot \mid S_t)\right].$
+We then update the parameters in the direction that increases this objective:
+$\theta \leftarrow \theta + \alpha \nabla_\theta J(\theta)$,
+where $\alpha > 0$ is a step size. This is gradient ascent, since we are trying to maximize reward. Equivalently, one could minimize $-J(\theta)$ using gradient descent.
+When $\theta$ has relatively low dimension, one can estimate the gradient numerically by evaluating the policy at several nearby parameter values and comparing the resulting returns. This is conceptually simple, but it becomes expensive as the number of parameters grows.
+When $\theta$ has high dimension, for example when $\pi_\theta$ is represented by a neural network, it is more common to estimate $\nabla_\theta J(\theta)$ directly from sampled trajectories. One classic method for doing this is REINFORCE. Roughly speaking, REINFORCE increases the probability of actions that led to high return and decreases the probability of actions that led to low return. These methods can work well, but they are often noisy and can be difficult to tune in practice.
+Policy-gradient methods are especially attractive when the policy has a simple useful form, or when the action space is large or continuous and it is awkward to search over actions using a value function. In such cases, it can be easier to learn a policy that outputs actions directly than to learn a Q-function and repeatedly solve
+$\arg\max_a Q(s,a)$.
 
 ## Model-based RL {#sec-rl_model_based}
 
@@ -440,7 +455,7 @@ Conceptually, this is similar to having "initialized" our estimate for the trans
 
 Adding 1 and $|\mathcal{S}|$ to the numerator and denominator, respectively, is a form of smoothing called the *Laplace correction*. It ensures that we never estimate that a probability is 0, and keeps us from dividing by 0. As the amount of data we gather increases, the influence of this correction fades away.
 
-Given our assumption that rewards are deterministic functions of $(s,a)$, a single observed reward is sufficient to determine $R(s,a)$. Our model $\hat{R}$ can simply be a record of observed rewards, such that $\hat{R}(s, a) = r = R(s,a)$.
+Given our assumption that rewards are deterministic functions of $(s,a)$, a single observed reward is sufficient to determine $R(s,a)$. Our model $\hat{R}$ can simply be a record of observed rewards $r$, such that $\hat{R}(s, a) = r = R(s,a)$.
 
 Given empirical models $\hat{T}$ and $\hat{R}$ for the transition and reward functions, we can now solve the MDP $(\mathcal{S}, \mathcal{A}, \hat{T}, \hat{R})$ to find an optimal policy using value iteration, or use a search algorithm to find an action to take for a particular state.
 
