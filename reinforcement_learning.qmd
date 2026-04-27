@@ -420,10 +420,10 @@ Suppose we have collected experience as tuples $(s^{(t)}, a^{(t)}, s^{(t+1)}, r^
 $$
 \hat{\mathrm{T}}(s,a,s') = \frac{\#(s,a,s') + 1}{\#(s,a) + |\mathcal{S}|},
 $$
-where $\#(s,a,s')$ counts transitions matching $(s,a,s')$ in the data and $\#(s,a)$ counts visits to $(s,a)$. The added $1$ and $|\mathcal{S}|$ are *Laplace smoothing*: they prevent zero-probability estimates and division by zero, and their effect fades as data accumulates.
+where $\#(s,a,s')$ counts transitions matching $(s,a,s')$ in the data and $\#(s,a)$ counts visits to $(s,a)$.
 
 :::{.column-margin}
-Conceptually, this is similar to having "initialized" our estimate for the transition function with uniform random probabilities before making any observations.
+The added $1$ and $|\mathcal{S}|$ in numerator and denominator are *Laplace smoothing*: they prevent zero-probability estimates and division by zero, and their effect fades as data accumulates. Conceptually, this is similar to having "initialized" our estimate with uniform random probabilities before making any observations.
 :::
 
 Since rewards are deterministic in $(s,a)$, a single observation suffices: $\hat{\mathrm{R}}(s,a) = r$.
