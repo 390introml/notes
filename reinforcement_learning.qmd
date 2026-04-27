@@ -316,6 +316,8 @@ $$
 This is the so-called squared Bellman error; as the name suggests, it's closely related to the Bellman equation we saw in **MDPs** in @sec-mdps. Roughly speaking, this error measures how much the Bellman equality is violated.
 :::
 
+An important subtlety: the target $y$ also depends on $\theta$ (through $Q_\theta(s', a')$), but we treat it as a constant when computing the gradient. The fitted-Q algorithm below makes this explicit by freezing the target as a regression label.
+
 There are several different architectural choices for using a neural network to approximate $\mathrm{Q}$ values:
 
 - One network for each action $a$, that takes $s$ as input and produces $Q_\theta(s, a)$ as output;
