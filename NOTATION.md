@@ -5,23 +5,23 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 ## Mathematical Notation Conventions
 
 ### Training Data
-- Data points indexed with **superscript in parentheses**: `x^{(i)}, y^{(i)}` or `\ex{x}{i}, \ex{y}{i}`
-- Dataset: `\data = \{(\ex{x}{i}, \ex{y}{i})\}_{i=1}^n`
+- Data points indexed with **superscript in parentheses**: `x^{(i)}, y^{(i)}`
+- Dataset: `\mathcal{D} = \{(x^{(i)}, y^{(i)})\}_{i=1}^n`
 - `n` = number of training examples, `d` = input dimension
 - Feature components use **subscripts**: `x_1, x_2, x_j`
 
 ### Vectors and Matrices
-- **Vectors**: bold lowercase via `\mathbf{}` -- e.g., `\mathbf{x}`, `\bx`
+- **Vectors**: bold lowercase via `\mathbf{}` -- e.g., `\mathbf{x}`
 - **Matrices**: plain uppercase -- e.g., `X, W, A`
 - **Transpose**: `X^T` or `\theta^T`
 - Column vectors by default; `\theta^T x` for dot products
-- Dimensions stated explicitly: `X \in \R^{n \times d}`, `\theta \in \R^d`
+- Dimensions stated explicitly: `X \in \mathbb{R}^{n \times d}`, `\theta \in \mathbb{R}^d`
 
 ### Parameters and Weights
 - Linear model: `\theta` (weights), `\theta_0` (intercept/bias)
 - Neural network layers: `W^{(l)}` (weight matrix), `W_0^{(l)}` or `b^{(l)}` (bias), with **superscript in parens for layer index**
-- ML estimate: `\ml{\theta}` renders as `\theta_{ml}`
-- ERM estimate: `\erm{\theta}` renders as `\theta_{erm}`
+- ML estimate: `\theta_{\text{ml}}`
+- ERM estimate: `\theta_{\text{erm}}`
 - Model variant labels: `\theta^{\mathrm{multi}}`, `\theta^{\mathrm{bin}}`
 
 ### Functions
@@ -83,9 +83,9 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 ### Other Conventions
 - Learning rate: `\eta`
 - Regularization: `\lambda`
-- Norms: always use `\norm{\cdot}`, never raw `||`
-- Absolute value: always use `\abs{\cdot}`, never raw `|`
-- Sets: calligraphic `\mathcal{}` -- `\data`, `\model`, `\mathcal{H}`
-- Real numbers: `\R` (renders `\mathbb{R}`)
+- Norms: `\lVert \cdot \rVert` (e.g., `\lVert x \rVert`); avoid raw `||`
+- Absolute value: `\left| \cdot \right|` (or `\lvert \cdot \rvert` for proper spacing)
+- Sets: calligraphic `\mathcal{}` -- `\mathcal{D}` (dataset), `\mathcal{M}` (model class), `\mathcal{H}` (hypothesis class)
+- Real numbers: `\mathbb{R}`
 - Iteration/time index: superscript in parens `\theta^{(t)}`
 
