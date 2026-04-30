@@ -1,13 +1,19 @@
 # Transformers {#sec-transformers}
 
-Transformers are a very recent family of architectures that were originally introduced in the field of natural language processing (NLP) in 2017, as an approach to process and understand human language. Since then, they have revolutionized not only NLP but also other domains such as image processing and multi-modal generative AI. Their scalability and parallelizability have made them the backbone of large-scale foundation models, such as GPT, BERT, and Vision Transformers (ViT), powering many state-of-the-art applications.
+Transformers are a very recent family of architectures that were originally introduced in the field of natural language processing (NLP) in 2017, as an approach to process and understand human language. They were originally designed for sequential data, most notably text, though they have since been adapted to images, audio, and other modalities. Their scalability and parallelizability have made them the backbone of large-scale foundation models, such as GPT, BERT, and Vision Transformers (ViT), powering many state-of-the-art applications.
+
+Their key advantages include:
+
+- **Parallel Computation**: Unlike earlier sequential models that process sequences iteratively, transformers can process all tokens in a sequence simultaneously, significantly improving training efficiency.
+- **Long-range Dependencies**: The attention mechanism allows transformers to capture relationships between tokens regardless of their distance in the sequence, enabling better understanding of context and meaning.
+- **Scalability**: Transformers can be scaled up to billions of parameters, allowing them to learn complex patterns from vast amounts of data, which is crucial for tasks like language modeling and image recognition.
 
 
 :::{.column-margin}
-Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents). Prior to the advent of the transformers architecture, recurrent neural networks (RNNs) briefly dominated the field for their ability to process sequential information. However, RNNs, like many other architectures, processed sequential information in an iterative/sequential fashion, whereby each item of a sequence was individually processed one after another. Transformers offer many advantages over RNNs, including their ability to process all items in a sequence in a *parallel* fashion (as do CNNs).
+Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents). Prior to the advent of the transformers architecture, earlier sequential models processed information iteratively, whereby each item of a sequence was individually processed one after another. Transformers offer many advantages over these earlier approaches, including their ability to process all items in a sequence in a *parallel* fashion (as do CNNs).
 :::
 
-Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make Transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
+Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
 
 ## Transformers Overview {#sec-transformers-overview}
 
@@ -17,10 +23,15 @@ Transformers are powerful neural architectures designed primarily for sequential
 Suppose our training data contains this sentence: "To date, the cleverest thinker was Isaac." The transformer model will learn to predict the next token in the sequence, given the previous tokens. For example, when predicting the token "cleverest," the model will condition its prediction on the tokens "To," "date," and "the." This process continues until the entire sequence is generated.
 ![](figures/auto-regressive.gif)
 
-The animation above illustrates the auto-regressive nature of transformers. 
-
-Below is another example. Suppose the sentence is the 2nd law of robotics: "A robot must obey the orders given it by human beings..." The training objective of a transformer would be to make each token's prediction, conditioning on previously generated tokens, forming a step-by-step probability distribution over the vocabulary.
+The animation above illustrates the auto-regressive nature of transformers. Below is another example, using the 2nd law of robotics: "A robot must obey the orders given it by human beings..."
 ![](figures/auto-regressive.png)
+
+Each token's prediction is conditioned on all previous tokens, allowing the model's predicted probability distribution over the next token to be computed using the prior ones as input — not just the most recent one. This can be written formally as: 
+$$
+\Pr(x_1, x_2, \ldots, x_n) = \prod_{i=1}^n \Pr(x_i \mid x_1, x_2, \ldots, x_{i-1})
+$$
+where $x_i$ represents the $i$-th token in the sequence.
+Transformers themselves are not inherently auto-regressive; they can be trained in various ways, including masked language modeling (@sec-causal-attention) or sequence-to-sequence tasks. Transformers such as those in the GPT family are trained autoregressively: they generate one token at a time, each conditioned on all previously generated tokens. Encoder-based transformers (e.g., BERT) process entire sequences simultaneously for tasks like classification or retrieval. 
 
 The transformer architecture processes inputs by applying multiple identical building blocks stacked in layers. Each block performs a transformation that progressively refines the internal representation of the data. 
 
@@ -39,11 +50,15 @@ We start by describing how language is commonly represented, then we provide a b
 
 As a reminder, two key components of any ML system are: (1) the representation of the data; and (2) the actual modelling to perform some desired task. Computers, by default, have no natural way of representing human language. Modern computers are based on the Von Neumann architecture and are essentially very powerful calculators, with no natural understanding of what any particular string of characters means to us humans. Considering the rich complexities of language (e.g., humor, sarcasm, social and cultural references and implications, slang, homonyms, etc), you can imagine the innate difficulties of appropriately representing languages, along with the challenges for computers to then model and “understand” language.
 
-The field of NLP aims to represent words with vectors of floating-point numbers (aka word embeddings) such that they capture semantic meaning. More precisely, the degree to which any two words are related in the ‘real-world’ to us humans should be reflected by their corresponding vectors (in terms of their numeric values). So, words such as ‘dog’ and ‘cat’ should be represented by vectors that are more similar to one another than, say, ‘cat’ and ‘table’ are.
+The field of NLP aims to represent words with vectors of floating-point numbers (aka word embeddings) such that they capture semantic meaning. More precisely, the degree to which any two words are related in the ‘real-world’ to us humans should be reflected by their corresponding vectors (in terms of their numeric values). So, words such as ‘dog’ and ‘cat’ should be represented by vectors that are more similar to one another than, say, ‘cat’ and ‘table’ are. These embeddings capture semantic relationships, placing words in a geometric space where meaning is encoded in the distances and directions between vectors. 
+
+:::{.column-margin}
+One of the most famous examples of word embeddings is Word2Vec, which learns to represent words in a continuous vector space based on their co-occurrence in large text corpora. The resulting embeddings capture various linguistic properties, such as analogies (e.g., ‘king’ - ‘man’ + ‘woman’ ≈ ‘queen’) and semantic relationships (e.g., ‘Paris’ is to ‘France’ as ‘Berlin’ is to ‘Germany’).
+:::
 
 To measure how similar any two word embeddings are (in terms of their numeric values) it is common to use some similarity as the metric, e.g. the dot-product similarity we saw in @sec-autoencoders.
 
-Thus, one can imagine plotting every word embedding in $d$-dimensional space and observing natural clusters to form, whereby similar words (e.g., synonyms) are located near each other. The problem of determining how to parse (aka tokenize) individual words is known as *tokenization*. This is an entire topic of its own, so we will not dive into the full details here. However, the high-level idea of tokenization is straightforward: the individual inputs of data that are represented and processed by a model are referred to as tokens. And, instead of processing each word as a whole, words are typically split into smaller, meaningful pieces (akin to syllables). For example, the word “evaluation” may be input into a model as 3 individual tokens (eval + ua + tion). Thus, when we refer to tokens, know that we’re referring to these sub-word units.
+Thus, one can imagine plotting every word embedding in $d$-dimensional space and observing natural clusters to form, whereby similar words (e.g., synonyms) are located near each other. The problem of determining how to parse (aka tokenize) individual words is known as *tokenization*. This is an entire topic of its own, so we will not dive into the full details here. However, the high-level idea of tokenization is straightforward: the individual inputs of data that are represented and processed by a model are referred to as tokens. And, instead of processing each word as a whole, words are typically split into smaller, meaningful pieces (akin to syllables). For example, the word “evaluation” may be input into a model as 3 individual tokens (eval + ua + tion). Transformers operate on tokens, these sub-word units.
 For any given application/model, all of the language data must be predefined by a finite vocabulary of valid tokens (typically on the order of 40,000 distinct tokens). 
 
 :::{.column-margin}
@@ -53,9 +68,15 @@ How can we define an optimal vocabulary of such tokens? How many distinct tokens
 
 ## Query, Key, Value, and Attention Output {#sec-qkv}
 
-Attention mechanisms efficiently process global information by selectively focusing on the most relevant parts of the input. Given an input sentence, each token is processed sequentially to predict subsequent tokens. As more context (previous tokens) accumulates, this context ideally becomes increasingly beneficial—provided the model can appropriately utilize it. Transformers employ a mechanism known as **attention**, which enables models to identify and prioritize contextually relevant tokens.
+Attention mechanisms efficiently process global information by selectively focusing on the most relevant parts of the input. Given an input sentence, each token is processed sequentially to predict subsequent tokens. As more context (previous tokens) accumulates, this context ideally becomes increasingly beneficial—provided the model can appropriately utilize it. Transformers employ a mechanism known as **attention**, which enables models to identify and prioritize contextually relevant tokens. Attention mechanisms allow a model to dynamically weight how much each token should influence every other token's representation. Rather than treating all context equally, the model learns to focus selectively on important parts of the sequence.
 
 For example, consider the partial sentence: "Anqi forgot ___". At this point, the model has processed tokens "Anqi" and "forgot," and aims to predict the next token. Numerous valid completions exist, such as articles ("the," "an"), prepositions ("to," "about"), or possessive pronouns ("her," "his," "their"). A well-trained model should assign higher probabilities to contextually relevant tokens, such as "her," based on the feminine-associated name "Anqi." Attention mechanisms guide the model to selectively focus on these relevant contextual cues using query, key, and value vectors.
+
+Attention allows each token to dynamically gather information from other tokens in the sequence. Each token produces three vectors:
+
+- **Query vector** $q_i$: Represents the token's "question" about which other tokens are relevant.
+- **Key vector** $k_i$: Represents how the token "listens" for other queries.
+- **Value vector** $v_i$: Represents the actual token information that is aggregated based on attention scores.
 
 ### Query Vectors
 
@@ -71,7 +92,7 @@ Thus, for a sequence of $n$ tokens, we generate $n$ distinct query vectors.
 
 ### Key Vectors
 
-To complement query vectors, we introduce **key vectors**, which tokens use to "answer" queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine the attention weight. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
+To complement query vectors, we introduce **key vectors**, which tokens use to "listen" for queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine the attention weight. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
 
 $$
 k_i = W_k^T x_i
@@ -83,7 +104,7 @@ $$
 a_i = \text{softmax}\left(\frac{[q_i^T k_1, q_i^T k_2, \dots, q_i^T k_n]}{\sqrt{d_k}}\right)^T \in \mathbb{R}^{1\times n}
 $$
 
-The vector $a_i$ (softmax'd attention scores) quantifies how much attention token $q_i$ should pay to each token in the sequence, normalized so that elements sum to 1. Normalizing by $\sqrt{d_k}$ prevents large dot-product magnitudes, stabilizing training.
+The vector $a_i$ (softmax'd attention scores) quantifies how much attention token $q_i$ should pay to each token in the sequence, normalized so that elements sum to 1. The softmax is applied over all keys for a fixed query, producing a probability distribution over the tokens. Normalizing by $\sqrt{d_k}$ prevents large dot-product magnitudes, stabilizing training.
 
 ### Value Vectors
 
@@ -93,6 +114,10 @@ $$
 v_i = W_v^T x_i
 $$
 
+The figure below shows how a single input token embedding $x_i \in \mathbb{R}^d$ is linearly projected into three separate vectors by multiplying with three independently learned weight matrices. The same procedure is applied identically and in parallel to every token in the sequence.
+
+![](figures/transformer_qkv_proj.png)
+
 ### Attention Output
 
 Finally, attention outputs are computed as weighted sums of value vectors, using the softmax'd attention scores:
@@ -101,8 +126,17 @@ $$
 z_i = \sum_{j=1}^n a_{ij} v_j \in \mathbb{R}^{d_k}
 $$
 
-This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating context from across the sequence, weighted by learned attention.
+This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating context from across the sequence, weighted by learned attention. Each token becomes a weighted combination of all tokens' value vectors, where weights reflect relevance as determined by the query-key interactions.
 
+:::{.column-margin}
+In principle, one could use the key vectors directly as the weighted contributions. In practice, using a separate learned projection $W_v$
+gives the model more flexibility: the keys can specialize in determining relevance (matching queries), while the values specialize in determining what information to actually pass forward.
+:::
+
+The figure below traces the full computation for a single query token $q_1$
+attending over a four-token sequence. The resulting vector $z_1$ is a context-aware mixture of all value vectors, weighted by relevance.
+
+![](figures/transformer_attn_mech.png)
 
 ## Self-attention Layer {#sec-self-attention}
 
@@ -150,7 +184,11 @@ v_n^\top
 \end{aligned}
 $$
 
-It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. Now, the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
+It should be straightforward to understand that the $Q$, $K$, $V$ matrices simply stack $q_i$, $k_i$, and $v_i$ in a row-wise manner, respectively. 
+
+![](figures/transformer_qkv_full_mat.png)
+
+Now, the full attention matrix $A \in \mathbb{R}^{n \times n}$ is:
 
 $$\begin{aligned}
 A = \begin{bmatrix}
@@ -202,9 +240,10 @@ where $V\in \mathbb{R}^{n \times d_k}$ is the matrix of value vectors stacked ro
 You will also see this compact notation `Attention` in the literature, which is an operation of three arguments $Q$, $K$, and $V$ (and we add an emphasis that the softmax is performed on each row):
 
 $$
-\text{Attention}(Q, K, V) = \text{softmax}_{row}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
+\text{Attention}(Q, K, V) = \text{softmax}_{\text{row}}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
 $$
 
+![](figures/transformer_attn_head_compact.png)
 
 
 ### Multi-head Self-attention
@@ -229,11 +268,55 @@ $$
 $$
 where the concatenation operation concatenates $Z^h$ horizontally, yielding a matrix of size $n\times Hd_k$, and $W^O \in \mathbb{R}^{Hd_k \times d}$ is a final linear projection matrix.
 
+The following figure illustrates the multi-head self-attention layer, showing how the input $X$ is processed through multiple attention heads, each producing its own output, which are then concatenated and projected to produce the final output of the layer.
+![](figures/transformer_attn_layer.png)
+
+The purpose of $W^O$ is to mix information across heads — each head produces a $d_k$​-dimensional representation from its own perspective, and $W^O$ projects the concatenated $Hd_k$​-dimensional vector back to the model's $d$-dimensional hidden space, allowing the downstream layers to receive a unified representation.
+
+The table below summarizes the dimensions of the various matrices involved in a multi-head self-attention layer, with $n$ as the number of tokens, $d$ as the input token dimension, $d_k$ as the dimension of each head's query/key/value vectors (embedding dimension), and $H$ as the number of heads.
+![](figures/transformer_dimensions_table.png)
+
+## Putting It All Together: The Transformer Block {#sec-transformer-block}
+
+We now have all the ingredients to describe a complete **transformer block** — the repeating unit that is stacked $L$ times to form the full transformer. Each block takes in a matrix $X \in \mathbb{R}^{n \times d}$ and outputs a matrix of the same shape, progressively refining the token representations.
+
+Each block consists of two sub-layers:
+
+1. **Multi-head self-attention**, which mixes information across token positions.
+2. **A multi-layer perceptron (MLP)**, which applies a nonlinear transformation independently to each token's representation.
+
+Critically, both sub-layers are wrapped with **residual connections** and **layer normalization**, giving us the following two-step update:
+
+$$
+X' = \text{LayerNorm}(X + \text{MultiHead}(X))
+$$
+$$
+X'' = \text{LayerNorm}(X' + \text{MLP}(X'))
+$$
+
+The output $X''$ becomes the input to the next block.
+
+Residual connections allow gradients to flow directly through many layers without vanishing, making it practical to stack transformer blocks. Layer normalization stabilizes training by normalizing the activations within each token's representation to have zero mean and unit variance at each layer. This prevents the scale of activations from exploding or collapsing across layers, which is especially important in very deep models.
+
+The following illustrates the components of a transformer block:
+![](figures/transformer_transformer_block.png)
+
+### The Full Forward Pass
+
+Putting everything together, here is the complete forward pass for a decoder-style (autoregressive) transformer:
+
+1. **Tokenize** the input text into a sequence of $n$ tokens.
+2. **Embed** each token index as a $d$-dimensional vector via a learned embedding matrix $E \in \mathbb{R}^{V \times d}$, where $V$ is the vocabulary size.
+3. **Pass through $L$ transformer blocks**, each consisting of causal multi-head attention and an MLP.
+4. **Project** the final token representations to logits over the vocabulary and apply softmax to get a probability distribution over the next token.
+
+![](figures/transformer_full_pipeline.png)
+
 ## Transformers Architecture Details {#sec-transformers-arch-details}
 
 ### Positional Embeddings 
 
-An extremely observant reader might have been suspicious of a small but very important detail that we have not yet discussed: the attention mechanism, as introduced so far, does not encode the order of the input tokens. For instance, when computing softmax'd attention scores and building token representations, the model is fundamentally permutation-equivariant — the same set of tokens, even if scrambled into a different order, would result in identical outputs permuted in the same order --- Formally, when we fix $\{W_q,W_k,W_v\}$ and switch the input $x_i$ with $x_j$, then the output $z_i$ and $z_j$ will be switched. However, natural language is not a bag of words: meaning is tied closely to word order. 
+An extremely observant reader might have been suspicious of a small but very important detail that we have not yet discussed: the attention mechanism, as introduced so far, does not encode the order of the input tokens. For instance, when computing softmax'd attention scores and building token representations, the model is fundamentally *permutation-equivariant* — the same set of tokens, even if scrambled into a different order, would result in identical outputs permuted in the same order --- Formally, when we fix $\{W_q,W_k,W_v\}$ and switch the input $x_i$ with $x_j$, then the output $z_i$ and $z_j$ will be switched. However, natural language is not a bag of words: meaning is tied closely to word order. 
 
 To address this, transformers incorporate positional embeddings — additional information that encodes the position of each token in the sequence. These embeddings are added to the input token embeddings before any attention layers are applied, effectively injecting ordering information into the model.
 
@@ -265,6 +348,10 @@ M =
 \end{bmatrix}
 $$
 
+:::{.column-margin}
+Adding $-\infty$ before the softmax causes $e^{-\infty} = 0$, so those positions receive exactly zero attention weight after normalization. This is preferable to directly zeroing out entries after softmax, which would disrupt the normalization. This ensures that the model can only attend to tokens at the current position and those that come before it, preserving the auto-regressive property during training and inference.
+:::
+
 and we now have the masked attention matrix:
 
 \begin{aligned}
@@ -278,10 +365,70 @@ q_n^\top k_1 & q_n^\top k_2 & \cdots & q_n^\top k_n
 \end{bmatrix}
 + M \right)\end{aligned}
 
-The softmax is performed on each row independently. The attention output is still $Y= A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking before performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
+The softmax is performed on each row independently. The attention output is still $Y= A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking *before* performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
 
 
 Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.
+
+This common figure illustrates the hierarchical "zoom-in" structure of a Transformer model, moving from the high-level architecture down to the specific mechanics of a single attention head.
+
+The Three Levels of Detail:
+
+- The Full Model (Left): This shows the global pipeline where raw input data is converted into embeddings, combined with positional information, and passed through $L$ identical stacked transformer blocks before reaching a final softmax layer for prediction.
+- The Transformer Block (Center): This zooms into a single layer, highlighting the multi-head attention layer followed by an MLP (Linear/ReLU layers). Note the "skip connections" (the arrows bypassing the blocks) and Layer Normalization, which help keep training stable.
+- The Attention Head (Right): This is the granular view of how a single head operates. It takes the input and splits it into Query ($Q$), Key ($K$), and Value ($V$) vectors. It performs a Matrix Multiplication between $Q$ and $K$ to determine "attention weights," applies an optional mask, runs it through a Softmax, and uses those weights to scale the $V$ vectors.
+
+Essentially, the figure shows how simple matrix operations inside a single head (right) are scaled up into parallel heads within a block (center), which are then stacked many times to create a powerful deep learning model (left).
+
+![](figures/transformer_paper_fig.png)
+
+## Training vs. Inference {#sec-training-vs-inference}
+
+The transformer behaves differently depending on whether it is being **trained** or used for **inference** (generation). Understanding this distinction is important for making sense of both the efficiency of transformers and the role of causal masking.
+
+### Training
+
+During training, the model is given an entire sequence at once and asked to predict, for every position $i$, the token that should appear at position $i+1$. Crucially, all of these predictions are computed **simultaneously** in a single forward pass.
+
+For example, given the sequence "A robot must obey," the model is trained on four prediction tasks at once:
+
+| Input context | Target |
+|---|---|
+| "A" | "robot" |
+| "A robot" | "must" |
+| "A robot must" | "obey" |
+| "A robot must obey" | \<next token\> |
+
+This is why **causal masking** is essential during training: even though the full sequence is fed in simultaneously, position $i$ must not be able to see positions $j > i$ when producing its prediction. The causal mask enforces this constraint, ensuring the model cannot "cheat" by looking at the answer.
+
+Thus, one forward pass simultaneously generates supervised training signal for all $n$ positions in the sequence.
+
+### Inference
+
+At inference time, the model generates text *autoregressively*: it produces one token at a time, appends it to the sequence, and feeds the extended sequence back in to produce the next token.
+
+For example, starting from the prompt "A robot must," the process unfolds as:
+
+1. Feed "A robot must" → sample "obey" from predicted distribution
+2. Feed "A robot must obey" → sample "the" from predicted distribution
+3. Feed "A robot must obey the" → sample "orders" from predicted distribution
+4. ... continue until a special end-of-sequence token is produced
+
+This is fundamentally *sequential* — each new token requires a new forward pass. As a result, generating a sequence of $n$ tokens requires $n$ separate forward passes, whereas training on that same sequence requires only one. This is the primary reason why inference is comparatively slow and expensive relative to the training throughput.
+
+:::{.column-margin}
+In practice, a technique called **KV-caching** is used to speed up inference. Because the key and value vectors for already-generated tokens don't change as new tokens are added, they can be computed once and stored in a cache. Only the new token's Q, K, and V vectors need to be computed on each step, reducing the per-step computation significantly.
+:::
+
+### Summary
+
+|  | Training | Inference |
+|---|---|---|
+| **Input** | Full sequence at once | Tokens generated one at a time |
+| **Forward passes needed** | 1 per sequence | $n$ per sequence of length $n$ |
+| **Causal mask** | Required (prevents looking ahead) | Naturally satisfied (future tokens don't exist yet) |
+| **Speed** | Fast (fully parallel) | Slow (sequential) |
+| **Goal** | Minimize cross-entropy loss | Sample next token from predicted distribution |
 
 
 <!--
