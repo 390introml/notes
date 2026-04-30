@@ -4,13 +4,13 @@ Transformers are a very recent family of architectures that were originally intr
 
 Their key advantages include:
 
-- **Parallel Computation**: Unlike recurrent neural networks (RNNs) that process sequences iteratively, transformers can process all tokens in a sequence simultaneously, significantly improving training efficiency.
+- **Parallel Computation**: Unlike earlier sequential models that process sequences iteratively, transformers can process all tokens in a sequence simultaneously, significantly improving training efficiency.
 - **Long-range Dependencies**: The attention mechanism allows transformers to capture relationships between tokens regardless of their distance in the sequence, enabling better understanding of context and meaning.
 - **Scalability**: Transformers can be scaled up to billions of parameters, allowing them to learn complex patterns from vast amounts of data, which is crucial for tasks like language modeling and image recognition.
 
 
 :::{.column-margin}
-Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents). Prior to the advent of the transformers architecture, recurrent neural networks (RNNs) briefly dominated the field for their ability to process sequential information. However, RNNs, like many other architectures, processed sequential information in an iterative/sequential fashion, whereby each item of a sequence was individually processed one after another. Transformers offer many advantages over RNNs, including their ability to process all items in a sequence in a *parallel* fashion (as do CNNs).
+Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents). Prior to the advent of the transformers architecture, earlier sequential models processed information iteratively, whereby each item of a sequence was individually processed one after another. Transformers offer many advantages over these earlier approaches, including their ability to process all items in a sequence in a *parallel* fashion (as do CNNs).
 :::
 
 Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
@@ -31,7 +31,7 @@ $$
 \Pr(x_1, x_2, \ldots, x_n) = \prod_{i=1}^n \Pr(x_i \mid x_1, x_2, \ldots, x_{i-1})
 $$
 where $x_i$ represents the $i$-th token in the sequence.
-Transformers themselves are not inherently auto-regressive; they can be trained in various ways, including masked language modeling (@sec-causal-attention) or sequence-to-sequence tasks. Decoder-based transformers — such as the GPT family — are trained autoregressively: they generate one token at a time, each conditioned on all previously generated tokens. Encoder-based transformers (e.g., BERT) process entire sequences simultaneously for tasks like classification or retrieval. 
+Transformers themselves are not inherently auto-regressive; they can be trained in various ways, including masked language modeling (@sec-causal-attention) or sequence-to-sequence tasks. Transformers such as those in the GPT family are trained autoregressively: they generate one token at a time, each conditioned on all previously generated tokens. Encoder-based transformers (e.g., BERT) process entire sequences simultaneously for tasks like classification or retrieval. 
 
 The transformer architecture processes inputs by applying multiple identical building blocks stacked in layers. Each block performs a transformation that progressively refines the internal representation of the data. 
 
@@ -75,8 +75,8 @@ For example, consider the partial sentence: "Anqi forgot ___". At this point, th
 Attention allows each token to dynamically gather information from other tokens in the sequence. Each token produces three vectors:
 
 - **Query vector** $q_i$: Represents the token's "question" about which other tokens are relevant.
-- **Key vector** $k_i$: Represents the "answer" that other tokens provide to queries.
-- **Value vector** $v_i$: Represents the actual information that is aggregated based on attention scores.
+- **Key vector** $k_i$: Represents how the token "listens" for other queries.
+- **Value vector** $v_i$: Represents the actual token information that is aggregated based on attention scores.
 
 ### Query Vectors
 
@@ -92,7 +92,7 @@ Thus, for a sequence of $n$ tokens, we generate $n$ distinct query vectors.
 
 ### Key Vectors
 
-To complement query vectors, we introduce **key vectors**, which tokens use to "answer" queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine the attention weight. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
+To complement query vectors, we introduce **key vectors**, which tokens use to "listen" for queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine the attention weight. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
 
 $$
 k_i = W_k^T x_i
