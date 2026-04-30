@@ -14,9 +14,7 @@ The non-parametric methods we consider here tend to have the form of a compositi
 
 -   *Ensemble models*: @sec-np_bagging in which we train several different classifiers on the whole space and average the answers; this decreases the estimation error. In particular, we will look at bootstrap aggregation, or *bagging* of trees.
 
--   *Boosting* is a way to construct a model composed of a sequence of component models (e.g., a model consisting of a sequence of trees, each subsequent tree seeking to correct errors in the previous trees) that decreases both estimation and structural error. We won't consider this in detail in this class.
-
--   *$k$-means clustering methods, @sec-clustering where we partition data into groups based on similarity without predefined labels, adapting complexity by adjusting the number of clusters. 
+-   *$k$-means clustering methods*: @sec-clustering where we partition data into groups based on similarity without predefined labels, adapting complexity by adjusting the number of clusters.
 
 Why are we studying these methods, in the heyday of complicated models such as neural networks ?
 
@@ -38,7 +36,7 @@ Input values $x$ can be from any domain $\mathcal X$ ($\mathbb{R}^d$, documents,
   d(x, x'') & \leq d(x, x') + d(x', x'')
 \end{aligned}$$
 
-Given a data-set ${\cal D}= \{(x^{(i)},y^{(i)})\}_{i=1}^n$, our predictor for a new $x \in \mathcal X$ is $$h(x) = y^{(i)} \;\;\;\text{where}\;\;\;i = {\rm arg}\min_{i} d(x,
+Given a data-set $\mathcal{D}= \{(x^{(i)},y^{(i)})\}_{i=1}^n$, our predictor for a new $x \in \mathcal X$ is $$h(x) = y^{(i)} \;\;\;\text{where}\;\;\;i = \arg\min_{i} d(x,
   x^{(i)})\;\;,$$ that is, the predicted output associated with the training point that is closest to the query point $x$. Tie breaking is typically done at random.
 
 This same algorithm works for regression *and* classification!
@@ -95,15 +93,15 @@ The predictor is made up of
 
 -   a collection of $M$ output values, $O_m$, one for each region.
 
-If we already knew a division of the space into regions, we would set $O_m$, the constant output for region $R_m$, to be the average of the training output values in that region. For a training data set ${\cal D}= \left\{\left(x^{(i)},
-  y^{(i)}\right)\right\}, i = 1, \ldots n$, we let $I$ be an indicator set of all of the elements within ${\cal D}$, so that $I = \{1, \ldots, n\}$ for our whole data set. We can define $I_m$ as the subset of data set samples that are in region $R_m$, so that $I_m = \{ i \mid x^{(i)} \in R_m\}$. Then $$O_m = {\rm average}_{i \in I_m}~y^{(i)}\;\;.$$ We can define the error in a region as $E_m$. For example, $E_m$ as the sum of squared error would be expressed as $$E_m = \sum_{i \in I_m}(y^{(i)} - O_m)^2\;\;.$$ Ideally, we should select the partition to minimize $$\lambda M + \sum_{m=1}^M E_m\;\;,$$ for some regularization constant $\lambda$. It is enough to search over all partitions of the training data (not all partitions of the input space!) to optimize this, but the problem is NP-complete.
+If we already knew a division of the space into regions, we would set $O_m$, the constant output for region $R_m$, to be the average of the training output values in that region. For a training data set $\mathcal{D}= \left\{\left(x^{(i)},
+  y^{(i)}\right)\right\}, i = 1, \ldots n$, we let $I$ be an indicator set of all of the elements within $\mathcal{D}$, so that $I = \{1, \ldots, n\}$ for our whole data set. We can define $I_m$ as the subset of data set samples that are in region $R_m$, so that $I_m = \{ i \mid x^{(i)} \in R_m\}$. Then $$O_m = \text{average}_{i \in I_m}~y^{(i)}\;\;.$$ We can define the error in a region as $E_m$. For example, $E_m$ as the sum of squared error would be expressed as $$E_m = \sum_{i \in I_m}(y^{(i)} - O_m)^2\;\;.$$ Ideally, we should select the partition to minimize $$\lambda M + \sum_{m=1}^M E_m\;\;,$$ for some regularization constant $\lambda$. It is enough to search over all partitions of the training data (not all partitions of the input space!) to optimize this, but the problem is NP-complete.
 
 #### Building a tree
 
 So, we'll be greedy. We establish a criterion, given a set of data, for finding the best single split of that data, and then apply it recursively to partition the space. For the discussion below, we will select the partition of the data that *minimizes the sum of the sum of squared errors of each partition element.* Then later, we will consider other splitting criteria.
 
-Given a data set ${\cal D}= \left\{\left(x^{(i)},
-  y^{(i)}\right)\right\}, i = 1, \ldots n$, we now consider $I$ to be an indicator of the subset of elements within ${\cal D}$ that we wish to build a tree (or subtree) for. That is, $I$ may already indicate a subset of data set ${\cal D}$, based on prior splits in constructing our overall tree. We define terms as follows:
+Given a data set $\mathcal{D}= \left\{\left(x^{(i)},
+  y^{(i)}\right)\right\}, i = 1, \ldots n$, we now consider $I$ to be an indicator of the subset of elements within $\mathcal{D}$ that we wish to build a tree (or subtree) for. That is, $I$ may already indicate a subset of data set $\mathcal{D}$, based on prior splits in constructing our overall tree. We define terms as follows:
 
 -   $I^+_{j,s}$ indicates the set of examples (subset of $I$) whose feature value in dimension $j$ is greater than or equal to split point $s$;
 
@@ -166,14 +164,17 @@ We can choose an appropriate $\alpha$ using cross validation.
 
 ### Classification
 
-The strategy for building and pruning classification trees is very similar to the strategy for regression trees.
+The strategy for building and pruning classification trees is very similar to that for regression. We reuse the same partition machinery: regions $R_m$ with index sets $I_m$, region predictor $O_m$, and region error $E_m$. Only the definitions of $O_m$ and $E_m$ change.
 
-Given a region $R_m$ corresponding to a leaf of the tree, we would pick the output class $y$ to be the value that exists most frequently (the *majority value*) in the data points whose $x$ values are in that region, i.e., data points indicated by $I_m$: $$O_m = {\rm majority}_{i \in I_m}~y^{(i)}\;\;.$$ Let's now define the error in a region as the number of data points that do not have the value $O_m$: $$E_m = \left|\{i \mid i \in I_m \;\text{and}\; y^{(i)} \not
-  = O_m\}\right|\;\;.$$ We define the *empirical probability* of an item from class $k$ occurring in region $m$ as: $$\hat{P}_{m,k} = \hat{P}(I_m,k) = \frac{\left|\{i \mid i \in I_m
-    \;\text{and}\; y^{(i)} = k\}\right|}{N_m}\;\;,$$ where $N_m$ is the number of training points in region $m$; that is, $N_m = |I_m|.$ For later use, we'll also define the empirical probabilities of split values, $\hat{P}_{m,j,s}$, as the fraction of points with dimension $j$ in split $s$ occurring in region $m$ (one branch of the tree), and $1 -
-  \hat{P}_{m,j,s}$ as the complement (the fraction of points in the other branch).
+The natural region predictor is the *majority class* among the training points in $R_m$:
+$$O_m = \text{majority}_{i \in I_m}\, y^{(i)},$$
+and the natural region error is the count of misclassified points:
+$$E_m = \bigl|\{i \in I_m \mid y^{(i)} \neq O_m\}\bigr|.$$
+We will also need the *empirical class probability* in region $m$:
+$$\hat{P}_{m,k} = \frac{\bigl|\{i \in I_m \mid y^{(i)} = k\}\bigr|}{N_m}, \qquad N_m = |I_m|.$$
+For splits, $\hat{P}_{m,j,s}$ denotes the fraction of points in region $m$ falling into one branch of the split $(j, s)$, and $1 - \hat{P}_{m,j,s}$ the other.
 
-##### Splitting criteria {#splitting-criteria .unnumbered}
+#### Splitting criteria {#splitting-criteria}
 
 In our greedy algorithm, we need a way to decide which split to make next. There are many criteria that express some measure of the "impurity" in child nodes. Some measures include:
 
@@ -214,13 +215,13 @@ One important limitation or drawback in conventional trees is that they can have
 
 *Bootstrap aggregation* is a technique for reducing the estimation error of a non-linear predictor, or one that is adaptive to the data. The key idea applied to trees, is to build multiple trees with different subsets of the data, and then create an ensemble model that combines the results from multiple trees to make a prediction.
 
--   Construct $B$ new data sets of size $n$. Each data set is constructed by sampling $n$ data points with replacement from ${\cal D}$. A single data set is called *bootstrap sample* of ${\cal D}$.
+-   Construct $B$ new data sets of size $n$. Each data set is constructed by sampling $n$ data points with replacement from $\mathcal{D}$. A single data set is called *bootstrap sample* of $\mathcal{D}$.
 
 -   Train a predictor $\hat{f}^b(x)$ on each bootstrap sample. When building each tree, the standard tree-building algorithm is used, which considers *all* features when deciding how to split at each node.
 
--   *Regression case*: bagged predictor is $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x) \; .$$
+-   *Regression case*: bagged predictor is $$\hat{f}_{\text{bag}}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x) \; .$$
 
--   *Classification case*: Let $K$ be the number of classes. We find a majority bagged predictor as follows. We let $\hat{f}^b(x)$ be a "one-hot" vector with a single 1 and $K-1$ zeros, and define the predicted output $\hat{y}$ for predictor $f^b$ as $\hat{y}^b(x) = {\rm arg}\max_{k} \hat{f}^b(x)_k$. Then $$\hat{f}_{\rm bag}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x),$$ which is a vector containing the proportion of classifiers that predicted each class $k$ for input $x.$ Then the overall predicted output is $$\hat{y}_{\rm bag}(x) = {\rm arg}\max_{k} \hat{f}_{\rm bag}(x)_k\;\;.$$
+-   *Classification case*: Let $K$ be the number of classes. We find a majority bagged predictor as follows. We let $\hat{f}^b(x)$ be a "one-hot" vector with a single 1 and $K-1$ zeros, and define the predicted output $\hat{y}$ for predictor $f^b$ as $\hat{y}^b(x) = \arg\max_{k} \hat{f}^b(x)_k$. Then $$\hat{f}_{\text{bag}}(x) = \frac{1}{B} \sum_{b=1}^B \hat{f}^b(x),$$ which is a vector containing the proportion of classifiers that predicted each class $k$ for input $x.$ Then the overall predicted output is $$\hat{y}_{\text{bag}}(x) = \arg\max_{k} \hat{f}_{\text{bag}}(x)_k\;\;.$$
 
 There are theoretical arguments showing that bagging does, in fact, reduce estimation error. However, when we bag a model, any simple intrepetability is lost.
 
@@ -305,12 +306,12 @@ One of the simplest and most commonly used clustering algorithms is called k-mea
 
 Similar to the way we showed that supervised learning could be formalized mathematically as the minimization of an objective function (loss function + regularization), we will show how unsupervised learning can also be formalized as minimizing an objective function. Let us denote the cluster assignment for a datapoint $x^{(i)}$ as $y^{(i)} \in \{1,2,\ldots,k\}$, i.e., $y^{(i)} = 1$ means we are assigning datapoint $x^{(i)}$ to cluster number 1. Then the k-means objective can be quantified with the following objective function (which we also call the "k-means loss"): 
 
-$$\sum_{j=1}^k \sum_{i=1}^n \mathbb{1}(y^{(i)} = j) \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;,
+$$\sum_{j=1}^k \sum_{i=1}^n \mathbb{1}(y^{(i)} = j) \lVert x^{(i)} - \mu^{(j)} \rVert^2 \;,
 $${#eq-kmeans_obj}
 
 where $\mu^{(j)} = \frac{1}{N_j} \sum_{i=1}^n \mathbb{1}(y^{(i)} = j) x^{(i)}$ and $N_j = \sum_{i=1}^n \mathbb{1}(y^{(i)} = j)$, so that $\mu^{(j)}$ is the mean of all datapoints in cluster $j$, and using $\mathbb{1}(\cdot)$ to denote the indicator function (which takes on value of 1 if its argument is true and 0 otherwise). The inner sum (over data points) of the loss is the variance of datapoints within cluster $j$. We sum up the variance of all $k$ clusters to get our overall loss.
 
-###### K-means algorithm
+#### K-means algorithm
 
 The k-means algorithm minimizes this loss by alternating between two steps: given some initial cluster assignments: 1) compute the mean of all data in each cluster and assign this as the "cluster mean", and 2) reassign each datapoint to the cluster with nearest cluster mean. @fig-kmeans_iters shows what happens when we repeat these steps on the dataset from above.
 
@@ -359,11 +360,11 @@ The for-loop over the $n$ datapoints assigns each datapoint to the nearest clust
 
 It's like classification except it *picked* what the classes are rather than being given examples of what the classes are.
 
-###### Using gradient descent to minimize k-means objective
+#### Using gradient descent to minimize the k-means objective
 
-We can also use gradient descent to optimize the k-means objective. To show how to apply gradient descent, we first rewrite the objective as a differentiable function *only of* $\mu$: $$L(\mu) = \sum_{i=1}^n \min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;\;.$$ $L(\mu)$ is the value of the k-means loss given that we pick the *optimal* assignments of the datapoints to cluster means (that's what the $\min_j$ does). Now we can use the gradient $\frac{\partial L(\mu)}{\partial \mu}$ to find the values for $\mu$ that achieve minimum loss when cluster assignments are optimal. Finally, we read off the optimal cluster assignments, given the optimized $\mu$, just by assigning datapoints to their nearest cluster mean: $$y^{(i)} = \arg\min_j \left\Vert x^{(i)} - \mu^{(j)} \right\Vert^2 \;\;.$$ This procedure yields a local minimum of @eq-kmeans_obj, as does the standard k-means algorithm we presented (though they might arrive at different solutions). It might not be the global optimum since the objective is not convex (due to $\min_j$, as the minimum of multiple convex functions is not necessarily convex).
+We can also use gradient descent to optimize the k-means objective. To show how to apply gradient descent, we first rewrite the objective as a differentiable function *only of* $\mu$: $$L(\mu) = \sum_{i=1}^n \min_j \lVert x^{(i)} - \mu^{(j)} \rVert^2 \;\;.$$ $L(\mu)$ is the value of the k-means loss given that we pick the *optimal* assignments of the datapoints to cluster means (that's what the $\min_j$ does). Now we can use the gradient $\frac{\partial L(\mu)}{\partial \mu}$ to find the values for $\mu$ that achieve minimum loss when cluster assignments are optimal. Finally, we read off the optimal cluster assignments, given the optimized $\mu$, just by assigning datapoints to their nearest cluster mean: $$y^{(i)} = \arg\min_j \lVert x^{(i)} - \mu^{(j)} \rVert^2 \;\;.$$ This procedure yields a local minimum of @eq-kmeans_obj, as does the standard k-means algorithm we presented (though they might arrive at different solutions). It might not be the global optimum since the objective is not convex (due to $\min_j$, as the minimum of multiple convex functions is not necessarily convex).
 
-###### Importance of initialization
+#### Importance of initialization
 
 The standard k-means algorithm, as well as the variant that uses gradient descent, both are only guaranteed to converge to a local minimum, not necessarily the global minimum of the loss. Thus the answer we get out depends on how we initialize the cluster means. @fig-kmeans_init is an example of a different initialization on our toy data, which results in a worse converged clustering:
 
@@ -371,7 +372,7 @@ The standard k-means algorithm, as well as the variant that uses gradient descen
 
 A variety of methods have been developed to pick good initializations (see, for example, the *k-means++* algorithm). One simple option is to run the standard k-means algorithm multiple times, with different random initial conditions, and then pick from these the clustering that achieves the lowest k-means loss.
 
-###### Importance of k {#sec-importance_of_k}
+#### Importance of k {#sec-importance_of_k}
 
 A very important parameter in cluster algorithms is the number of clusters we are looking for. Some advanced algorithms can automatically infer a suitable number of clusters, but most of the time, like with k-means, we will have to pick $k$ -- it's a hyperparameter of the algorithm.
 
@@ -381,11 +382,11 @@ A very important parameter in cluster algorithms is the number of clusters we ar
 
 Alternatively, you may be wondering: why bother picking a single k? Wouldn't it be nice to reveal a *hierarchy* of clusterings of our data, showing both coarse and fine groupings? Indeed *hierarchical clustering* is another important class of clustering algorithms, beyond k-means. These methods can be useful for discovering tree-like structure in data, and they work a bit like this: initially a coarse split/clustering of the data is applied at the root of the tree, and then as we descend the tree we split and cluster the data in ever more fine-grained ways. A prototypical example of hierarchical clustering is to discover a taxonomy of life, where creatures may be grouped at multiple granularities, from species to families to kingdoms. You may find a suite of clustering algorithms in SKLEARN's [cluster](https://scikit-learn.org/1.5/modules/clustering.html) module.
 
-###### k-means in feature space
+#### k-means in feature space
 
 Clustering algorithms group data based on a notion of *similarity*, and thus we need to define a *distance metric* between datapoints. This notion will also be useful in other machine learning approaches, such as nearest-neighbor methods that we see in @sec-np_nn. In k-means and other methods, our choice of distance metric can have a big impact on the results we will find.
 
-Our k-means algorithm uses the Euclidean distance, i.e., $\left\Vert x^{(i)} - \mu^{(j)} \right\Vert$, with a loss function that is the square of this distance. We can modify k-means to use different distance metrics, but a more common trick is to stick with Euclidean distance but measured in a *feature space*. Just like we did for regression and classification problems, we can define a feature map from the data to a nicer feature representation, $\phi(x)$, and then apply k-means to cluster the data in the feature space.
+Our k-means algorithm uses the Euclidean distance, i.e., $\lVert x^{(i)} - \mu^{(j)} \rVert$, with a loss function that is the square of this distance. We can modify k-means to use different distance metrics, but a more common trick is to stick with Euclidean distance but measured in a *feature space*. Just like we did for regression and classification problems, we can define a feature map from the data to a nicer feature representation, $\phi(x)$, and then apply k-means to cluster the data in the feature space.
 
 As a simple example, suppose we have two-dimensional data that is very stretched out in the first dimension and has less dynamic range in the second dimension. Then we may want to scale the dimensions so that each has similar dynamic range, prior to clustering. We could use standardization, like we did in @sec-features.
 
