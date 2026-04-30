@@ -273,7 +273,7 @@ In what follows, $B$, $m$, and $n$ are hyperparameters of the algorithm.
 
 Given the ensemble of trees, vote to make a prediction on a new $x$.
 
-We now turn to another important class of non-parametric methods, one that focuses on discovering structure in *unlabeled* data. Clustering methods share some conceptual similarity with trees — both partition the input space into meaningful regions — but they operate without supervision, making them valuable for exploratory data analysis and pattern discovery.
+All the methods so far in this chapter — nearest neighbors, trees, and tree ensembles — are *supervised*: they learn from labeled examples. We now turn to *k-means clustering*, an unsupervised non-parametric method: instead of mimicking a labeled mapping, it discovers groupings in unlabeled data based on similarity.
 
 ## $k$-means Clustering {#sec-clustering}
 Clustering is an unsupervised learning method where we aim to discover meaningful groupings or categories in a dataset based on patterns or similarities within the data itself, without relying on pre-assigned labels. It is widely used for exploratory data analysis, pattern recognition, and segmentation tasks, allowing us to interpret and manage complex datasets by uncovering hidden structures and relationships.
