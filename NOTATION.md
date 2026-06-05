@@ -13,8 +13,8 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 ### Vectors and Matrices
 - **Vectors**: bold lowercase via `\mathbf{}` -- e.g., `\mathbf{x}`
 - **Matrices**: plain uppercase -- e.g., `X, W, A`
-- **Transpose**: `X^T` or `\theta^T`
-- Column vectors by default; `\theta^T x` for dot products
+- **Transpose**: `X^\top` or `\theta^\top` (use `\top`, not `^T`, so the symbol renders upright and is visually distinct from a variable `T`)
+- Column vectors by default; `\theta^\top x` for dot products
 - Dimensions stated explicitly: `X \in \mathbb{R}^{n \times d}`, `\theta \in \mathbb{R}^d`
 
 ### Parameters and Weights
@@ -34,7 +34,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - **Feature transform**: `\phi(x)` for transformed feature vector
 
 ### Neural Networks
-- Pre-activation: `Z^{(l)} = (W^{(l)})^T A^{(l-1)} + W_0^{(l)}`
+- Pre-activation: `Z^{(l)} = (W^{(l)})^\top A^{(l-1)} + W_0^{(l)}`
 - Post-activation: `A^{(l)} = f^{(l)}(Z^{(l)})`
 - Input: `A^{(0)} = x`
 - Activation functions: `f^{(l)}(\cdot)` per-layer
@@ -45,7 +45,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Gradient descent update: `\theta^{(t)} = \theta^{(t-1)} - \eta \nabla_\theta J(\theta^{(t-1)})`
 
 ### Attention Mechanism
-- Queries/keys/values: `q_i = W_q^T x_i`, `k_j = W_k^T x_j`, `v_j = W_v^T x_j`
+- Queries/keys/values: `q_i = W_q^\top x_i`, `k_j = W_k^\top x_j`, `v_j = W_v^\top x_j`
 - Attention scores: `s_{ij} = q_i \cdot k_j`
 - Softmax'd attention scores: `\alpha_{ij} = \frac{e^{s_{ij}}}{\sum_l e^{s_{il}}}` (explicit softmax formula) -- do NOT call these "attention weights"
 - Output: `z_i = \sum_j \alpha_{ij} v_j`
