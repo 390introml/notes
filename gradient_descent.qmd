@@ -167,11 +167,11 @@ $$
 
 We use the gradient of the objective with respect to the parameters: 
 
-$$\nabla_{\theta}J = \frac{2}{n}\underbrace{{X}^T}_{d \times
+$$\nabla_{\theta}J = \frac{2}{n}\underbrace{{X}^\top}_{d \times
     n}\underbrace{({X}\theta - {Y})}_{n \times 1}\;\;,
 $${#eq-reg_gd_deriv} to obtain an analytical solution to the linear regression problem. Gradient descent could also be applied to numerically compute a solution, using the update rule 
 $$
-\theta^{(t)} = \theta^{(t-1)} - \eta \frac{2}{n} \sum_{i=1}^{n} \left( \left[ \theta^{(t-1)}\right]^T x^{(i)} - y^{(i)} \right) x^{(i)}
+\theta^{(t)} = \theta^{(t-1)} - \eta \frac{2}{n} \sum_{i=1}^{n} \left( \left[ \theta^{(t-1)}\right]^\top x^{(i)} - y^{(i)} \right) x^{(i)}
   \,.
 $$
 
@@ -217,11 +217,11 @@ Compute $\nabla_\theta ||\theta||^2$ by finding the
 
 ::: {.study-question-callout}
 Compute $\nabla_\theta J_\text{ridge}(
-    \theta^T x + \theta_0, y)$ by finding the
+    \theta^\top x + \theta_0, y)$ by finding the
   vector of partial derivatives $(\partial J_\text{ridge}(
-    \theta^T x + \theta_0, y)/ \partial \theta_1, \ldots,
+    \theta^\top x + \theta_0, y)/ \partial \theta_1, \ldots,
     \partial J_\text{ridge}(
-    \theta^T x + \theta_0, y) / \partial
+    \theta^\top x + \theta_0, y) / \partial
     \theta_d)$.
 :::
 
@@ -249,12 +249,12 @@ Putting everything together, our gradient descent algorithm for ridge regression
   \Repeat
     \State   $t \gets t+1$
     \State   $\theta^{(t)} = \theta^{(t-1)} - \eta\left(\frac{1}{n}\sum_{i=1}^n
-    \left({{\theta}^{(t-1)}}^T {x}^{(i)} + {\theta_0}^{(t-1)} -
+    \left({{\theta}^{(t-1)}}^\top {x}^{(i)} + {\theta_0}^{(t-1)} -
       {y}^{(i)}\right) {x}^{(i)}
     + \lambda{\theta}^{(t-1)}
     \right)$
   \State $\theta_0^{(t)} = \theta_0^{(t-1)} - \eta\left(\frac{1}{n}\sum_{i=1}^n
-    \left({{\theta}^{(t-1)}}^T {x}^{(i)} + {\theta_0}^{(t-1)} -
+    \left({{\theta}^{(t-1)}}^\top {x}^{(i)} + {\theta_0}^{(t-1)} -
       {y}^{(i)} \right)
     \right)$
   \Until{$\left| J_{\text{ridge}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{ridge}}(\theta^{(t-1)},\theta_0^{(t-1)}) \right| <\epsilon$}
@@ -264,7 +264,7 @@ Putting everything together, our gradient descent algorithm for ridge regression
 \end{algorithm}
 ```
 :::{.column-margin}
-Beware double superscripts!  $\left[ \theta \right]^T$ is the transpose of the vector $\theta$.
+Beware double superscripts!  $\left[ \theta \right]^\top$ is the transpose of the vector $\theta$.
 :::
 
 :::{.study-question-callout}

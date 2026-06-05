@@ -52,13 +52,13 @@ A linear classifier in $d$ dimensions is defined by a vector of parameters $\the
 
 Given particular values for $\theta$ and $\theta_0$, the classifier is defined by 
 $$\begin{aligned}
-  h(x; \theta, \theta_0) = \text{step}(\theta^T x + \theta_0)
+  h(x; \theta, \theta_0) = \text{step}(\theta^\top x + \theta_0)
   = \begin{cases} +1 & \text{if $\theta^Tx + \theta_0 > 0$} \\ 0 &
               \text{otherwise}\end{cases} \;\;.
 \end{aligned}
 $$ 
 
-Remember that we can think of $\theta, \theta_0$ as specifying a $d$-dimensional hyperplane (compare the above with @eq-linear_reg_hypothesis). But this time, rather than being interested in that hyperplane's values at particular points $x$, we will focus on the *separator* that it induces. The separator is the set of $x$ values such that $\theta^T x + \theta_0 = 0$. This is also a hyperplane, but in $d-1$ dimensions! We can interpret $\theta$ as a vector that is perpendicular to the separator. (We will also say that $\theta$ is *normal to* the separator.) 
+Remember that we can think of $\theta, \theta_0$ as specifying a $d$-dimensional hyperplane (compare the above with @eq-linear_reg_hypothesis). But this time, rather than being interested in that hyperplane's values at particular points $x$, we will focus on the *separator* that it induces. The separator is the set of $x$ values such that $\theta^\top x + \theta_0 = 0$. This is also a hyperplane, but in $d-1$ dimensions! We can interpret $\theta$ as a vector that is perpendicular to the separator. (We will also say that $\theta$ is *normal to* the separator.) 
 
 Below is an embedded demo illustrating the separator and normal vector. Open demo in [full screen](https://shenshen.mit.edu/demos/separator.html).
 
@@ -66,7 +66,7 @@ Below is an embedded demo illustrating the separator and normal vector. Open dem
 <iframe src="https://shenshen.mit.edu/demos/separator.html" width="100%" height="600px" frameborder="2"></iframe>
 :::
 
-For example, in two dimensions ($d=2$) the separator has dimension 1, which means it is a line, and the two components of $\theta = [\theta_1, \theta_2]^T$ give the orientation of the separator, as illustrated in the following example.
+For example, in two dimensions ($d=2$) the separator has dimension 1, which means it is a line, and the two components of $\theta = [\theta_1, \theta_2]^\top$ give the orientation of the separator, as illustrated in the following example.
 
 ### Linear classifiers: examples
 
@@ -106,7 +106,7 @@ The diagram below shows the $\theta$ vector (in green) and the separator it defi
 \end{tikzpicture}
 :::
 
-What is $\theta_0$? We can solve for it by plugging a point on the line into the equation for the line. It is often convenient to choose a point on one of the axes, e.g., in this case, $x=[0, 1]^T$, for which $\theta^T \left[ \begin{array}{c} 0 \\ 1 \end{array} \right] + \theta_0 = 0$, giving $\theta_0 = 1$.
+What is $\theta_0$? We can solve for it by plugging a point on the line into the equation for the line. It is often convenient to choose a point on one of the axes, e.g., in this case, $x=[0, 1]^\top$, for which $\theta^\top \left[ \begin{array}{c} 0 \\ 1 \end{array} \right] + \theta_0 = 0$, giving $\theta_0 = 1$.
 :::
 
 In this example, the separator divides $\mathbb{R}^d$, the space our $x^{(i)}$ points live in, into two half-spaces. The one that is on the same side as the normal vector is the *positive* half-space, and we classify all points in that space as positive. The half-space on the other side is *negative* and all points in it are classified as negative.
@@ -178,7 +178,7 @@ For these reasons, if we are considering a hypothesis $\theta,\theta_0$ that mak
 
 The hypotheses in a linear logistic classifier (LLC) are parameterized by a $d$-dimensional vector $\theta$ and a scalar $\theta_0$, just as is the case for linear classifiers. However, instead of making predictions in $\{+1, 0\}$, LLC hypotheses generate real-valued outputs in the interval $(0, 1)$. An LLC has the form 
 $$
-h(x; \theta, \theta_0) = \sigma(\theta^T x + \theta_0)\;\;.
+h(x; \theta, \theta_0) = \sigma(\theta^\top x + \theta_0)\;\;.
 $$ 
 This looks familiar! What's new?
 
@@ -234,7 +234,7 @@ What does an LLC look like? Let's consider the simple case where $d = 1$, so our
         height=0.3\textwidth,
         xmin=-4, xmax=4,
         ymin=-0.25, ymax=1.25,
-        xlabel={$x$}, ylabel={$\sigma(\theta^T x + \theta_0)$},
+        xlabel={$x$}, ylabel={$\sigma(\theta^\top x + \theta_0)$},
       ]
       \addplot [domain=-4:4, samples=100, ultra thick, red] {1/(1+exp(-(10*x + 1)))};
       \addplot [domain=-4:4, samples=100, ultra thick, blue] {1/(1+exp(-(-2*x
@@ -255,7 +255,7 @@ Which plot is which?  What governs the steepness of the curve?  What governs the
 But wait! Remember that the definition of a classifier is that it's a mapping from 
 $\mathbb{R}^d  \rightarrow \{+1, 0\}$ or to some other discrete set. So, then, it seems like an LLC is actually not a classifier!
 
-Given an LLC, with an output value in $(0, 1)$, what should we do if we are forced to make a prediction in $\{+1, 0\}$? A default answer is to predict $+1$ if $\sigma(\theta^T x + \theta_0) > 0.5$ and $0$ otherwise. The value $0.5$ is sometimes called a *prediction threshold*.
+Given an LLC, with an output value in $(0, 1)$, what should we do if we are forced to make a prediction in $\{+1, 0\}$? A default answer is to predict $+1$ if $\sigma(\theta^\top x + \theta_0) > 0.5$ and $0$ otherwise. The value $0.5$ is sometimes called a *prediction threshold*.
 
 In fact, for different problem settings, we might prefer to pick a different prediction threshold. The field of *decision theory* considers how to make this choice. For example, if the consequences of predicting $+1$ when the answer should be $0$ are much worse than the consequences of predicting $0$ when the answer should be $+1$, then we might set the prediction threshold to be greater than $0.5$.
 
@@ -270,7 +270,7 @@ When $d = 2$, then our inputs $x$ lie in a two-dimensional space with axes $x_1$
 
 :::{.study-question-callout}
 Convince yourself that the set of points for which
-  $\sigma(\theta^T x + \theta_0) = 0.5$, that is, the ``boundary''
+  $\sigma(\theta^\top x + \theta_0) = 0.5$, that is, the ``boundary''
   between positive and negative predictions with prediction threshold
   $0.5$, is a line in $(x_1, x_2)$ space. What particular line is it
   for the case in the figure above?
@@ -347,7 +347,7 @@ The choice of log base doesn't make any real difference here. When we ask you fo
 $$
 J_\text{lr}(\theta, \theta_0; {\cal D}) =
   \left(\frac{1}{n} \sum_{i=1}^n
-  \mathcal{L}_\text{nll}(\sigma(\theta^T x^{(i)} + \theta_0), y^{(i)})\right) +
+  \mathcal{L}_\text{nll}(\sigma(\theta^\top x^{(i)} + \theta_0), y^{(i)})\right) +
   \lambda \left\lVert\theta\right\rVert^2\;\;.
 $${#eq-lr_with_reg}
 
@@ -414,8 +414,8 @@ What is the shape of $\nabla_\theta \|\theta\|^2$?
 :::
 
 ::: {.study-question-callout}
-Compute $\nabla_\theta \mathcal{L}_\text{nll}\bigl(\sigma(\theta^T x + \theta_0), y\bigr)$ by finding the vector of partial derivatives 
-$\left(\frac{\partial \mathcal{L}_\text{nll}\bigl(\sigma(\theta^T x + \theta_0), y\bigr)}{\partial \theta_1}, \ldots, \frac{\partial \mathcal{L}_\text{nll}\bigl(\sigma(\theta^T x + \theta_0), y\bigr)}{\partial \theta_d}\right)$.
+Compute $\nabla_\theta \mathcal{L}_\text{nll}\bigl(\sigma(\theta^\top x + \theta_0), y\bigr)$ by finding the vector of partial derivatives 
+$\left(\frac{\partial \mathcal{L}_\text{nll}\bigl(\sigma(\theta^\top x + \theta_0), y\bigr)}{\partial \theta_1}, \ldots, \frac{\partial \mathcal{L}_\text{nll}\bigl(\sigma(\theta^\top x + \theta_0), y\bigr)}{\partial \theta_d}\right)$.
 :::
 
 ::: {.study-question-callout}
@@ -466,7 +466,7 @@ We will use the following facts to demonstrate that the NLL loss function for li
 
 -   a convex function of an affine function is a convex function.
 
-Let $z=\theta^T x + \theta_0$; $z$ is an affine function of $\theta$ and $\theta_0$. It therefore suffices to show that the functions $f_1(z) \coloneqq -\log \sigma(z)$ and $f_2 (z) \coloneqq -\log (1 - \sigma(z))$ are convex with respect to $z$.
+Let $z=\theta^\top x + \theta_0$; $z$ is an affine function of $\theta$ and $\theta_0$. It therefore suffices to show that the functions $f_1(z) \coloneqq -\log \sigma(z)$ and $f_2 (z) \coloneqq -\log (1 - \sigma(z))$ are convex with respect to $z$.
 
 First, we can see that since, 
 $$
@@ -500,16 +500,16 @@ So far, we have focused on the *binary* classification case, with only two possi
 
 -   Directly train a multi-class classifier using a hypothesis class that is a generalization of logistic regression, using a *one-hot* output encoding and NLL loss.
 
-The method based on NLL is in wider use, especially in the context of neural networks, and is explored here. In the following, we will assume that we have a data set ${\cal D}$ in which the inputs $x^{(i)} \in R^d$ but the outputs $y^{(i)}$ are drawn from a set of $K$ classes $\{c_1, \ldots, c_K\}$. Next, we extend the idea of NLL directly to multi-class classification with $K$ classes, where the training label is represented with what is called a *one-hot* vector $y=\begin{bmatrix} y_1, \ldots, y_K \end{bmatrix}^T$, where $y_k=1$ if the example is of class $k$ and $y_k = 0$ otherwise. Now, we have a problem of mapping an input $x^{(i)}$ that is in $\mathbb{R}^d$ into a $K$-dimensional output. Furthermore, we would like this output to be interpretable as a discrete probability distribution over the possible classes, which means the elements of the output vector have to be *non-negative* (greater than or equal to 0) and sum to 1.
+The method based on NLL is in wider use, especially in the context of neural networks, and is explored here. In the following, we will assume that we have a data set ${\cal D}$ in which the inputs $x^{(i)} \in R^d$ but the outputs $y^{(i)}$ are drawn from a set of $K$ classes $\{c_1, \ldots, c_K\}$. Next, we extend the idea of NLL directly to multi-class classification with $K$ classes, where the training label is represented with what is called a *one-hot* vector $y=\begin{bmatrix} y_1, \ldots, y_K \end{bmatrix}^\top$, where $y_k=1$ if the example is of class $k$ and $y_k = 0$ otherwise. Now, we have a problem of mapping an input $x^{(i)}$ that is in $\mathbb{R}^d$ into a $K$-dimensional output. Furthermore, we would like this output to be interpretable as a discrete probability distribution over the possible classes, which means the elements of the output vector have to be *non-negative* (greater than or equal to 0) and sum to 1.
 
 We will do this in two steps. First, we will map our input $x^{(i)}$ into a vector value $z^{(i)} \in \mathbb{R}^K$ by letting $\theta$ be a whole $d \times K$ *matrix* of parameters, and $\theta_0$ be a $K \times 1$ vector, so that 
 
 $$
-z = \theta^T x + \theta_0\;\;.
+z = \theta^\top x + \theta_0\;\;.
 $$ 
 
 :::{.column-margin}
-Let's check dimensions!  $\theta^T$ is $K \times d$ and $x$ is
+Let's check dimensions!  $\theta^\top$ is $K \times d$ and $x$ is
     $d \times 1$, and $\theta_0$ is $K \times 1$, so $z$ is $K \times
       1$ and we're good!
 :::
@@ -529,7 +529,7 @@ which can be interpreted as a probability distribution over $K$ items. To make t
 Convince yourself that the vector of $g$ values will be non-negative and sum to 1.
 :::
 
-Putting these steps together, our hypotheses will be $$h(x; \theta, \theta_0) = \operatorname{softmax}(\theta^T x + \theta_0)\;\;.$$
+Putting these steps together, our hypotheses will be $$h(x; \theta, \theta_0) = \operatorname{softmax}(\theta^\top x + \theta_0)\;\;.$$
 
 Now, we retain the goal of maximizing the probability that our hypothesis assigns to the correct output $y_k$ for each input $x$. We can write this probability, letting $g$ stand for our "guess", $h(x)$, for a single example $(x, y)$ as $\prod_{k = 1}^K g_k^{y_k}$.
 

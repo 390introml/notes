@@ -21,7 +21,7 @@ We can even, in a very hand-waving way, think of the $dx$'s canceling out nicely
 In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. We will use the following notation, which may seem a bit counter-intuitive at first:
 
 $$
-df = \frac{df}{dx}^T dx
+df = \frac{df}{dx}^\top dx
 $$
 
 We are **intentionally** adding a transpose to the $\frac{df}{dx}$ term. This means that $\frac{df}{dx}$ will be of size $(n \times m)$. The input ($x$) determines the rows in the derivative, and the output ($f$) determines the columns in the derivative. In other words:
@@ -122,13 +122,13 @@ $$
 This exactly matches our standard denominator layout form:
 
 $$
-df = \frac{df}{d\theta}^T d\theta
+df = \frac{df}{d\theta}^\top d\theta
 $$
 
 where:
 
 $$
-\frac{df}{d\theta} = X^T
+\frac{df}{d\theta} = X^\top
 $$
 
 Done!
@@ -165,9 +165,9 @@ $$
 \begin{align*}
 df &= f(v + dv) - f(v) \\
    &= ||(v + dv)||^2 - ||v||^2 \\
-   &= (v + dv)^T(v + dv) - ||v||^2 \\
-   &= ||v||^2 + v^T dv + (dv)^T v + ||dv||^2 - ||v||^2 \\
-   &= (2v)^T dv + ||dv||^2
+   &= (v + dv)^\top(v + dv) - ||v||^2 \\
+   &= ||v||^2 + v^\top dv + (dv)^\top v + ||dv||^2 - ||v||^2 \\
+   &= (2v)^\top dv + ||dv||^2
 \end{align*}
 $$
 
@@ -176,13 +176,13 @@ Just like in single-variable calculus, we can drop the squared $dv$ term since i
 Thus we are left with
 
 $$
-df = (2v)^T dv
+df = (2v)^\top dv
 $$
 
 Comparing this to our standard form:
 
 $$
-df = \frac{df}{dv}^T dv
+df = \frac{df}{dv}^\top dv
 $$
 
 we see clearly that
@@ -198,22 +198,22 @@ This is where the advantage of matrix calculus—and more specifically the denom
 Let us assume we have a composition of functions $f(g(x))$. We want to calculate the derivative of $f$ with respect to $x$. As a first step, let's just look at how $f$ changes with respect to $g$:
 
 $$
-df = \frac{df}{dg}^T \cdot dg
+df = \frac{df}{dg}^\top \cdot dg
 $$
 
 Now we also know how $dg$ changes with respect to $dx$, so we can substitute that in:
 
 $$
-df = \frac{df}{dg}^T \cdot \left(\frac{dg}{dx}^T \cdot dx\right)
+df = \frac{df}{dg}^\top \cdot \left(\frac{dg}{dx}^\top \cdot dx\right)
 $$
 
 Simplifying gives:
 
 $$
 \begin{align*}
-df &= \frac{df}{dg}^T \cdot \left(\frac{dg}{dx}^T \cdot dx\right) \\
-   &= \left(\frac{df}{dg}^T \cdot \frac{dg}{dx}^T\right) \cdot dx \\
-   &= \left(\frac{dg}{dx} \cdot \frac{df}{dg}\right)^T \cdot dx
+df &= \frac{df}{dg}^\top \cdot \left(\frac{dg}{dx}^\top \cdot dx\right) \\
+   &= \left(\frac{df}{dg}^\top \cdot \frac{dg}{dx}^\top\right) \cdot dx \\
+   &= \left(\frac{dg}{dx} \cdot \frac{df}{dg}\right)^\top \cdot dx
 \end{align*}
 $$
 
@@ -276,11 +276,11 @@ $$\begin{aligned}
 
 Therefore, the $(i,j)$ entry of $\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}}$ is the $(j,i)$ entry of ${\bf A}$:
 
-$$\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}} = {\bf A}^T$${#eq-Ax}
+$$\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}} = {\bf A}^\top$${#eq-Ax}
 
 Similarly, for objects ${\bf x}, {\bf A}$ of the same shape, one can obtain,
 
-$$\frac{\partial {\bf x}^T {\bf A}}{\partial {\bf x}} = {\bf A}
+$$\frac{\partial {\bf x}^\top {\bf A}}{\partial {\bf x}} = {\bf A}
 $${#eq-xTA}
 
 ### Linearity of Derivatives
@@ -300,16 +300,16 @@ $$
 One can extend the previous identity to vector- and matrix-valued constants. Suppose that ${\bf a}$ is a vector with shape $m \times 1$ and $v$ is a scalar which depends on ${\bf x}$. Then,
 
 $$\frac{\partial v {\bf a}}{\partial {\bf x}} = \frac{\partial
-    v}{\partial {\bf x}}{\bf a}^T
+    v}{\partial {\bf x}}{\bf a}^\top
 $$
 
-First, checking dimensions, $\partial v/\partial {\bf x}$ is $n \times 1$ and ${\bf a}$ is $m \times 1$ so ${\bf a}^T$ is $1 \times m$ and our answer is $n \times m$ as it should be. Now, checking a value, element $(i,j)$ of the answer is $\partial v {\bf a}_j / \partial x_i$ = $(\partial v / \partial x_i) {\bf a}_j$ which corresponds to element $(i,j)$ of $(\partial v / \partial {\bf x}){\bf a}^T$.
+First, checking dimensions, $\partial v/\partial {\bf x}$ is $n \times 1$ and ${\bf a}$ is $m \times 1$ so ${\bf a}^\top$ is $1 \times m$ and our answer is $n \times m$ as it should be. Now, checking a value, element $(i,j)$ of the answer is $\partial v {\bf a}_j / \partial x_i$ = $(\partial v / \partial x_i) {\bf a}_j$ which corresponds to element $(i,j)$ of $(\partial v / \partial {\bf x}){\bf a}^\top$.
 
 Similarly, suppose that ${\bf A}$ is a matrix which does not depend on ${\bf x}$ and ${\bf u}$ is a column vector which does depend on ${\bf x}$. Then,
 
 $$
 \frac{\partial {\bf A}{\bf u}}{\partial {\bf x}} = \frac{\partial
-    {\bf u}}{\partial {\bf x}}{\bf A}^T
+    {\bf u}}{\partial {\bf x}}{\bf A}^\top
 $$
 
 ### Product Rule (Vector-valued Numerator)
@@ -318,7 +318,7 @@ Suppose that $v$ is a scalar which depends on ${\bf x}$, while ${\bf u}$ is a co
 
 $$
 \frac{\partial v {\bf u}}{\partial {\bf x}} = v\frac{\partial
-    {\bf u}}{\partial {\bf x}} + \frac{\partial v}{\partial {\bf x}} {\bf u}^T
+    {\bf u}}{\partial {\bf x}} + \frac{\partial v}{\partial {\bf x}} {\bf u}^\top
 $$
 
 One can see this relationship by expanding the derivative as follows:
@@ -363,12 +363,12 @@ $$
 You can get many scalar-by-vector and vector-by-scalar cases as special cases of the rules above, making one of the relevant vectors just be 1 x 1. Here are some other ones that are handy. For more, see the Wikipedia article on Matrix derivatives (for consistency, only use the ones in *denominator layout*).
 
 $$
-\frac{\partial {\bf u}^T {\bf v}}{\partial {\bf x}} = \frac{\partial
+\frac{\partial {\bf u}^\top {\bf v}}{\partial {\bf x}} = \frac{\partial
     {\bf u}}{\partial {\bf x}} {\bf v}+ \frac{\partial {\bf v}}{\partial {\bf x}} {\bf u}
 $${#eq-uTv}
 
-$$\frac{\partial {\bf u}^T}{\partial x} = \big(\frac{\partial
-    {\bf u}}{\partial x}\big)^T
+$$\frac{\partial {\bf u}^\top}{\partial x} = \big(\frac{\partial
+    {\bf u}}{\partial x}\big)^\top
 $${#eq-uT}
 
 ## MSE for Linear Regression
@@ -379,16 +379,16 @@ $$
 J(\theta) = \frac{1}{n} ||X\theta - Y||^2
 $$
 
-where $X$ and $\theta$ are the augmented forms to allow for an intercept. Let us show how to optimize this function by setting its gradient equal to 0. We combine all of the facts that we learned. We know that the derivative of $||v||^2$ with respect to $v$ is $2v$, the derivative of $X\theta$ with respect to $\theta$ is $X^T$, and we know the chain rule. Combining all of that gives:
+where $X$ and $\theta$ are the augmented forms to allow for an intercept. Let us show how to optimize this function by setting its gradient equal to 0. We combine all of the facts that we learned. We know that the derivative of $||v||^2$ with respect to $v$ is $2v$, the derivative of $X\theta$ with respect to $\theta$ is $X^\top$, and we know the chain rule. Combining all of that gives:
 
 $$
-\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y)
+\frac{dJ}{d\theta} = \frac{2}{n} X^\top \cdot (X\theta - Y)
 $$
 
 Now, to optimize, we set the derivative equal to 0:
 
 $$
-\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y) = 0 \implies \theta^* = (X^TX)^{-1}X^TY
+\frac{dJ}{d\theta} = \frac{2}{n} X^\top \cdot (X\theta - Y) = 0 \implies \theta^* = (X^TX)^{-1}X^TY
 $$
 
 That's it! You can now derive the optimal solution for any linear regression problem.
@@ -406,19 +406,19 @@ where $\lambda$ is some scalar hyperparameter we can choose.
 Calculating this derivative is basically the same as last time, except there's an additional squared term at the end that we can differentiate separately. Setting the derivative with respect to $\theta$ to 0, gives:
 
 $$
-\frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta^* - Y) + 2\lambda \theta^* = 0
+\frac{dJ}{d\theta} = \frac{2}{n} X^\top \cdot (X\theta^* - Y) + 2\lambda \theta^* = 0
 $$
 
 which simplifies to:
 
 $$
-0 = X^T X\theta^* - X^T Y + n\lambda \theta^*
+0 = X^\top X\theta^* - X^\top Y + n\lambda \theta^*
 $$
 
 or
 
 $$
-\theta^* = (X^T X + n\lambda I)^{-1} X^T Y
+\theta^* = (X^\top X + n\lambda I)^{-1} X^\top Y
 $$
 
 ## Matrix Derivatives Using Einstein Summation {#app:einstein}
@@ -428,7 +428,7 @@ $$
 Consider the objective function for linear regression, written out as products of matrices:
 
 $$\begin{aligned}
-J(\theta) = \frac{1}{n} (X\theta - Y)^T (X\theta-Y)
+J(\theta) = \frac{1}{n} (X\theta - Y)^\top (X\theta-Y)
 \,,
 \end{aligned}
 $$
@@ -436,7 +436,7 @@ $$
 where $X$ is $n\times d$, $Y$ is $n\times 1$, and $\theta$ is $d\times 1$. How does one show, with no shortcuts, that
 
 $$\begin{aligned}
-\nabla_{\theta}J = \frac{2}{n} {X^T} {(X\theta - Y)} \;\;?
+\nabla_{\theta}J = \frac{2}{n} {X^\top} {(X\theta - Y)} \;\;?
 \end{aligned}
 $$
 
@@ -466,12 +466,12 @@ $$\begin{aligned}
 &=& \frac{2}{n} X_{ad} \left( X_{ab}\theta_b-Y_a \right)
 \,,
 \end{aligned}$$
-where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^T$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^T$ with $X$! Thus, we have that
+where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^\top$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^\top$ with $X$! Thus, we have that
 
 $$\begin{aligned}
 \frac{dJ}{d\theta_d} =& \frac{2}{n} X^T_{da} \left( X_{ab}\theta_b-Y_a \right)
 \\
-=& \frac{2}{n} \left[ X^T \left( X\theta-Y\right) \right]_{d}
+=& \frac{2}{n} \left[ X^\top \left( X\theta-Y\right) \right]_{d}
 \,,
 \end{aligned}
 $$ which is the desired result.

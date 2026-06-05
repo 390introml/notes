@@ -295,17 +295,17 @@ The **BPTT** process goes as follows:
    and
 
    \[
-   \frac{\partial s_t}{\partial s_{t-1}} = \frac{\partial z_t^1}{\partial s_{t-1}}\,\frac{\partial s_t}{\partial z_t^1} = {W^{ss}}^T\,\frac{\partial s_t}{\partial z_t^1}.
+   \frac{\partial s_t}{\partial s_{t-1}} = \frac{\partial z_t^1}{\partial s_{t-1}}\,\frac{\partial s_t}{\partial z_t^1} = {W^{ss}}^\top\,\frac{\partial s_t}{\partial z_t^1}.
    \]
 
    ::: {.example}
-   Note that \(\frac{\partial s_t}{\partial z_t^1}\) is formally an \(m \times m\) diagonal matrix whose diagonal entries are \(f_s'(z_{t,i}^1)\) for \(1\le i\le m\). Often, we represent this diagonal matrix as an \(m \times 1\) vector \(f_s'(z_t^1)\). In that case, the product \({W^{ss}}^T * f_s'(z_t^1)\) should be interpreted as multiplying each column of \({W^{ss}}^T\) by the corresponding entry of \(f_s'(z_t^1)\).
+   Note that \(\frac{\partial s_t}{\partial z_t^1}\) is formally an \(m \times m\) diagonal matrix whose diagonal entries are \(f_s'(z_{t,i}^1)\) for \(1\le i\le m\). Often, we represent this diagonal matrix as an \(m \times 1\) vector \(f_s'(z_t^1)\). In that case, the product \({W^{ss}}^\top * f_s'(z_t^1)\) should be interpreted as multiplying each column of \({W^{ss}}^\top\) by the corresponding entry of \(f_s'(z_t^1)\).
    :::
 
    Putting everything together, we obtain
 
    \[
-   \delta^{s_{t-1}} = {W^{ss}}^T\,\frac{\partial s_t}{\partial z_t^1}\,\Bigl({W^o}^T\,\frac{\partial \mathcal{L}_t}{\partial z_t^2} + \delta^{s_t}\Bigr).
+   \delta^{s_{t-1}} = {W^{ss}}^\top\,\frac{\partial s_t}{\partial z_t^1}\,\Bigl({W^o}^\top\,\frac{\partial \mathcal{L}_t}{\partial z_t^2} + \delta^{s_t}\Bigr).
    \]
 
    The gradients for the weight matrices are then given by
@@ -326,7 +326,7 @@ The **BPTT** process goes as follows:
    Assuming \(\frac{\partial \mathcal{L}_t}{\partial z_t^2} = (g_t - y_t)\) (which holds for squared loss, softmax-NLL, etc.), then
 
    \[
-   \frac{d \mathcal{L}_\text{seq}}{d W^o} = \sum_{t=1}^n (g_t - y_t)\, s_t^T.
+   \frac{d \mathcal{L}_\text{seq}}{d W^o} = \sum_{t=1}^n (g_t - y_t)\, s_t^\top.
    \]
 
    Whew!

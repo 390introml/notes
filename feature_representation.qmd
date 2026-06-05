@@ -6,7 +6,7 @@ Linear regression and classification are powerful tools, but in the real world, 
 
 Such behavior is actually ubiquitous in physical systems, e.g., in the vibrations of the surface of a drum, or scattering of light through an aperture. However, no single hyperplane would be a very good fit to such peaked responses!
 
-A richer class of hypotheses can be obtained by performing a non-linear feature transformation $\phi(x)$ before doing the regression. That is, $\theta^Tx + \theta_0$ is a linear function of $x$, but $\theta^T\phi(x) + \theta_0$ is a non-linear function of $x,$ if $\phi$ is a non-linear function of $x$.
+A richer class of hypotheses can be obtained by performing a non-linear feature transformation $\phi(x)$ before doing the regression. That is, $\theta^Tx + \theta_0$ is a linear function of $x$, but $\theta^\top\phi(x) + \theta_0$ is a non-linear function of $x,$ if $\phi$ is a non-linear function of $x$.
 
 There are many different ways to construct $\phi$. Some are relatively systematic and domain independent. Others are directly related to the semantics (meaning) of the original features, and we construct them deliberately with our application (goal) in mind.
 
@@ -43,7 +43,7 @@ Let's look at an example data set that starts in 1-D:
 :::
 :::
 
-These points are not linearly separable, but consider the transformation $\phi(x) = [x,x^2]^T$. Plotting this transformed data (in two-dimensional space, since there are now two features), we see that it is now separable. There are lots of possible separators; we have just shown one of them here.
+These points are not linearly separable, but consider the transformation $\phi(x) = [x,x^2]^\top$. Plotting this transformed data (in two-dimensional space, since there are now two features), we see that it is now separable. There are lots of possible separators; we have just shown one of them here.
 
 :::{.callout-note}
 ## Example
@@ -77,7 +77,7 @@ These points are not linearly separable, but consider the transformation $\phi(x
 :::
 :::
 
-A linear separator in $\phi$ space is a non-linear separator in the original space! Let's see how this plays out in our simple example. Consider the separator $x^2  - 1 = 0$ (which corresponds to $\theta = [0,1]^T$ and $\theta_0 = -1$ in our transformed space), which labels the half-plane $x^2 -1 > 0$ as positive. What separator does it correspond to in the original 1-D space? We have to ask the question: which $x$ values have the property that $x^2 - 1 = 0$. The answer is $+1$ and $-1$, so those two points constitute our separator, back in the original space. Similarly, by evaluating where $x^2 - 1 > 0$ and where $x^2 - 1 < 0$, we can find the regions of 1D space that are labeled positive and negative (respectively) by this separator.
+A linear separator in $\phi$ space is a non-linear separator in the original space! Let's see how this plays out in our simple example. Consider the separator $x^2  - 1 = 0$ (which corresponds to $\theta = [0,1]^\top$ and $\theta_0 = -1$ in our transformed space), which labels the half-plane $x^2 -1 > 0$ as positive. What separator does it correspond to in the original 1-D space? We have to ask the question: which $x$ values have the property that $x^2 - 1 = 0$. The answer is $+1$ and $-1$, so those two points constitute our separator, back in the original space. Similarly, by evaluating where $x^2 - 1 > 0$ and where $x^2 - 1 < 0$, we can find the regions of 1D space that are labeled positive and negative (respectively) by this separator.
 
 :::{.callout-note}
 ## Example
@@ -135,12 +135,12 @@ Here is a table illustrating the $k$th order polynomial basis for different valu
 | Order |       $d=1$       |        in general ($d>1$)        |
 |:-----:|:-----------------:|:--------------------------------:|
 |   0   |       $[1]$       |              $[1]$               |
-|   1   |     $[1,x]^T$     |     $[1,x_1, \ldots, x_d]^T$     |
-|   2   |   $[1,x,x^2]^T$   |       $[1,x_1, \ldots, x_d,      
-                                   x_1^2, x_1x_2, \ldots]^T$   |
-|   3   | $[1,x,x^2,x^3]^T$ |         $[1,x_1, \ldots, x_d,        
+|   1   |     $[1,x]^\top$     |     $[1,x_1, \ldots, x_d]^\top$     |
+|   2   |   $[1,x,x^2]^\top$   |       $[1,x_1, \ldots, x_d,      
+                                   x_1^2, x_1x_2, \ldots]^\top$   |
+|   3   | $[1,x,x^2,x^3]^\top$ |         $[1,x_1, \ldots, x_d,        
                                         x_1^2, x_1x_2, \ldots, 
-                                     x_1^3, x_1x_2^2, x_1x_2x_3, \ldots]^T$     |
+                                     x_1^3, x_1x_2^2, x_1x_2x_3, \ldots]^\top$     |
 |   ⋮   |         ⋮         |                ⋮                 |
 :::
 
@@ -188,7 +188,7 @@ Clearly, this data set is not linearly separable. So, what if we try to solve th
 
 Let's try it for $k = 2$ on our xor problem. The feature transformation is 
 $$
-\phi([x_1, x_2]^T) = [1, x_1, x_2, x_1^2, x_1 x_2, x_2^2]^T\;\;.
+\phi([x_1, x_2]^\top) = [1, x_1, x_2, x_1^2, x_1 x_2, x_2^2]^\top\;\;.
 $$ 
 
 :::{.study-question-callout}
@@ -199,7 +199,7 @@ If we train a classifier after performing this feature
 :::
 
 
-We might run a classification learning algorithm and find a separator with coefficients $\theta = [0, 0, 0, 0, 4, 0]^T$ and $\theta_0 = 0$. This corresponds to $$0 + 0 x_1 + 0 x_2 + 0 x_1^2 + 4 x_1 x_2 + 0 x_2^2 + 0 = 0$$ and is plotted below, with the gray shaded region classified as negative and the white region classified as positive:
+We might run a classification learning algorithm and find a separator with coefficients $\theta = [0, 0, 0, 0, 4, 0]^\top$ and $\theta_0 = 0$. This corresponds to $$0 + 0 x_1 + 0 x_2 + 0 x_1^2 + 4 x_1 x_2 + 0 x_2^2 + 0 = 0$$ and is plotted below, with the gray shaded region classified as negative and the white region classified as positive:
 
 :::{.callout-note}
 ## Example
@@ -254,7 +254,7 @@ Let's start with the basic case, in which $\mathcal{X} = \mathbb{R}^d$. Then we 
 The parameter $\beta$ governs how quickly the feature value decays as we move away from the center point $p$. For large values of $\beta$, the $f_p$ values are nearly 0 almost everywhere except right near $p$; for small values of $\beta$, the features have a high value over a larger part of the space.
 
 Now, given a dataset ${\cal D}$ containing $n$ points, we can make a feature transformation $\phi$ that maps points in our original space, $\mathbb{R}^d$, into points in a new space, $\mathbb{R}^n$. It is defined as follows: $$\phi(x) = [f_{x^{(1)}}(x), f_{x^{(2)}}(x), \ldots,
-  f_{x^{(n)}}(x)]^T\;\;.$$ So, we represent a new datapoint $x$ in terms of how far it is from each of the datapoints in our training set.
+  f_{x^{(n)}}(x)]^\top\;\;.$$ So, we represent a new datapoint $x$ in terms of how far it is from each of the datapoints in our training set.
 
 This idea can be generalized in several ways and is the fundamental concept underlying *kernel methods*, that are not directly covered in this class but we recommend you read about sometime. This idea of describing objects in terms of their similarity to a set of reference objects is very powerful and can be applied to cases where $\mathcal{X}$ is not a simple vector space, but where the inputs are graphs or strings or other types of objects, as long as there is a distance metric defined on the input space.
 
@@ -284,7 +284,7 @@ As an example, imagine that we want to encode blood types, that are drawn from t
 
 -   Use a 6-D vector, with two components of the vector each encoding the corresponding factor using a one-hot encoding.
 
--   Use a 3-D vector, with one dimension for each factor, encoding its presence as $1.0$ and absence as $-1.0$ (this is sometimes better than $0.0$). In this case, $AB+$ would be $[1.0, 1.0, 1.0]^T$ and $O-$ would be $[-1.0, -1.0, -1.0]^T$.
+-   Use a 3-D vector, with one dimension for each factor, encoding its presence as $1.0$ and absence as $-1.0$ (this is sometimes better than $0.0$). In this case, $AB+$ would be $[1.0, 1.0, 1.0]^\top$ and $O-$ would be $[-1.0, -1.0, -1.0]^\top$.
 
 :::{.study-question-callout}
 How would you encode $A+$ in both of these approaches?
