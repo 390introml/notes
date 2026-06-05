@@ -114,10 +114,10 @@ Another approach to learning representations without labels relies on *co-occurr
 
 Semantically related words such as "dog" and "cat" should have vectors close together, while unrelated words like "cat" and "table" should be farther apart. Similarity between embeddings is frequently measured using the *inner product* (dot product):
 
-$$a^T b = a \cdot b = \sum_{j} a_j \, b_j$$
+$$a^\top b = a \cdot b = \sum_{j} a_j \, b_j$$
 
 :::{.column-margin}
-A related measure is *cosine similarity*, $\frac{a^T b}{\|a\| \, \|b\|}$, which normalizes for vector magnitude and measures only directional alignment.
+A related measure is *cosine similarity*, $\frac{a^\top b}{\|a\| \, \|b\|}$, which normalizes for vector magnitude and measures only directional alignment.
 :::
 
 The inner product indicates how aligned two vectors are: highly positive values imply strong similarity, negative values indicate opposition, and values near zero suggest no similarity (up to a scaling factor related to the magnitude).
@@ -179,8 +179,8 @@ Assume that we have input data $\mathcal{D} = \{x^{(1)}, \ldots,
   \mathbb{R}^k$, and a *decoder* $h : \mathbb{R}^k \rightarrow
   \mathbb{R}^d$ that maps the representation space back into the original data space.
 
-The encoder and decoder are typically neural networks. The basic architecture of a single-layer autoencoder is shown in @fig-autoencoder; note that bias terms $W^1_0$ and $W^2_0$ into the summation nodes exist, but are omitted for clarity in the figure. The original $d$-dimensional input is compressed into $k$ dimensions via the encoder $g(x; W^1, W^1_0)=f_1(W{^1}^T x + W^1_0)$ with $W^1 \in
-  \mathbb{R}^{d \times k}$ and $W^1_0 \in \mathbb{R}^k$, where the non-linearity $f_1$ is applied element-wise. To recover (an approximation to) the original instance, we then apply the decoder $h(a; W^2, W^2_0) = f_2(W{^2}^T
+The encoder and decoder are typically neural networks. The basic architecture of a single-layer autoencoder is shown in @fig-autoencoder; note that bias terms $W^1_0$ and $W^2_0$ into the summation nodes exist, but are omitted for clarity in the figure. The original $d$-dimensional input is compressed into $k$ dimensions via the encoder $g(x; W^1, W^1_0)=f_1(W{^1}^\top x + W^1_0)$ with $W^1 \in
+  \mathbb{R}^{d \times k}$ and $W^1_0 \in \mathbb{R}^k$, where the non-linearity $f_1$ is applied element-wise. To recover (an approximation to) the original instance, we then apply the decoder $h(a; W^2, W^2_0) = f_2(W{^2}^\top
   a + W^2_0)$, where $f_2$ denotes a different activation function. In general, both the encoder and decoder could involve multiple layers. Learning seeks parameters $W^1, W^1_0$ and $W^2, W^2_0$ such that the reconstructed instances, $h(g(x^{(i)}; W^{1}, W^1_0); W^{2}, W^2_0)$, are close to the original input $x^{(i)}$.
 
 ![Autoencoder structure, showing the encoder (left half, light green), and the decoder (right half, light blue), encoding inputs $x$ to the representation $a$, and decoding the representation to produce $\tilde{x}$, the reconstruction. In this specific example, the representation ($a_1$, $a_2$, $a_3$) only has three dimensions.](figures/autoencoder.png){#fig-autoencoder width="60%"}

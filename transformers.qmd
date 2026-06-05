@@ -64,7 +64,7 @@ Our goal is for each input token to learn how much attention it should give to e
 A token's query vector $q_i$ is computed by multiplying the input token $x_i$ (a $d$-dimensional vector) by a learnable query weight matrix $W_q$ (of dimension $d \times d_k$, $d_k$ is a hyperparameter typically chosen such that $d_k < d$):
 
 $$
-q_i = W_q^T x_i
+q_i = W_q^\top x_i
 $$
 
 Thus, for a sequence of $n$ tokens, we generate $n$ distinct query vectors.
@@ -74,13 +74,13 @@ Thus, for a sequence of $n$ tokens, we generate $n$ distinct query vectors.
 To complement query vectors, we introduce **key vectors**, which tokens use to "answer" queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine the attention weight. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
 
 $$
-k_i = W_k^T x_i
+k_i = W_k^\top x_i
 $$
 
 The attention mechanism calculates similarity using the dot product, which efficiently measures vector similarity:
 
 $$
-a_i = \text{softmax}\left(\frac{[q_i^T k_1, q_i^T k_2, \dots, q_i^T k_n]}{\sqrt{d_k}}\right) \in \mathbb{R}^{1\times n}
+a_i = \text{softmax}\left(\frac{[q_i^\top k_1, q_i^\top k_2, \dots, q_i^\top k_n]}{\sqrt{d_k}}\right) \in \mathbb{R}^{1\times n}
 $$
 
 The vector $a_i$ (softmax'd attention scores) quantifies how much attention token $q_i$ should pay to each token in the sequence, normalized so that elements sum to 1. Normalizing by $\sqrt{d_k}$ prevents large dot-product magnitudes, stabilizing training.
@@ -90,7 +90,7 @@ The vector $a_i$ (softmax'd attention scores) quantifies how much attention toke
 To incorporate meaningful contributions from attended tokens, we use **value vectors** ($v_i$), providing distinct representations for contribution to attention outputs. Each token's value vector is computed with another learnable matrix $W_v$:
 
 $$
-v_i = W_v^T x_i
+v_i = W_v^\top x_i
 $$
 
 ### Attention Output

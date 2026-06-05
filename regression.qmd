@@ -110,7 +110,7 @@ To make this discussion more concrete, we need to provide a hypothesis class and
 
 We begin by picking a class of hypotheses $\mathcal{H}$ that might provide a good set of possible models for the relationship between $x$ and $y$ in our data. We start with a very simple class of *linear* hypotheses for regression:
 $$
-y = h(x; \theta, \theta_0) = \theta^T x + \theta_0 \;\;,
+y = h(x; \theta, \theta_0) = \theta^\top x + \theta_0 \;\;,
 $${#eq-linear_reg_hypothesis}
 
 where the model parameters are $\Theta = (\theta, \theta_0)$. In one dimension ($d = 1$), this corresponds to the familiar slope-intercept form $y = mx + b$ of a *line*. In two dimensions ($d = 2$), this corresponds to a *plane*. In higher dimensions, this model describes a *hyperplane*. This hypothesis class is both simple to study and very powerful, and will serve as the basis for many other important techniques (even neural networks!).
@@ -196,7 +196,7 @@ One very interesting aspect of the problem of finding a linear hypothesis that m
 
 Everything is easier to deal with if we first *ignore* the offset $\theta_0$. So, suppose for now, we have, simply, 
 $$
-y = \theta^T x\;\;.
+y = \theta^\top x\;\;.
 $${#eq-linear_reg_hypothesis_noconst}
  
 :::{.column-margin}
@@ -244,14 +244,14 @@ What are the dimensions of $X$ and $Y$?
 :::
 
 Now we can write 
-$$J(\theta) = \frac{1}{n} \sum_{i=1}^n (\theta^T x^{(i)} - y^{(i)})^2 =  \frac{1}{n} (X \theta - Y)^T(X \theta - Y).$$
+$$J(\theta) = \frac{1}{n} \sum_{i=1}^n (\theta^\top x^{(i)} - y^{(i)})^2 =  \frac{1}{n} (X \theta - Y)^\top(X \theta - Y).$$
 
 and using facts about matrix/vector calculus, we get 
 
 $$
 \begin{align*}
-\nabla_{\theta} J(\theta) &= \frac{1}{n} \nabla_{\theta} \left[ (X \theta)^T X \theta - Y^T X \theta - (X \theta)^T Y + Y^T Y  \right] \\
-&= \frac{2}{n} \left( X^T X \theta - X^T Y\right).
+\nabla_{\theta} J(\theta) &= \frac{1}{n} \nabla_{\theta} \left[ (X \theta)^\top X \theta - Y^\top X \theta - (X \theta)^\top Y + Y^\top Y  \right] \\
+&= \frac{2}{n} \left( X^\top X \theta - X^\top Y\right).
 \end{align*}
 $$
 
@@ -262,16 +262,16 @@ See @sec-matrix-calculus if you need some help finding this gradient.
 Setting this equal to zero and solving for $\theta$ yields the final closed-form solution:
 
 $$
-\theta^* = \left(X^T X\right)^{-1} X^T Y
+\theta^* = \left(X^\top X\right)^{-1} X^\top Y
 $${#eq-ols_solution}
 
 :::{.column-margin}
 Here are two related alternate angles to view this formula, for intuition's sake:
 
-1) Note that $(X^TX)^{-1}X^T \eqqcolon X^+$ is the [pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse#Linearly_independent_columns) of $X$. 
+1) Note that $(X^TX)^{-1}X^\top \eqqcolon X^+$ is the [pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse#Linearly_independent_columns) of $X$. 
 Thus, $\theta^*$ "pseudo-solves" $X\theta=Y$ (multiply both sides of this on the left by $X^+$).
 
-2) Note that $X(X^TX)^{-1}X^T = \text{proj}_{\text{col}(X)}$ is the [projection matrix](https://en.wikipedia.org/wiki/Projection_matrix#Intuition) onto the column space of $X$.
+2) Note that $X(X^TX)^{-1}X^\top = \text{proj}_{\text{col}(X)}$ is the [projection matrix](https://en.wikipedia.org/wiki/Projection_matrix#Intuition) onto the column space of $X$.
 Thus, $\theta^*$ solves $X\theta=\text{proj}_{\text{col}(X)}Y$.
 :::
 
@@ -305,7 +305,7 @@ where the "aug" denotes that $\theta, x$ have been augmented.
 Then we can now write the linear hypothesis **as if** there is no offset,
 
 $$
-y = h(x_{\text{aug}}; \theta_{\text{aug}}) = \theta_{\text{aug}}^T x_{\text{aug}} \;\;
+y = h(x_{\text{aug}}; \theta_{\text{aug}}) = \theta_{\text{aug}}^\top x_{\text{aug}} \;\;
 $${#eq-linear_reg_hypothesis_augmented}
 
 :::{.column-margin}
@@ -333,16 +333,16 @@ The idea is that, with centered dataset, even if we were to search for an offset
 
 Let's see how this works out mathematically. First, for a *centered* dataset, two claims immediately follow  (recall that $\mathbb{1}$ is an $n$-by-1 vector of all ones):
 
-1. Each column of $X$ sums up to zero, that is, $X^T\mathbb{1} = 0$.
+1. Each column of $X$ sums up to zero, that is, $X^\top\mathbb{1} = 0$.
 
-2. Similarly, the mean of the labels is 0, so $Y^T\mathbb{1} = \mathbb{1} ^T Y = 0$.
+2. Similarly, the mean of the labels is 0, so $Y^\top\mathbb{1} = \mathbb{1} ^\top Y = 0$.
 
 Recall that our ultimate goal is to find an optimal fitting hyperplane, parameterized by $\theta$ and $\theta_0$. In other words, we aim to find $\theta_{\text{aug}},$ which at this point, involves simply plugging $X_{\text{aug}}=\left[\begin{array}{c}X \quad  \mathbb{1} \end{array}\right]$ into @eq-ols_solution. 
 
 $$\begin{aligned}
-\theta_{\text{aug}}^*&=\left ( \begin{bmatrix} X^T\\\mathbb{1}^T\end{bmatrix}\begin{bmatrix}X&\mathbb{1}\end{bmatrix}\right)^{-1}\begin{bmatrix}X^T\\ \mathbb{1}^T\end{bmatrix}Y\\
-&=\begin{bmatrix}X^TX&X^T\mathbb{1}\\\mathbb{1}^TX&\mathbb{1}^T\mathbb{1}\end{bmatrix}^{-1}\begin{bmatrix}X^T\\ \mathbb{1}^T\end{bmatrix}Y\\
-&=\begin{bmatrix}X^TX&0\\0&n\end{bmatrix}^{-1}\begin{bmatrix}X^T\\\mathbb{1}^T\end{bmatrix}Y\\
+\theta_{\text{aug}}^*&=\left ( \begin{bmatrix} X^\top\\\mathbb{1}^\top\end{bmatrix}\begin{bmatrix}X&\mathbb{1}\end{bmatrix}\right)^{-1}\begin{bmatrix}X^\top\\ \mathbb{1}^\top\end{bmatrix}Y\\
+&=\begin{bmatrix}X^TX&X^\top\mathbb{1}\\\mathbb{1}^TX&\mathbb{1}^\top\mathbb{1}\end{bmatrix}^{-1}\begin{bmatrix}X^\top\\ \mathbb{1}^\top\end{bmatrix}Y\\
+&=\begin{bmatrix}X^TX&0\\0&n\end{bmatrix}^{-1}\begin{bmatrix}X^\top\\\mathbb{1}^\top\end{bmatrix}Y\\
 &=\begin{bmatrix}(X^TX)^{-1}X^TY\\\frac{1}{n}\mathbb{1}^TY\end{bmatrix}\\
 &=\begin{bmatrix}(X^TX)^{-1}X^TY\\0\end{bmatrix}\\
 &=\begin{bmatrix}\theta^*\\\theta_0^*\end{bmatrix}\\
@@ -361,7 +361,7 @@ The objective function of @eq-ml_objective_loss balances (training-data) memoriz
 
 If all we cared about was finding a hypothesis with small loss on the training data, we would have no need for regularization, and could simply omit the second term in the objective. But remember that our ultimate goal is to *perform well on input values that we haven't trained on!* It may seem that this is an impossible task, but humans and machine-learning methods do this successfully all the time. What allows *generalization* to new input values is a belief that there is an underlying regularity that governs both the training and testing data. One way to describe an assumption about such a regularity is by choosing a limited class of possible hypotheses. Another way to do this is to provide smoother guidance, saying that, within a hypothesis class, we prefer some hypotheses to others. The regularizer articulates this preference and the constant $\lambda$ says how much we are willing to trade off loss on the training data versus preference over hypotheses.
 
-For example, consider what happens when $d=2,$ and $x_2$ is highly correlated with $x_1$, meaning that the data look like a line, as shown in the left panel of the figure below. Thus, there are many hyperplanes that can achieve more or less the same training MSE. Such correlations happen often in real-life data, because of underlying common causes; for example, across a population, the height of people may depend on both age and amount of food intake in the same way. This is especially the case when there are many feature dimensions used in the regression. Mathematically, this leads to ${X}^T{X}$ close to singularity, such that $({X}^T{X})^{-1}$ is undefined or has huge values, resulting in unstable models (see the middle panel of figure and note the range of the $y$ values---the slope is huge!):
+For example, consider what happens when $d=2,$ and $x_2$ is highly correlated with $x_1$, meaning that the data look like a line, as shown in the left panel of the figure below. Thus, there are many hyperplanes that can achieve more or less the same training MSE. Such correlations happen often in real-life data, because of underlying common causes; for example, across a population, the height of people may depend on both age and amount of food intake in the same way. This is especially the case when there are many feature dimensions used in the regression. Mathematically, this leads to ${X}^\top{X}$ close to singularity, such that $({X}^\top{X})^{-1}$ is undefined or has huge values, resulting in unstable models (see the middle panel of figure and note the range of the $y$ values---the slope is huge!):
 
 ![](figures/regression_ex2_plane1.png){width="100%"}
 
@@ -377,11 +377,11 @@ $$R(\Theta) = \left\lVert\Theta\right\rVert^2\;\;.$$
 
 ### Ridge regression {#sec-ridge_regression}
 
-There are some kinds of trouble we can get into in regression problems. What if $\left({X}^T{X}\right)$ is not invertible?
+There are some kinds of trouble we can get into in regression problems. What if $\left({X}^\top{X}\right)$ is not invertible?
 
 Another kind of problem is *overfitting*: we have formulated an objective that is just about fitting the data as well as possible, but we might also want to *regularize* to keep the hypothesis from getting *too* attached to the data.
 
-We address both the problem of not being able to invert ${X}^T{X}$ and the problem of overfitting using a mechanism called *ridge regression*. We add a regularization term $\|\theta\|^2$ to the OLS objective, with a non-negative scalar value $\lambda$ to control the tradeoff between the training error and the regularization term. Here is the ridge regression objective function: 
+We address both the problem of not being able to invert ${X}^\top{X}$ and the problem of overfitting using a mechanism called *ridge regression*. We add a regularization term $\|\theta\|^2$ to the OLS objective, with a non-negative scalar value $\lambda$ to control the tradeoff between the training error and the regularization term. Here is the ridge regression objective function: 
 
 $$
 J_{\text{ridge}}(\theta, \theta_0) = \frac{1}{n}\sum_{i = 1}^n\left(\theta^Tx^{(i)} + \theta_0 - y^{(i)}\right)^2 + \lambda\|\theta\|^2
@@ -405,30 +405,30 @@ Compare @eq-uncentered_ridge_objective and @eq-centered_ridge_objective. What is
 
 and the solution is: 
 $$
-\theta_{\text{ridge}} = \left({X}^T{X}+ n\lambda I\right)^{-1}{X}^T{Y}
+\theta_{\text{ridge}} = \left({X}^\top{X}+ n\lambda I\right)^{-1}{X}^\top{Y}
 $${#eq-ridge_regression_solution}
 
 
 
 :::{.callout-note collapse="true"}
 ## Derivation of the Ridge Regression Solution for Centered Data Set
-$$\nabla_{\theta}J_\text{ridge} = \frac{2}{n}{X}^T({X}\theta - {Y}) + 2
+$$\nabla_{\theta}J_\text{ridge} = \frac{2}{n}{X}^\top({X}\theta - {Y}) + 2
   \lambda \theta\;\;.$${#eq-regularized-solution}
 
 
 Setting to 0 and solving, we get: 
 $$\begin{aligned}
-  \frac{2}{n}{X}^T({X}\theta - {Y}) + 2 \lambda \theta             & = 0                                      \\
-  \frac{1}{n}{X}^T{X}\theta - \frac{1}{n}{X}^T{Y}+ \lambda \theta & = 0                                      \\
-  \frac{1}{n}{X}^T{X}\theta  + \lambda \theta                      & = \frac{1}{n}{X}^T{Y}\\
-  {X}^T{X}\theta  + n \lambda \theta                               & = {X}^T{Y}\\
-  ({X}^T{X}+ n \lambda I)\theta                                  & = {X}^T{Y}\\
-  \theta                                                           & = ({X}^T{X}+ n \lambda I)^{-1}{X}^T{Y}
+  \frac{2}{n}{X}^\top({X}\theta - {Y}) + 2 \lambda \theta             & = 0                                      \\
+  \frac{1}{n}{X}^\top{X}\theta - \frac{1}{n}{X}^\top{Y}+ \lambda \theta & = 0                                      \\
+  \frac{1}{n}{X}^\top{X}\theta  + \lambda \theta                      & = \frac{1}{n}{X}^\top{Y}\\
+  {X}^\top{X}\theta  + n \lambda \theta                               & = {X}^\top{Y}\\
+  ({X}^\top{X}+ n \lambda I)\theta                                  & = {X}^\top{Y}\\
+  \theta                                                           & = ({X}^\top{X}+ n \lambda I)^{-1}{X}^\top{Y}
 \end{aligned}$$
 :::
 
 
-One other great news is that in @eq-regularized-solution, the matrix we are trying to invert can always be inverted! Why is the term $\left({X}^T{X}+ n\lambda I\right)$ invertible? Explaining this requires some linear algebra. The matrix ${X}^T{X}$ is positive semidefinite, which implies that its eigenvalues $\{\gamma_i\}_i$ are greater than or equal to 0. The matrix ${X}^T{X}+n\lambda I$ has eigenvalues $\{\gamma_i+n\lambda\}_i$ which are guaranteed to be strictly positive since $\lambda>0$. Recalling that the determinant of a matrix is simply the product of its eigenvalues, we get that $\det({X}^T{X}+ n\lambda I)>0$ and conclude that ${X}^T{X}+ n\lambda I$ is invertible.
+One other great news is that in @eq-regularized-solution, the matrix we are trying to invert can always be inverted! Why is the term $\left({X}^\top{X}+ n\lambda I\right)$ invertible? Explaining this requires some linear algebra. The matrix ${X}^\top{X}$ is positive semidefinite, which implies that its eigenvalues $\{\gamma_i\}_i$ are greater than or equal to 0. The matrix ${X}^\top{X}+n\lambda I$ has eigenvalues $\{\gamma_i+n\lambda\}_i$ which are guaranteed to be strictly positive since $\lambda>0$. Recalling that the determinant of a matrix is simply the product of its eigenvalues, we get that $\det({X}^\top{X}+ n\lambda I)>0$ and conclude that ${X}^\top{X}+ n\lambda I$ is invertible.
 
 ## Evaluating learning algorithms {#sec-reg_learn_alg}
 

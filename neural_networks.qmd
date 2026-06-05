@@ -175,7 +175,7 @@ Since each unit has a vector of weights and a single offset, we can think of the
 
 -   $X$, the input, is an $m \times 1$ column vector,
 
--   $Z = W^T X + W_0$, the *pre-activation*, is an $n \times
+-   $Z = W^\top X + W_0$, the *pre-activation*, is an $n \times
               1$ column vector,
 
 -   $A$, the *activation*, is an $n \times 1$ column vector,
@@ -247,7 +247,7 @@ There are many possible choices for the activation function. We will start by th
 
 What happens if we let $f$ be the identity? Then, in a network with $L$ layers (we'll leave out $W_0$ for simplicity, but keeping it wouldn't change the form of this argument), 
 $$
-A^L = {W^L}^T A^{L-1} = {W^L}^T {W^{L-1}}^T \cdots {W^1}^T X\;\;.
+A^L = {W^L}^\top A^{L-1} = {W^L}^\top {W^{L-1}}^\top \cdots {W^1}^\top X\;\;.
 $$ 
 
 So, multiplying out the weight matrices, we find that $$A^L = W^\text{total}X\;\;,$$ which is a *linear* function of $X$! Having all those layers did not change the representational capacity of the network: the non-linearity of the activation function is crucial.
@@ -633,7 +633,7 @@ Carrying out the derivatives gives:
 $$
 \begin{align*}
 \frac{\partial \mathcal{L}}{\partial W^1}
-&= A^0 \Big( \underbrace{{f^1}'(Z^1) \big(w^2 {f^2}'(z^2) \tfrac{\partial \mathcal L}{\partial g}\big)}_{\tfrac{\partial \mathcal L}{\partial Z^1}}\Big)^T
+&= A^0 \Big( \underbrace{{f^1}'(Z^1) \big(w^2 {f^2}'(z^2) \tfrac{\partial \mathcal L}{\partial g}\big)}_{\tfrac{\partial \mathcal L}{\partial Z^1}}\Big)^\top
 \end{align*}
 $$
 
@@ -998,7 +998,7 @@ $$
   &=
   \underbrace{A^{l-1}}_{m^l \times 1} \;
   \underbrace{\left(\frac{\partial \text{loss}}{\partial
-      Z^l}\right)^T}_{1 \times n^l} \\
+      Z^l}\right)^\top}_{1 \times n^l} \\
 \end{aligned}
 $${#eq-gradloss}
 
@@ -1214,7 +1214,7 @@ Which terms in the code below depend on $f^L$?
     \State $i \gets \text{random sample from } \{1,\ldots,n\}$
     \State $A^0 \gets x^{(i)}$  \Comment{forward pass to compute $A^L$}
     \For{$l \gets 1$ to $L$}
-      \State $Z^l \gets W^{l^T} A^{l-1} + W_0^l$
+      \State $Z^l \gets W^{l^\top} A^{l-1} + W_0^l$
       \State $A^l \gets f^l(Z^l)$
     \EndFor
 
