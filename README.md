@@ -1,8 +1,6 @@
 # How to give this a spin?
 
-Push to `dev` branch, which will load what your change would look like on https://introml.mit.edu/notes/dev/
-
-If you're happy with the changes, merge `dev` into `main`. This will update the live site at https://introml.mit.edu/notes/
+Preview your changes locally (see below). When you're happy, push to `main`. This will update the live site at https://introml.mit.edu/notes/
 
 
 
