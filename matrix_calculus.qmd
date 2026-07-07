@@ -5,7 +5,7 @@
 We all know how to calculate a derivative in single-variable calculus. If we have an input variable $x \in \mathbb{R}$ and a function $f(x): \mathbb{R} \rightarrow \mathbb{R}$, then:
 
 $$
-f'(x) = \frac{f(x + dx) - f(x)}{dx}
+f'(x) \approx \frac{f(x + dx) - f(x)}{dx}
 $$
 
 We generally define the numerator as $df = f(x + dx) - f(x)$, which gives $\frac{df}{dx}$ as our standard derivative. In other words, we can approximate some small change in the function as the derivative times a small change in our input variable:
@@ -51,7 +51,7 @@ $$\begin{aligned}
               \end{bmatrix}.
 \end{aligned}$$
 
--   Vector-by-scalar: For $x$ of size $1\times 1$ and ${\bf y}$ of size $m\times 1$, $\partial {\bf y}/\partial x$ is a row vector of size $1 \times m$ with the $j^{\rm th}$ entry $\partial {\bf y}_j/\partial x$:
+-   Vector-by-scalar: For $x$ of size $1\times 1$ and ${\bf y}$ of size $m\times 1$, $\partial {\bf y}/\partial x$ is a row vector of size $1 \times m$ with the $j^{\rm th}$ entry $\partial y_j/\partial x$:
 
 $$\begin{aligned}
 \partial {\bf y}/\partial x=
@@ -89,7 +89,7 @@ Additionally, notice that for all cases, you can explicitly compute each element
 
 ## Examples
 
-### Example 1 - Simple Numerical Example
+### Example 1: Simple Numerical Example
 
 Let us calculate the derivative of $f(\theta) = \theta_1^2 - 3\theta_2 + 5$. The input is a vector of size 2, and the output is a scalar. Therefore, our derivative $\frac{df}{d\theta}$ will be of size $(2 \times 1)$. More specifically, we know that:
 
@@ -133,7 +133,7 @@ $$
 
 Done!
 
-### Example 3: $f(v) = ||v||^2$
+### Example 3: $f(v) = \lVert v \rVert^2$
 
 Note that $f$ maps a column vector of size $n$ to a scalar. Therefore, the derivative $\frac{df}{dv}$ will be of size $(n \times 1)$. There are two ways to calculate this:
 
@@ -164,10 +164,10 @@ Let us use matrix calculus and the differential notation.
 $$
 \begin{align*}
 df &= f(v + dv) - f(v) \\
-   &= ||(v + dv)||^2 - ||v||^2 \\
-   &= (v + dv)^T(v + dv) - ||v||^2 \\
-   &= ||v||^2 + v^T dv + (dv)^T v + ||dv||^2 - ||v||^2 \\
-   &= (2v)^T dv + ||dv||^2
+   &= \lVert (v + dv) \rVert^2 - \lVert v \rVert^2 \\
+   &= (v + dv)^T(v + dv) - \lVert v \rVert^2 \\
+   &= \lVert v \rVert^2 + v^T dv + (dv)^T v + \lVert dv \rVert^2 - \lVert v \rVert^2 \\
+   &= (2v)^T dv + \lVert dv \rVert^2
 \end{align*}
 $$
 
@@ -191,7 +191,7 @@ $$
 \frac{df}{dv} = 2v
 $$
 
-### Example 4 - Chain Rule
+### Example 4: Chain Rule
 
 This is where the advantage of matrix calculus—and more specifically the denominator layout—really shines.
 
@@ -251,7 +251,7 @@ $$
 \frac{\partial {\bf x}}{\partial {\bf x}} = {\bf I}
 $$
 
-This is the $n \times n$ identity matrix, with 1's along the diagonal and 0's elsewhere. It makes sense, because $\partial {\bf x}_j / {\bf x}_i$ is 1 for $i = j$ and 0 otherwise. This identity is also similar to the scalar case.
+This is the $n \times n$ identity matrix, with 1's along the diagonal and 0's elsewhere. It makes sense, because $\partial x_j / \partial x_i$ is 1 for $i = j$ and 0 otherwise. This identity is also similar to the scalar case.
 
 ### Derivatives Involving a Constant Matrix
 
@@ -278,7 +278,7 @@ Therefore, the $(i,j)$ entry of $\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}
 
 $$\frac{\partial {\bf A}{\bf x}}{\partial {\bf x}} = {\bf A}^T$${#eq-Ax}
 
-Similarly, for objects ${\bf x}, {\bf A}$ of the same shape, one can obtain,
+Similarly, for an $n \times 1$ vector ${\bf x}$ and an $n \times m$ matrix ${\bf A}$ that does not depend on ${\bf x}$, one can obtain,
 
 $$\frac{\partial {\bf x}^T {\bf A}}{\partial {\bf x}} = {\bf A}
 $${#eq-xTA}
@@ -360,7 +360,7 @@ $$
 
 ### Some Other Identities
 
-You can get many scalar-by-vector and vector-by-scalar cases as special cases of the rules above, making one of the relevant vectors just be 1 x 1. Here are some other ones that are handy. For more, see the Wikipedia article on Matrix derivatives (for consistency, only use the ones in *denominator layout*).
+You can get many scalar-by-vector and vector-by-scalar cases as special cases of the rules above, making one of the relevant vectors just be $1 \times 1$. Here are some other ones that are handy. For more, see the Wikipedia article on Matrix derivatives (for consistency, only use the ones in *denominator layout*).
 
 $$
 \frac{\partial {\bf u}^T {\bf v}}{\partial {\bf x}} = \frac{\partial
@@ -376,10 +376,10 @@ $${#eq-uT}
 From lecture/recitation, we know that the Mean Squared Error for Linear Regression can be written as:
 
 $$
-J(\theta) = \frac{1}{n} ||X\theta - Y||^2
+J(\theta) = \frac{1}{n} \lVert X\theta - Y \rVert^2
 $$
 
-where $X$ and $\theta$ are the augmented forms to allow for an intercept. Let us show how to optimize this function by setting its gradient equal to 0. We combine all of the facts that we learned. We know that the derivative of $||v||^2$ with respect to $v$ is $2v$, the derivative of $X\theta$ with respect to $\theta$ is $X^T$, and we know the chain rule. Combining all of that gives:
+where $X$ and $\theta$ are the augmented forms to allow for an intercept. Let us show how to optimize this function by setting its gradient equal to 0. We combine all of the facts that we learned. We know that the derivative of $\lVert v \rVert^2$ with respect to $v$ is $2v$, the derivative of $X\theta$ with respect to $\theta$ is $X^T$, and we know the chain rule. Combining all of that gives:
 
 $$
 \frac{dJ}{d\theta} = \frac{2}{n} X^T \cdot (X\theta - Y)
@@ -398,7 +398,7 @@ That's it! You can now derive the optimal solution for any linear regression pro
 In lecture, we also encountered the regularized MSE expression for Linear Regression:
 
 $$
-J(\theta) = \frac{1}{n} ||X\theta - Y||^2 + \lambda || \theta ||^2
+J(\theta) = \frac{1}{n} \lVert X\theta - Y \rVert^2 + \lambda \lVert \theta \rVert^2
 $$
 
 where $\lambda$ is some scalar hyperparameter we can choose.
@@ -440,7 +440,7 @@ $$\begin{aligned}
 \end{aligned}
 $$
 
-One neat way, which is very explicit, is to simply write all the matrices as variables with row and column indices, e.g., $X_{ab}$ is the row $a$, column $b$ entry of the matrix $X$. Furthermore, let us use the convention that in any product, all indices which appear more than once get summed over; this is a popular convention in theoretical physics, and lets us suppress all the summation symbols which would otherwise clutter the following expresssions. For example, $X_{ab} \theta_b$ would be the implicit summation notation giving the element at the $a^{\rm th}$ row of the matrix-vector product $X\theta$.
+One neat way, which is very explicit, is to simply write all the matrices as variables with row and column indices, e.g., $X_{ab}$ is the row $a$, column $b$ entry of the matrix $X$. Furthermore, let us use the convention that in any product, all indices which appear more than once get summed over; this is a popular convention in theoretical physics, and lets us suppress all the summation symbols which would otherwise clutter the following expressions. For example, $X_{ab} \theta_b$ would be the implicit summation notation giving the element at the $a^{\rm th}$ row of the matrix-vector product $X\theta$.
 
 Using implicit summation notation with explicit indices, we can rewrite $J(\theta)$ as
 
@@ -453,25 +453,25 @@ Note that we no longer need the transpose on the first term, because all that tr
 Taking the derivative of $J$ with respect to the $d^{\rm th}$ element of $\theta$ thus gives, using the chain rule for (ordinary scalar) multiplication:
 
 $$\begin{aligned}
-\frac{dJ}{d\theta_d} &=& \frac{1}{n} \left[
+\frac{dJ}{d\theta_d} &= \frac{1}{n} \left[
   X_{ab} \delta_{bd} \left( X_{ac}\theta_c-Y_a \right)
   + \left(X_{ab}\theta_b - Y_a \right) X_{ac} \delta_{cd}
   \right]
 \\
-&=& \frac{1}{n} \left[
+&= \frac{1}{n} \left[
   X_{ad} \left( X_{ac}\theta_c-Y_a \right)
   + \left(X_{ab}\theta_b - Y_a \right) X_{ad}
   \right]
 \\
-&=& \frac{2}{n} X_{ad} \left( X_{ab}\theta_b-Y_a \right)
+&= \frac{2}{n} X_{ad} \left( X_{ab}\theta_b-Y_a \right)
 \,,
 \end{aligned}$$
-where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^T$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^T$ with $X$! Thus, we have that
+where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, c$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^T$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^T$ with $X$! Thus, we have that
 
 $$\begin{aligned}
-\frac{dJ}{d\theta_d} =& \frac{2}{n} X^T_{da} \left( X_{ab}\theta_b-Y_a \right)
+\frac{dJ}{d\theta_d} &= \frac{2}{n} X^T_{da} \left( X_{ab}\theta_b-Y_a \right)
 \\
-=& \frac{2}{n} \left[ X^T \left( X\theta-Y\right) \right]_{d}
+&= \frac{2}{n} \left[ X^T \left( X\theta-Y\right) \right]_{d}
 \,,
 \end{aligned}
 $$ which is the desired result.

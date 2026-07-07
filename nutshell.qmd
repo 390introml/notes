@@ -9,24 +9,26 @@ We start with a very generic setting.
 ### Minimal problem specification
 
 Given:
-- Space of inputs \(X\)
-- Space of outputs \(y\)
-- Space of possible hypotheses \(\mathcal{H}\) such that each \(h \in \mathcal{H}\) is a function \(h: x \rightarrow y\)
-- Loss function \(\mathcal{L}: y \times y \rightarrow \mathbb{R}\)
-a supervised learning algorithm \(\mathcal{A}\) takes as input a data set of the form
+
+- Space of inputs $\mathcal{X}$
+- Space of outputs $\mathcal{Y}$
+- Space of possible hypotheses $\mathcal{H}$ such that each $h \in \mathcal{H}$ is a function $h: \mathcal{X} \rightarrow \mathcal{Y}$
+- Loss function $\mathcal{L}: \mathcal{Y} \times \mathcal{Y} \rightarrow \mathbb{R}$
+
+a supervised learning algorithm $\mathcal{A}$ takes as input a data set of the form
 
 $$
 \mathcal{D}=\left\{\left(x^{(1)}, y^{(1)}\right), \ldots,\left(x^{(n)}, y^{(n)}\right)\right\}
 $$
 
-where $x^{(i)} \in X$ and $y^{(i)} \in y$ and returns an $h \in \mathcal{H}$.
+where $x^{(i)} \in \mathcal{X}$ and $y^{(i)} \in \mathcal{Y}$ and returns an $h \in \mathcal{H}$.
 
 
 ### Evaluating a hypothesis
 
 Given a problem specification and a set of data $\mathcal{D}$, we evaluate hypothesis $h$ according to average loss, or error,
 $$
-\mathcal{E}(h, \mathcal{L}, \mathcal{D})=\frac{1}{|\mathcal{D}|} \sum_{i=1}^{\mathcal{D}} \mathcal{L}\left(h\left(x^{(i)}\right), y^{(i)}\right)
+\mathcal{E}(h, \mathcal{L}, \mathcal{D})=\frac{1}{|\mathcal{D}|} \sum_{i=1}^{|\mathcal{D}|} \mathcal{L}\left(h\left(x^{(i)}\right), y^{(i)}\right)
 $$
 
 
@@ -38,22 +40,22 @@ A *validation strategy* $\mathcal{V}$ takes an algorithm $\mathcal{A}$, a loss f
 
 #### Using a validation set
 
-In the simplest case, we can divide $\mathcal{D}$ into two sets, $\mathcal{D}^{\text {train }}$ and $\mathcal{D}^{\text {val }}$, train on the first, and then evaluate the resulting hypothesis on the second. In that case,
+In the simplest case, we can divide $\mathcal{D}$ into two sets, $\mathcal{D}^{\text{train}}$ and $\mathcal{D}^{\text{val}}$, train on the first, and then evaluate the resulting hypothesis on the second. In that case,
 
 $$
-\mathcal{V}(\mathcal{A}, \mathcal{L}, \mathcal{D})=\mathcal{E}\left(\mathcal{A}\left(\mathcal{D}^{\text {train }}\right), \mathcal{L}, \mathcal{D}^{\text {val }}\right)
+\mathcal{V}(\mathcal{A}, \mathcal{L}, \mathcal{D})=\mathcal{E}\left(\mathcal{A}\left(\mathcal{D}^{\text{train}}\right), \mathcal{L}, \mathcal{D}^{\text{val}}\right)
 $$
 
 #### Using multiple training/evaluation runs
 
 We can't reliably evaluate an algorithm based on a single application to a single training and test set, because there are many aspects of the training and testing data, as well as, sometimes, randomness in the algorithm itself, that cause *variance* in the performance of the algorithm. To get a good idea of how well an algorithm performs, we need to, multiple times, train it and evaluate the resulting hypothesis, and report the average over $K$ executions of the algorithm of the error of the hypothesis it produced each time.
 
-We divide the data into 2 K random non-overlapping subsets: $\mathcal{D}_1^{\text {train }}, \mathcal{D}_1^{\text {val }}, \ldots, \mathcal{D}_{\mathrm{K}}^{\text {train }}, \mathcal{D}_{\mathrm{K}}^{\text {val }}$.
+We divide the data into 2 K random non-overlapping subsets: $\mathcal{D}_1^{\text{train}}, \mathcal{D}_1^{\text{val}}, \ldots, \mathcal{D}_{\mathrm{K}}^{\text{train}}, \mathcal{D}_{\mathrm{K}}^{\text{val}}$.
 
 Then,
 
 $$
-\mathcal{V}(\mathcal{A}, \mathcal{L}, \cal D) = \frac{1}{K}\sum_{k=1}^K \mathcal{E}\Bigl(\mathcal{A}\bigl(\cal D_k^\text{train}\bigr), \mathcal{L}, \cal D_k^\text{val}\Bigr)\;.
+\mathcal{V}(\mathcal{A}, \mathcal{L}, \mathcal{D}) = \frac{1}{K}\sum_{k=1}^K \mathcal{E}\Bigl(\mathcal{A}\bigl(\mathcal{D}_k^\text{train}\bigr), \mathcal{L}, \mathcal{D}_k^\text{val}\Bigr)\;.
 $$
 
 #### Cross validation
@@ -62,9 +64,9 @@ In *cross validation*, we do a similar computation, but allow data to be re-used
 
 ### Comparing supervised learning algorithms
 
-Now, if we have two different algorithms $\mathcal{A}_1$ and $\mathcal{A}_2$, we might be interested in knowing which one will produce hypotheses that generalize the best, using data from a particular source. We could compute $\mathcal{V}\left(\mathcal{A}_1, \mathcal{L}, \mathcal{D}\right)$ and $\mathcal{V}\left(\mathcal{A}_{\in}, \mathcal{L}, \mathcal{D}\right)$, and prefer the algorithm with lower validation error. More generally, given algorithms $\mathcal{A}_1, \ldots, \mathcal{A}_M$, we would prefer
+Now, if we have two different algorithms $\mathcal{A}_1$ and $\mathcal{A}_2$, we might be interested in knowing which one will produce hypotheses that generalize the best, using data from a particular source. We could compute $\mathcal{V}\left(\mathcal{A}_1, \mathcal{L}, \mathcal{D}\right)$ and $\mathcal{V}\left(\mathcal{A}_{2}, \mathcal{L}, \mathcal{D}\right)$, and prefer the algorithm with lower validation error. More generally, given algorithms $\mathcal{A}_1, \ldots, \mathcal{A}_M$, we would prefer
 $$
-\mathcal{A}^*=\arg \min _{\mathrm{m}} \mathcal{V}\left(\mathcal{A}_M, \mathcal{L}, \mathcal{D}\right)
+\mathcal{A}^*=\arg\min_{m} \mathcal{V}\left(\mathcal{A}_m, \mathcal{L}, \mathcal{D}\right)
 $$
 
 
@@ -73,7 +75,7 @@ $$
 Now what? We have to deliver a hypothesis to our customer. We now know how to find the algorithm, $\mathcal{A}^*$, that works best for our type of data. We can apply it to all of our data to get the best hypothesis we know how to create, which would be
 
 $$
-\mathrm{h}^*=\mathcal{A}^*(\mathcal{D})
+h^*=\mathcal{A}^*(\mathcal{D})
 $$
 
 and deliver this resulting hypothesis as our best product.
@@ -89,7 +91,7 @@ Interestingly, this loss function is *not always the same* as the loss function 
 So for example, (assuming a perfect optimizer which doesn't, of course, exist) we might say our algorithm is to solve an optimization problem:
 
 $$
-\mathcal{A}(\mathcal{D})=\arg \min _{h \in H} \mathcal{J}(h ; \mathcal{D}) .
+\mathcal{A}(\mathcal{D})=\arg\min_{h \in \mathcal{H}} \mathcal{J}(h ; \mathcal{D}) .
 $$
 
 Our objective often has the form
@@ -113,36 +115,31 @@ Then we could think of our algorithm as $\mathcal{A}(\mathcal{D} ; \lambda)$. Pi
 
 In linear regression the problem formulation is this:
 
-- $x=\mathbb{R}^{\mathrm{d}}$
-- $y=\mathbb{R}$
-- $\mathcal{H}=\left\{\theta^{\top} x+\theta_0\right\}$ for values of parameters $\theta \in \mathbb{R}^d$ and $\theta_0 \in \mathbb{R}$.
+- $\mathcal{X}=\mathbb{R}^d$
+- $\mathcal{Y}=\mathbb{R}$
+- $\mathcal{H}=\left\{\theta^T x+\theta_0\right\}$ for values of parameters $\theta \in \mathbb{R}^d$ and $\theta_0 \in \mathbb{R}$.
 - $\mathcal{L}(g, y)=(g-y)^2$
 
 Our learning algorithm has hyperparameter $\lambda$ and can be written as:
 
 $$
-\mathcal{A}(\mathcal{D} ; \lambda)=\Theta^*(\lambda, \mathcal{D})=\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}}\left(\theta^{\top} x+\theta_0-y\right)^2+\lambda\|\theta\|^2
+\mathcal{A}(\mathcal{D} ; \lambda)=\Theta^*(\lambda, \mathcal{D})=\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}}\left(\theta^T x+\theta_0-y\right)^2+\lambda\|\theta\|^2
 $$
 
-
-Our learning algorithm has hyperparameter $ \lambda $ and can be written as:
-$$
-\mathcal{A}(\mathcal{D} ; \lambda)=\Theta^*(\lambda, \mathcal{D})=\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}}\left(\theta^{\top} x+\theta_0-y\right)^2+\lambda\|\theta\|^2 .
-$$
 
 For a particular training data set and parameter $\lambda$, it finds the best hypothesis on this data, specified with parameters $\Theta=\left(\theta, \theta_0\right)$, written $\Theta^*(\lambda, \mathcal{D})$.
 
-Picking the best value of the hyperparameter is choosing among learning algorithms. We could, most simply, optimize using a single training / validation split, so $\mathcal{D}=\mathcal{D}^{\text {train }} \cup$ $\mathcal{D}^{\text {val }}$, and
+Picking the best value of the hyperparameter is choosing among learning algorithms. We could, most simply, optimize using a single training / validation split, so $\mathcal{D}=\mathcal{D}^{\text{train}} \cup$ $\mathcal{D}^{\text{val}}$, and
 
 $$
 \begin{aligned}
-\lambda^* & =\arg \min _\lambda \mathcal{V}\left(\mathcal{A}_\lambda, \mathcal{L}, \mathcal{D}^{\text {val }}\right) \\
-& =\arg \min _\lambda \mathcal{E}\left(\Theta^*\left(\lambda, \mathcal{D}^{\text {train }}\right), \text { mse, } \mathcal{D}^{\text {val }}\right) \\
-& =\arg \min _\lambda \frac{1}{\left|\mathcal{D}_{\text {val }}\right|} \sum_{(x, y) \in \mathcal{D}_{\text {val }}}\left(\theta^*\left(\lambda, \mathcal{D}^{\text {train }}\right)^{\top} x+\theta_0^*\left(\lambda, \mathcal{D}^{\text {train }}\right)-y\right)^2
+\lambda^* & =\arg \min _\lambda \mathcal{V}\left(\mathcal{A}_\lambda, \mathcal{L}, \mathcal{D}\right) \\
+& =\arg \min _\lambda \mathcal{E}\left(\Theta^*\left(\lambda, \mathcal{D}^{\text{train}}\right), \text{mse}, \mathcal{D}^{\text{val}}\right) \\
+& =\arg \min _\lambda \frac{1}{\left|\mathcal{D}^{\text{val}}\right|} \sum_{(x, y) \in \mathcal{D}^{\text{val}}}\left(\theta^*\left(\lambda, \mathcal{D}^{\text{train}}\right)^T x+\theta_0^*\left(\lambda, \mathcal{D}^{\text{train}}\right)-y\right)^2
 \end{aligned}
 $$
 
-It would be much better to select the best $\lambda$ using multiple runs or cross-validation; that would just be a different choices of the validation procedure $\mathcal{V}$ in the top line.
+It would be much better to select the best $\lambda$ using multiple runs or cross-validation; that would just be a different choice of the validation procedure $\mathcal{V}$ in the top line.
 
 Note that we don't use regularization here because we just want to measure how good the output of the algorithm is at predicting values of *new* points, and so that's what we measure. We use the regularizer during training when we don't want to focus only on optimizing predictions on the training data.
 
@@ -151,7 +148,7 @@ $$
 \begin{aligned}
 \Theta^* & =\mathcal{A}\left(\mathcal{D} ; \lambda^*\right) \\
 & =\Theta^*\left(\lambda^*, \mathcal{D}\right) \\
-& =\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}}\left(\theta^{\top} x+\theta_0-y\right)^2+\lambda^*\|\theta\|^2
+& =\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}}\left(\theta^T x+\theta_0-y\right)^2+\lambda^*\|\theta\|^2
 \end{aligned}
 $$
 
@@ -160,8 +157,8 @@ Finally, a customer might evaluate this hypothesis on their data, which we have 
 
 $$
 \begin{aligned}
-\mathcal{E}^{\text {test }} & =\mathcal{E}\left(\Theta^*, \text { mse }, \mathcal{D}^{\text {test }}\right) \\
-& =\frac{1}{\left|\mathcal{D}^{\text {test }}\right|} \sum_{(x, y) \in \mathcal{D}^{\text {tot }}}\left(\theta^{* T} x+\theta_0^*-y\right)^2
+\mathcal{E}^{\text{test}} & =\mathcal{E}\left(\Theta^*, \text{mse}, \mathcal{D}^{\text{test}}\right) \\
+& =\frac{1}{\left|\mathcal{D}^{\text{test}}\right|} \sum_{(x, y) \in \mathcal{D}^{\text{test}}}\left(\theta^{* T} x+\theta_0^*-y\right)^2
 \end{aligned}
 $$
 
@@ -175,7 +172,7 @@ define train(D, lambda):
 # returns lambda_best using very simple validation
 define simple_tune(D_train, D_val, possible_lambda_vals):
     scores = [mse(train(D_train, lambda), D_val) for lambda in possible_lambda_vals]
-    return possible_lambda_vals[least_index[scores]]
+    return possible_lambda_vals[least_index(scores)]
 
 # returns theta_best overall
 define theta_best(D_train, D_val, possible_lambda_vals):
@@ -190,34 +187,35 @@ define customer_val(theta):
 
 In binary logistic regression the problem formulation is as follows. We are writing the class labels as 1 and 0.
 
-- $\mathcal{X} = \mathbb{R}^d$
-- $y=\{+1,0\}$
-- $\mathcal{H}=\left\{\sigma\left(\theta^{\top} x+\theta_0\right)\right\}$ for values of parameters $\theta \in \mathbb{R}^d$ and $\theta_0 \in \mathbb{R}$.
-- $\mathcal{L}(\mathrm{g}, \mathrm{y})=\mathcal{L}_{01}(\mathrm{~g}, \mathrm{~h})$
+- $\mathcal{X}=\mathbb{R}^d$
+- $\mathcal{Y}=\{+1,0\}$
+- $\mathcal{H}=\left\{\sigma\left(\theta^T x+\theta_0\right)\right\}$ for values of parameters $\theta \in \mathbb{R}^d$ and $\theta_0 \in \mathbb{R}$.
+- $\mathcal{L}(g, y)=\mathcal{L}_{01}(g, y)$
 - Proxy loss $\mathcal{L}_{\mathrm{nll}}(\mathrm{g}, \mathrm{y})=-(\mathrm{y} \log (g)+(1-y) \log (1-g))$
+
 Our learning algorithm has hyperparameter $\lambda$ and can be written as:
 
 $$
-\mathcal{A}(\mathcal{D} ; \lambda)=\Theta^*(\lambda, \mathcal{D})=\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}} \mathcal{L}_{\mathrm{nll}}\left(\sigma\left(\theta^{\top} x+\theta_0\right), y\right)+\lambda\|\theta\|^2
+\mathcal{A}(\mathcal{D} ; \lambda)=\Theta^*(\lambda, \mathcal{D})=\arg \min _{\theta, \theta_0} \frac{1}{|\mathcal{D}|} \sum_{(x, y) \in \mathcal{D}} \mathcal{L}_{\mathrm{nll}}\left(\sigma\left(\theta^T x+\theta_0\right), y\right)+\lambda\|\theta\|^2
 $$
 
-For a particular training data set and parameter $\lambda$, it finds the best hypothesis on this data, specified with parameters $\Theta=\left(\theta, \theta_0\right)$, written $\Theta^*(\lambda, \mathcal{D})$ according to the proxy loss $\mathcal{L}_{\text {nll }}$.
+For a particular training data set and parameter $\lambda$, it finds the best hypothesis on this data, specified with parameters $\Theta=\left(\theta, \theta_0\right)$, written $\Theta^*(\lambda, \mathcal{D})$ according to the proxy loss $\mathcal{L}_{\text{nll}}$.
 
-Picking the best value of the hyperparameter is choosing among learning algorithms based on their actual predictions. We could, most simply, optimize using a single training / validation split, so $\mathcal{D}=\mathcal{D}^{\text {train }} \cup \mathcal{D}^{\mathrm{val}}$, and we use the real 01 loss:
+Picking the best value of the hyperparameter is choosing among learning algorithms based on their actual predictions. We could, most simply, optimize using a single training / validation split, so $\mathcal{D}=\mathcal{D}^{\text{train}} \cup \mathcal{D}^{\mathrm{val}}$, and we use the real 01 loss (where the classifier predicts $1$ when $\sigma(\cdot) > 0.5$ and $0$ otherwise):
 
 $$
 \begin{aligned}
-\lambda^* & =\arg \min _\lambda \mathcal{V}\left(\mathcal{A}_\lambda, \mathcal{L}_{01}, \mathcal{D}^{\text {val }}\right) \\
-& =\arg \min _\lambda \mathcal{E}\left(\Theta^*\left(\lambda, \mathcal{D}^{\text {train }}\right), \mathcal{L}_{01}, \mathcal{D}^{\text {val }}\right) \\
-& =\arg \min _\lambda \frac{1}{\left|\mathcal{D}_{\text {val }}\right|} \sum_{(x, y) \in \mathcal{D}_{\text {val }}} \mathcal{L}_{01}\left(\sigma\left(\theta^*\left(\lambda, \mathcal{D}^{\text {train }}\right)^{\top} x+\theta_0^*\left(\lambda, \mathcal{D}^{\text {train }}\right)\right), y\right)
+\lambda^* & =\arg \min _\lambda \mathcal{V}\left(\mathcal{A}_\lambda, \mathcal{L}_{01}, \mathcal{D}\right) \\
+& =\arg \min _\lambda \mathcal{E}\left(\Theta^*\left(\lambda, \mathcal{D}^{\text{train}}\right), \mathcal{L}_{01}, \mathcal{D}^{\text{val}}\right) \\
+& =\arg \min _\lambda \frac{1}{\left|\mathcal{D}^{\text{val}}\right|} \sum_{(x, y) \in \mathcal{D}^{\text{val}}} \mathcal{L}_{01}\left(\sigma\left(\theta^*\left(\lambda, \mathcal{D}^{\text{train}}\right)^T x+\theta_0^*\left(\lambda, \mathcal{D}^{\text{train}}\right)\right), y\right)
 \end{aligned}
 $$
 
-It would be much better to select the best $\lambda$ using multiple runs or cross-validation; that would just be a different choices of the validation procedure $\mathcal{V}$ in the top line.
+It would be much better to select the best $\lambda$ using multiple runs or cross-validation; that would just be a different choice of the validation procedure $\mathcal{V}$ in the top line.
 
 Finally! To make a predictor to ship out into the world, we would use all the data we have, $\mathcal{D}$, to train, using the best hyperparameters we know, and return
 $$
-\Theta^* = \mathcal{A}(\cal D; \lambda^*)
+\Theta^* = \mathcal{A}(\mathcal{D}; \lambda^*)
 $$
 
 :::{.study-question-callout}
@@ -227,7 +225,7 @@ What loss function is being optimized inside this algorithm?
 Finally, a customer might evaluate this hypothesis on their data, which we have never seen during training or validation, as
 
 $$
-\mathcal{E}^\text{test} = \mathcal{E}(\Theta^*, \mathcal{L}_{01}, \cal D^\text{test})
+\mathcal{E}^\text{test} = \mathcal{E}(\Theta^*, \mathcal{L}_{01}, \mathcal{D}^\text{test})
 $$
 
 The customer just wants to buy the right stocks! So we use the real $\mathcal{L}_{01}$ here for validation.

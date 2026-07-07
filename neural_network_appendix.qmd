@@ -60,7 +60,7 @@ Prove to yourself that these formulations are equivalent.
 We will find that $V_t$ will be bigger in dimensions that consistently have the same sign for $\nabla_W$ and smaller for those that don't. Of course we now have *two* parameters to set ($\eta$ and $\gamma$), but the hope is that the algorithm will perform better overall, so it will be worth trying to find good values for them. Often $\gamma$ is set to be something like $0.9$.
 
 ::: {.example}
-![Momentum](figures/momentum.png){scale=0.7}
+![Momentum](figures/momentum.png){width=70%}
 
 The red arrows show the update after each successive step of mini-batch gradient descent with momentum. The blue points show the direction of the gradient with respect to the mini-batch at each step. Momentum smooths the path taken towards the local minimum and leads to faster convergence.
 :::
@@ -83,6 +83,10 @@ $$
 
 The sequence $G_{t,j}$ is a moving average of the square of the $j$th component of the gradient. We square it in order to be insensitive to the sign—we want to know whether the magnitude is big or small. Then, we perform a gradient update to weight $j$, but divide the step size by $\sqrt{G_{t,j}+\epsilon}$, which is larger when the surface is steeper in direction $j$ at point $W_{t-1}$ in weight space; this means that the step size will be smaller when it's steep and larger when it's flat.
 
+::: {.column-margin}
+The variant shown here, with a fixed $\eta$, is usually called *RMSProp*; full adadelta additionally replaces $\eta$ with a running RMS of past parameter updates.
+:::
+
 ### Adam
 
 Adam has become the default method of managing step sizes in neural networks.
@@ -96,8 +100,8 @@ It combines the ideas of momentum and adadelta. We start by writing moving avera
 $$
 \begin{aligned}
   g_{t,j} &= \nabla_W J(W_{t-1})_j, \\
-  m_{t,j} &= B_1\, m_{t-1,j} + (1-B_1)\, g_{t,j}, \\
-  v_{t,j} &= B_2\, v_{t-1,j} + (1-B_2)\, g_{t,j}^2.
+  m_{t,j} &= \beta_1\, m_{t-1,j} + (1-\beta_1)\, g_{t,j}, \\
+  v_{t,j} &= \beta_2\, v_{t-1,j} + (1-\beta_2)\, g_{t,j}^2.
 \end{aligned}
 $$
 
@@ -105,19 +109,19 @@ A problem with these estimates is that, if we initialize $m_0 = v_0 = 0$, they w
 
 $$
 \begin{aligned}
-  \hat{m}_{t,j} &= \frac{m_{t,j}}{1-B_1^t}, \\
-  \hat{v}_{t,j} &= \frac{v_{t,j}}{1-B_2^t}, \\
+  \hat{m}_{t,j} &= \frac{m_{t,j}}{1-\beta_1^t}, \\
+  \hat{v}_{t,j} &= \frac{v_{t,j}}{1-\beta_2^t}, \\
   W_{t,j} &= W_{t-1,j} - \frac{\eta}{\sqrt{\hat{v}_{t,j}+\epsilon}}\, \hat{m}_{t,j}.
 \end{aligned}
 $$
 
-Note that $B_1^t$ is $B_1$ raised to the power $t$, and likewise for $B_2^t$. To justify these corrections, note that if we were to expand $m_{t,j}$ in terms of $m_{0,j}$ and $g_{0,j}, g_{1,j}, \dots, g_{t,j}$, the coefficients would sum to 1. However, the coefficient behind $m_{0,j}$ is $B_1^t$ and since $m_{0,j} = 0$, the sum of coefficients of nonzero terms is $1-B_1^t$; hence the correction. The same justification holds for $v_{t,j}$.
+Note that $\beta_1^t$ is $\beta_1$ raised to the power $t$, and likewise for $\beta_2^t$. To justify these corrections, note that if we were to expand $m_{t,j}$ in terms of $m_{0,j}$ and $g_{0,j}, g_{1,j}, \dots, g_{t,j}$, the coefficients would sum to 1. However, the coefficient on $m_{0,j}$ is $\beta_1^t$ and since $m_{0,j} = 0$, the sum of coefficients of nonzero terms is $1-\beta_1^t$; hence the correction. The same justification holds for $v_{t,j}$.
 
 :::{.study-question-callout}
 Define $\hat{m}_{t,j}$ directly as a moving average of $g_{t,j}$. What is the decay ($\gamma$ parameter)?
 :::
 
-Even though we now have a step size for each weight, and we have to update various quantities on each iteration of gradient descent, it's relatively easy to implement by maintaining a matrix for each quantity ($m^{\ell}_t$, $v^{\ell}_t$, $g^{\ell}_t$, ${g^{2}_t}^{\ell}$) in each layer of the network.
+Even though we now have a step size for each weight, and we have to update various quantities on each iteration of gradient descent, it's relatively easy to implement by maintaining a matrix for each quantity ($m^l_t$, $v^l_t$, $g^l_t$, $(g^l_t)^2$) in each layer of the network.
 
 ## Batch Normalization Details {#sec-batch-norm-appendix}
 
@@ -151,39 +155,39 @@ $$
 
 That's the forward pass. Whew!
 
-Now, for the backward pass, we have to do two things: given $\frac{\partial L}{\partial \widehat{Z}^l}$,
+Now, for the backward pass, we have to do two things: given $\frac{\partial \mathcal{L}}{\partial \widehat{Z}^l}$,
 
-- Compute $\frac{\partial L}{\partial Z^l}$ for back-propagation, and  
-- Compute $\frac{\partial L}{\partial G^l}$ and $\frac{\partial L}{\partial B^l}$ for gradient updates of the weights in this layer.
+- Compute $\frac{\partial \mathcal{L}}{\partial Z^l}$ for back-propagation, and  
+- Compute $\frac{\partial \mathcal{L}}{\partial G^l}$ and $\frac{\partial \mathcal{L}}{\partial B^l}$ for gradient updates of the weights in this layer.
 
 Schematically, we have
 
 $$
-\frac{\partial L}{\partial B} = \frac{\partial L}{\partial \widehat{Z}}\, \frac{\partial \widehat{Z}}{\partial B}.
+\frac{\partial \mathcal{L}}{\partial B} = \frac{\partial \mathcal{L}}{\partial \widehat{Z}}\, \frac{\partial \widehat{Z}}{\partial B}.
 $$
 
 It's hard to think about these derivatives in matrix terms, so we'll see how it works for the components. $B_i$ contributes to $\widehat{Z}_{ij}$ for all data points $j$ in the batch. So,
 
 $$
-\frac{\partial L}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}.
+\frac{\partial \mathcal{L}}{\partial B_i} = \sum_j \frac{\partial \mathcal{L}}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial B_i} = \sum_j \frac{\partial \mathcal{L}}{\partial \widehat{Z}_{ij}}.
 $$
 
 Similarly, $G_i$ contributes to $\widehat{Z}_{ij}$ for all data points $j$ in the batch. Thus,
 
 $$
-\frac{\partial L}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \overline{Z}_{ij}.
+\frac{\partial \mathcal{L}}{\partial G_i} = \sum_j \frac{\partial \mathcal{L}}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial G_i} = \sum_j \frac{\partial \mathcal{L}}{\partial \widehat{Z}_{ij}}\, \overline{Z}_{ij}.
 $$
 
 Now, let's figure out how to do backprop. We can start schematically:
 
 $$
-\frac{\partial L}{\partial Z} = \frac{\partial L}{\partial \widehat{Z}}\, \frac{\partial \widehat{Z}}{\partial Z}.
+\frac{\partial \mathcal{L}}{\partial Z} = \frac{\partial \mathcal{L}}{\partial \widehat{Z}}\, \frac{\partial \widehat{Z}}{\partial Z}.
 $$
 
 And because dependencies only exist across the batch, but not across the unit outputs,
 
 $$
-\frac{\partial L}{\partial Z_{ij}} = \sum_{k=1}^K \frac{\partial L}{\partial \widehat{Z}_{ik}}\, \frac{\partial \widehat{Z}_{ik}}{\partial Z_{ij}}.
+\frac{\partial \mathcal{L}}{\partial Z_{ij}} = \sum_{k=1}^K \frac{\partial \mathcal{L}}{\partial \widehat{Z}_{ik}}\, \frac{\partial \widehat{Z}_{ik}}{\partial Z_{ij}}.
 $$
 
 The next step is to note that
@@ -192,7 +196,7 @@ $$
 \frac{\partial \widehat{Z}_{ik}}{\partial Z_{ij}} = \frac{\partial \widehat{Z}_{ik}}{\partial \overline{Z}_{ik}}\, \frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}} = G_i\, \frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}}.
 $$
 
-And now that
+And now, note that
 
 $$
 \frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}} = \Bigl(\delta_{jk} - \frac{\partial \mu_i}{\partial Z_{ij}}\Bigr)\frac{1}{\sigma_i} - \frac{Z_{ik}-\mu_i}{\sigma_i^2}\, \frac{\partial \sigma_i}{\partial Z_{ij}},
@@ -208,5 +212,5 @@ $$
 Putting the whole thing together, we get
 
 $$
-\frac{\partial L}{\partial Z_{ij}} = \sum_{k=1}^K \frac{\partial L}{\partial \widehat{Z}_{ik}}\, G_i\, \frac{1}{K\,\sigma_i}\left(K\,\delta_{jk} - 1 - \frac{(Z_{ik}-\mu_i)(Z_{ij}-\mu_i)}{\sigma_i^2}\right).
+\frac{\partial \mathcal{L}}{\partial Z_{ij}} = \sum_{k=1}^K \frac{\partial \mathcal{L}}{\partial \widehat{Z}_{ik}}\, G_i\, \frac{1}{K\,\sigma_i}\left(K\,\delta_{jk} - 1 - \frac{(Z_{ik}-\mu_i)(Z_{ij}-\mu_i)}{\sigma_i^2}\right).
 $$
