@@ -275,10 +275,10 @@ Now that we are convinced we need a non-linear activation, let's examine a few c
 
 **Hyperbolic tangent:** Always in the range $(-1, 1)$: $$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$
 
-**Softmax function:** Takes a whole vector $Z \in \mathbb{R}^n$ and generates as output a vector $A \in (0, 1)^n$ with the property that $\sum_{i = 1}^n A_i = 1$, which means we can interpret it as a probability distribution over $n$ items: 
+**Softmax function:** Takes a whole vector $z \in \mathbb{R}^n$ and generates as output a vector $a \in (0, 1)^n$ with the property that $\sum_{i = 1}^n a_i = 1$, which means we can interpret it as a probability distribution over $n$ items:
 
 $$
-\text{softmax}(z) =
+\operatorname{softmax}(z) =
           \begin{bmatrix}
             \exp(z_1) / \sum_{i} \exp(z_i) \\
             \vdots                         \\
@@ -371,7 +371,7 @@ At layer $L,$ which is the output layer, we need to specify a loss function, and
 |  nllm   | softmax | multi-class classification |
 :::
 
-We explored squared loss in @sec-regression and (nll and nllm) in @sec-classification.
+We explored squared loss in @sec-regression and the nll and nllm losses in @sec-classification.
 
 ## Error back-propagation
 
@@ -379,7 +379,7 @@ We will train neural networks using gradient descent methods. It's possible to u
 
 Our notation is going to get pretty hairy pretty quickly. To keep it as simple as we can, we'll focus on computing the contribution of one data point $x^{(i)}$ to the gradient of the loss with respect to the weights, for SGD; you can simply sum up these gradients over all the data points if you wish to do batch descent.
 
-So, to do SGD for a training example $(x, y)$, we need to compute $\nabla_W \mathcal{L}(\text{NN}(x;W),y)$, where $W$ represents all weights $W^l, W_0^l$ in all the layers $l = (1, \ldots, L)$. This seems terrifying, but is actually quite easy to do using the chain rule.
+So, to do SGD for a training example $(x, y)$, we need to compute $\nabla_W \mathcal{L}(\text{NN}(x;W),y)$, where $W$ represents all weights $W^l, W_0^l$ in all the layers $l = 1, \ldots, L$. This seems terrifying, but is actually quite easy to do using the chain rule.
 
 :::{.column-margin}
 Remember the chain rule!  If $a = f(b)$ and $b = g(c)$, so that $a = f(g(c))$, then 
@@ -490,7 +490,7 @@ $$
 **Shape check:**
 
 * Since the loss and $g$ are scalars, $\tfrac{\partial \mathcal{L}}{\partial g}$ and $f'(z)$ are scalars.
-* Because $z$ is a scalar and $w \in \mathbb{R}^{d_0 \times 1}$, $\tfrac{\partial z}{\partial w}$ is a vector with the same shape as $w$, which is consistent here.
+* Because $z$ is a scalar and $w \in \mathbb{R}^{d \times 1}$, $\tfrac{\partial z}{\partial w}$ is a vector with the same shape as $w$, which is consistent here.
 
 Also note the arrangement of the terms. Once we move to neural networks with vector outputs and multiple layers, the matrix form of the chain rule (under the denominator-layout convention we are using) requires working from right to left. Conveniently, this order matches how computations are drawn in network block diagrams.
 
@@ -502,7 +502,7 @@ As a final connection to earlier models:
 So linear regressors and logistic classifiers are simply single-neuron networks!
 
 :::{.study-question-callout}
-Suppose you choose squared loss. What is $\partial \text{loss} / \partial a^L$?
+Suppose you choose squared loss. What is $\partial \mathcal{L} / \partial g$?
 :::
 
 :::{.study-question-callout}
@@ -728,6 +728,8 @@ $${#eq-gradz}
 - so $W^{l+1}\tfrac{\partial \mathcal{L}}{\partial Z^{l+1}} \in\mathbb{R}^{d_l\times 1}$.
 - ${f^l}'(Z^l)\in\mathbb{R}^{d_l\times d_l}$ keeps the shape consistent.
 
+Here ${f^l}'(Z^l)$ denotes the Jacobian $\partial A^l / \partial Z^l$; for elementwise activations it is the diagonal matrix with entries $(f^l)'(Z^l_j)$ (softmax is the exception, with off-diagonal terms).
+
 For a general neural network with $L$ layers, the same reasoning applies.
 
 **Forward pass:**
@@ -801,8 +803,8 @@ $$
 This general process of computing the gradients of the loss with respect to the weights is called *error back-propagation*.
 
 :::{.column-margin}
-\note{We could call this
-  ``blame propagation''.  Think of $\text{loss}$ as how mad we
+We could call this
+  "blame propagation".  Think of $\text{loss}$ as how mad we
   are about the prediction just made.  Then $\partial
     \text{loss}/ \partial A^L$ is how much we blame $A^L$ for the loss.
   The last module has to take in $\partial \text{loss}/ \partial A^L$
@@ -811,7 +813,7 @@ This general process of computing the gradients of the loss with respect to the 
   takes in $\partial \text{loss}/ \partial Z^L$ and computes $\partial
     \text{loss}/ \partial A^{L-1}$.  So every module is accepting its
   blame for the loss, computing how much of it to allocate to each of
-  its inputs, and passing the blame back to them.}
+  its inputs, and passing the blame back to them.
 :::
 
 
@@ -870,319 +872,25 @@ If we view our neural network as a sequential composition of modules (in our wor
 
 -   forward: $u \rightarrow v$
 
--   backward: $u, v, \partial L /
-              \partial v \rightarrow \partial L / \partial u$
+-   backward: $u, v, \partial \mathcal{L} /
+              \partial v \rightarrow \partial \mathcal{L} / \partial u$
 
 :::{.column-margin}
-Notice that the backward pass does not output $\partial v / \partial u$, even though the forward pass maps from $u$ to $v$. In the backward pass, we are always directly computing and ``passing around'' gradients of the loss.
+Notice that the backward pass does not output $\partial v / \partial u$, even though the forward pass maps from $u$ to $v$. In the backward pass, we are always directly computing and "passing around" gradients of the loss.
 :::
 
--   weight grad: $u, \partial L / \partial v \rightarrow \partial L
+-   weight grad: $u, \partial \mathcal{L} / \partial v \rightarrow \partial \mathcal{L}
               / \partial W$ only needed for modules that have weights $W$
 
 In homework we will ask you to implement these modules for neural network components, and then use them to construct a network and train it as described in the next section.
 
-<!--
-### First, suppose everything is one-dimensional
-
-To get some intuition for how these derivations work, we'll first suppose everything in our neural network is one-dimensional. In particular, we'll assume there are $m^l = 1$ inputs and $n^l = 1$ outputs at every layer. So layer $l$ looks like: $$a^l = f^l(z^l), \quad z^l = w^l a^{l-1} + w^l_0.$$ In the equation above, we're using the lowercase letters $a^l, z^l, w^l, a^{l-1}, w^l_0$ to emphasize that all of these quantities are scalars just for the moment. We'll look at the more general matrix case below.
-
-To use SGD, then, we want to compute $\partial \mathcal{L}(\text{NN}(x;W),y) / \partial w^l$ and $\partial \mathcal{L}(\text{NN}(x;W),y) / \partial w_0^l$ for each layer $l$ and each data point $(x,y)$. Below we'll write "loss" as an abbreviation for $\mathcal{L}(\text{NN}(x;W),y)$. Then our first quantity of interest is $\partial \text{loss} / \partial w^l$. The chain rule gives us the following. 
-
-:::{.column-margin}
-Check your understanding: why do we need exactly these quantities for SGD?
-:::
-
-
-First, let's look at the case $l=L$: 
-
-$$\begin{aligned}
-  \frac{ \partial \text{loss} }{ \partial w^L }
-  &= \frac{ \partial \text{loss} }{ \partial a^L }
-  \cdot \frac{ \partial a^L }{ \partial z^L }
-  \cdot \frac{ \partial z^L }{ \partial w^L } \\
-  &= \frac{ \partial \text{loss} }{ \partial a^L } \cdot (f^L)'(z^L) \cdot a^{L-1}.
-\end{aligned}$$ 
-
-Now we can look at the case of general $l$: 
-
-$$\begin{aligned}
-  \frac{ \partial \text{loss} }{ \partial w^l }
-  &= \frac{ \partial \text{loss} }{ \partial a^L }
-  \cdot \frac{ \partial a^L }{ \partial z^L }
-  \cdot \frac{ \partial z^L }{ \partial a^{L-1} }
-  \cdot \frac{ \partial a^{L-1} }{ \partial z^{L-1} }
-  \cdots
-  \frac{ \partial z^{l+1} }{ \partial a^{l} }
-  \cdot \frac{ \partial a^{l} }{ \partial z^l }
-  \cdot \frac{ \partial z^l }{ \partial w^l } \\
-  &= \frac{ \partial \text{loss} }{ \partial a^L } \cdot (f^L)'(z^L) \cdot w^L
-  \cdot (f^{L-1})'(z^{L-1})
-  \cdots
-  \cdot w^{l+1}
-  \cdot (f^{l})'(z^{l})
-  \cdot a^{l-1} \\
-  &= \frac{ \partial \text{loss} }{ \partial z^l } \cdot a^{l-1}.
-\end{aligned}$$
-
-Note that every multiplication above is scalar multiplication because every term in every product above is a scalar. And though we solved for all the other terms in the product, we haven't solved for $\partial \text{loss} / \partial a^L$ because the derivative will depend on which loss function you choose. Once you choose a loss function though, you should be able to compute this derivative.
-
-:::{.study-question-callout}
-Suppose you choose squared loss. What is $\partial \text{loss} / \partial a^L$?
-:::
-
-:::{.study-question-callout}
-Check the derivations above yourself. You should use the chain rule and also solve for the individual derivatives that arise in the chain rule.
-:::
-
-:::{.study-question-callout}
-Check that the final layer ($l=L$) case is a special case of the general layer $l$ case above.
-:::
-
-:::{.study-question-callout}
-Derive $\partial \mathcal{L}(\text{NN}(x;W),y) / \partial w_0^l$ for yourself, for both the final layer ($l=L$) and general $l$.
-:::
-
-:::{.study-question-callout}
-Does the $L=1$ case remind you of anything from earlier in this course?
-:::
-
-:::{.study-question-callout}
-Write out the full SGD algorithm for this neural network.
-:::
-
-
-
-It's pretty typical to run the chain rule from left to right like we did above. But, for where we're going next, it will be useful to notice that it's completely equivalent to write it in the other direction. So we can rewrite our result from above as follows: 
-
-$$\begin{aligned}
-  \frac{ \partial \text{loss} }{ \partial w^l }
-  &= a^{l-1} \cdot \frac{ \partial \text{loss} }{ \partial z^l } \\
-\end{aligned}
-$${#eq-gradloss_oned}
-
-$$\begin{aligned}
-  \frac{ \partial \text{loss} }{ \partial z^l }
-  &= \frac{ \partial a^{l} }{ \partial z^l }
-  \cdot \frac{ \partial z^{l+1} }{ \partial a^{l} }
-  \cdots
-  \frac{ \partial a^{L-1} }{ \partial z^{L-1} }
-  \cdot \frac{ \partial z^L }{ \partial a^{L-1} }
-  \cdot \frac{ \partial a^L }{ \partial z^L }
-  \cdot \frac{ \partial \text{loss} }{ \partial a^L } \\
-\end{aligned}
-$${#eq-gradz_intermediate_oned}
-
-$$
-\begin{aligned}
-  &= \frac{ \partial a^{l} }{ \partial z^l } \cdot w^{l+1}
-  \cdots
-  \frac{ \partial a^{L-1} }{ \partial z^{L-1} } \cdot w^L \cdot \frac{ \partial a^L }{ \partial z^L }
-  \cdot \frac{ \partial \text{loss} }{ \partial a^L }.
-\end{aligned}
-$${#eq-gradz_oned}
-
-:::{.column-margin}
-Even though we have reordered the gradients for notational convenience, when actually computing the product in @eq-gradz_oned, it is computationally much cheaper to run the multiplications from right-to-left than from left-to-right. Convince yourself of this, by reasoning through the cost of the matrix multiplications in each case.
-:::
-
-### The general case
-
-Next we're going to do everything that we did above, but this time we'll allow any number of inputs $m^l$ and outputs $n^l$ at every layer. First, we'll tell you the results that correspond to our derivations above. Then we'll talk about why they make sense. And finally we'll derive them carefully.
-
-OK, let's start with the results! Again, below we'll be using "loss" as an abbreviation for $\mathcal{L}(\text{NN}(x;W),y)$. Then, 
-
-$$
-\begin{aligned}
-\underbrace{\frac{\partial \text{loss}}{\partial W^l}}_{m^l \times n^l}
-  &=
-  \underbrace{A^{l-1}}_{m^l \times 1} \;
-  \underbrace{\left(\frac{\partial \text{loss}}{\partial
-      Z^l}\right)^T}_{1 \times n^l} \\
-\end{aligned}
-$${#eq-gradloss}
-
-:::{.column-margin}
-There are lots of weights in a neural network, which means we need to compute a lot of gradients. Luckily, as we can see, the gradients associated with weights in earlier layers depend on the same terms as the gradients associated with weights in later layers. This means we can reuse terms and save ourselves some computation!
-:::
-
-where
-$$
-\begin{aligned}
-  \frac{\partial \text{loss}}{\partial Z^l}
-  &= \frac{\partial A^l}{\partial Z^l}
-  \cdot \frac{\partial Z^{l+1}}{ \partial A^l}
-  \cdots
-  \cdot \frac{\partial A^{L-1}}{\partial Z^{L-1}}
-  \cdot \frac{\partial Z^{L}}{\partial A^{L-1}}
-  \cdot \frac{\partial A^{L}}{\partial Z^{L}}
-  \cdot \frac{\partial \text{loss}}{\partial A^L}
-  \\
-\end{aligned}
-$${#eq-gradz_intermediate}
-
-or equivalently,
-$$
-\begin{aligned}
-\frac{\partial \text{loss}}{\partial Z^l}
-  &= \frac{\partial A^l}{\partial Z^l}
-  \cdot W^{l+1}
-  \cdots
-  \cdot \frac{\partial A^{L-1}}{\partial Z^{L-1}}
-  \cdot W^{L}
-  \cdot \frac{\partial A^{L}}{\partial Z^{L}}
-  \cdot \frac{\partial \text{loss}}{\partial A^L} \; .
-\end{aligned}
-$${#eq-gradz}
-
-First, compare each equation to its one-dimensional counterpart, and make sure you see the similarities. That is, compare the general weight derivatives in @eq-gradloss to the one-dimensional case in @eq-gradloss_oned. Compare the intermediate derivative of loss with respect to the pre-activations $Z^l$ in @eq-gradz_intermediate to the one-dimensional case in @eq-gradz_intermediate_oned. And finally compare the version where we've substituted in some of the derivatives in @eq-gradz to @eq-gradz_oned. Hopefully you see how the forms are very analogous. But in the matrix case, we now have to be careful about the matrix dimensions. We'll check these matrix dimensions below.
-
-Let's start by talking through each of the terms in the matrix version of these equations. Recall that loss is a scalar, and $W^l$ is a matrix of size $m^l \times n^l$. You can read about the conventions in the course for derivatives starting in this chapter in @sec-matrix-calculus. By these conventions (not the only possible conventions!), we have that $\partial \text{loss} / \partial W^l$ will be a matrix of size $m^l \times n^l$ whose $(i,j)$ entry is the scalar $\partial \text{loss} / \partial W^l_{i,j}$. In some sense, we're just doing a bunch of traditional scalar derivatives, and the matrix notation lets us write them all simultaneously and succinctly. In particular, for SGD, we need to find the derivative of the loss with respect to every scalar component of the weights because these are our model's parameters and therefore are the things we want to update in SGD.
-
-The next quantity we see in @eq-gradloss is $A^{l-1}$, which we recall has size $m^l \times 1$ (or equivalently $n^{l-1} \times 1$ since it represents the outputs of the $l-1$ layer). Finally, we see $\partial \text{loss} / \partial Z^l$. Again, loss is a scalar, and $Z^l$ is a $n^l \times 1$ vector. So by the conventions in @sec-matrix-calculus, we have that $\partial \text{loss} / \partial Z^l$ has size $n^l \times 1$. The transpose then has size $1 \times n^l$. Now you should be able to check that the dimensions all make sense in @eq-gradloss; in particular, you can check that inner dimensions agree in the matrix multiplication and that, after the multiplication, we should be left with something that has the dimensions on the lefthand side.
-
-Now let's look at @eq-gradz. We're computing $\partial \text{loss} / \partial Z^l$ so that we can use it in @eq-gradloss. The weights are familiar. The one part that remains is terms of the form $\partial A^l / \partial Z^l$. Checking out @sec-matrix-calculus, we see that this term should be a matrix of size $n^l \times n^l$ since $A^l$ and $Z^l$ both have size $n^l \times 1$. The $(i,j)$ entry of this matrix is $\partial A^l_j / \partial Z^l_i$. This scalar derivative is something that you can compute when you know your activation function. If you're not using a softmax activation function, $A^l_j$ typically is a function only of $Z^l_j$, which means that $\partial A^l_j / \partial Z^l_i$ should equal 0 whenever $i \ne j$, and that $\partial A^l_j / \partial Z^l_j = (f^l)'(Z^l_j)$.
-
-:::{.study-question-callout}
-Compute the dimensions of every term in @eq-gradz_intermediate and @eq-gradz using @sec-matrix-calculus. After you've done that, check that all the matrix multiplications work; that is, check that the inner dimensions agree and that the lefthand side and righthand side of these equations have the same dimensions.
-:::
-
-:::{.study-question-callout}
-If I use the identity activation function, what is $\partial A^l_j / \partial Z^l_j$ for any $j$? What is the full matrix $\partial A^l / \partial Z^l$?
-:::
-
-### Derivations for the general case
-
-You can use everything above without deriving it yourself. But if you want to find the gradients of loss with respect to $W^l_0$ (which we need for SGD!), then you'll want to know how to actually do these derivations. So next we'll work out the derivations.
-
-The key trick is to just break every equation down into its scalar meaning. For instance, the $(i,j)$ element of $\partial \text{loss} / \partial W^l$ is $\partial \text{loss} / \partial W^l_{i,j}$. If you think about it for a moment (and it might help to go back to the one-dimensional case), the loss is a function of the elements of $Z^l$, and the elements of $Z^l$ are a function of the $W^l_{i,j}$. There are $n^l$ elements of $Z^l$, so we can use the chain rule to write 
-
-$$
-  \frac{ \partial \text{loss} }{ \partial W^l_{i,j} }
-  = \sum_{k=1}^{n^l} \frac{ \partial \text{loss} }{ \partial Z^l_k } \frac{ \partial Z^l_k }{ \partial W^l_{i,j} }.
-$${#eq-partial_loss_partial_W_intermediate} 
-
-To figure this out, let's remember that $Z^l = (W^l)^\top A^{l-1} + W_0^l$. We can write one element of the $Z^l$ vector, then, as $Z^l_{b} = \sum_{a=1}^{m^l} W_{a,b}^{l} A_a^{l-1} + (W_0^l)_b$. It follows that $\partial Z^l_k / \partial W^l_{i,j}$ will be zero except when $k=j$ (check you agree!). So we can rewrite @eq-partial_loss_partial_W_intermediate as 
-
-$$
-\frac{ \partial \text{loss} }{ \partial W^l_{i,j} }
-  = \frac{ \partial \text{loss} }{ \partial Z^l_j } \frac{ \partial Z^l_j }{ \partial W^l_{i,j} }
-  = \frac{ \partial \text{loss} }{ \partial Z^l_j } A_i^{l-1}.
-$${#eq-partial_loss_partial_W_entries}
-
-Finally, then, we match entries of the matrices on both sides of the equation above to recover @eq-gradloss.
-
-
-:::{.study-question-callout}
-Check that @eq-partial_loss_partial_W_entries and @eq-gradloss say the same thing.
-:::
-
-:::{.study-question-callout}
-Convince yourself that $\partial Z^{l} / \partial A^{l-1} = W^l$ by comparing the entries of the matrices on both sides on the equality sign.
-:::
-
-:::{.study-question-callout}
-Convince yourself that @eq-gradz_intermediate is true.
-:::
-
-:::{.study-question-callout}
-Apply the same reasoning to find the gradients of $\text{loss}$ with respect to $W_0^l$.
-:::
-
-
-### Reflecting on backpropagation
-
-This general process of computing the gradients of the loss with respect to the weights is called *error back-propagation*. 
-
-:::{.column-margin}
-\note{We could call this
-  ``blame propagation''.  Think of $\text{loss}$ as how mad we
-  are about the prediction just made.  Then $\partial
-    \text{loss}/ \partial A^L$ is how much we blame $A^L$ for the loss.
-  The last module has to take in $\partial \text{loss}/ \partial A^L$
-  and compute $\partial \text{loss}/ \partial Z^L$, which is how much
-  we blame $Z^L$ for the loss.  The next module (working backwards)
-  takes in $\partial \text{loss}/ \partial Z^L$ and computes $\partial
-    \text{loss}/ \partial A^{L-1}$.  So every module is accepting its
-  blame for the loss, computing how much of it to allocate to each of
-  its inputs, and passing the blame back to them.}
-:::
-
-
-The idea is that we first do a *forward pass* to compute all the $a$ and $z$ values at all the layers, and finally the actual loss. Then, we can work backward and compute the gradient of the loss with respect to the weights in each layer, starting at layer $L$ and going back to layer 1.
-
-:::{.imagify}
-  \begin{tikzpicture}[
-    scale=.98,
-    background rectangle/.style={fill=white},
-    show background rectangle
-  ]
-    \coordinate (x) at (0,0);
-    \node[inner sep=0em] (w1) at (1.7,0)
-    {\begin{tabular}{c} $W^1$ \\ $W^1_0$\end{tabular}};
-    \node[inner sep=1em] (f1) at ($2*(w1)$) {$f^1$};
-    \node[inner sep=0em] (w2) at ($3*(w1)$)
-    {\begin{tabular}{c} $W^2$ \\ $W^2_0$\end{tabular}};
-    \node[inner sep=1em] (f2) at ($4*(w1)$) {$f^2$};
-    \node (dots) at ($5*(w1)$) {$\cdots$};
-    \node[inner sep=0em] (wL) at ($6*(w1)$)
-    {\begin{tabular}{c} $W^L$ \\ $W^L_0$\end{tabular}};
-    \node[inner sep=1em] (fL) at ($7*(w1)$) {$f^L$};
-    \node (loss) at ($8*(w1)$) {Loss};
-    \coordinate (y) at ($8*(w1) + (0,1.5)$);
-
-    \draw[->] (x) -- node[above] {$X = A^0$} (w1);
-    \draw[->] (w1) -- node[above] {$Z^1$} (f1);
-    \draw[->] (f1) -- node[above] {$A^1$} (w2);
-    \draw[->] (w2) -- node[above] {$Z^2$} (f2);
-    \draw[->] (f2) -- node[above] {$A^2$} (dots);
-    \draw[->] (dots) -- node[above] {$A^{L-1}$} (wL);
-    \draw[->] (wL) -- node[above] {$Z^L$} (fL);
-    \draw[->] (fL) -- node[above] {$A^L$} (loss);
-    \draw[->] (y) -- node[right] {$y$} ($(loss)+(0,.65)$);
-
-    %\draw[->,yshift=0.5cm] (loss.west) to [out=150,in=30] (fL.east);
-    \foreach \s/\e/\t in {loss/fL/A^L,
-    fL/wL/Z^L,
-    wL/dots/A^{L-1},
-    dots/f2/A^2,
-    f2/w2/Z^2,
-    w2/f1/A^1,
-    f1/w1/Z^1}{
-    \path[->] ($(\s.west) - (0,.5)$) edge[out=210,in=-30] node[below]
-      {$\frac{\partial \text{loss}}{\partial \t}$}
-    ($(\e.east) - (0,.5)$);
-    }
-    \foreach \point in {w1, f1, w2, f2, wL, fL}{
-        \draw ($(\point) + (-.3,-.5)$) rectangle ($(\point) + (.3,.5)$);
-      }
-    \draw ($(loss) + (-.4,-.5)$) rectangle ($(loss) + (.4,.5)$);
-  \end{tikzpicture}
-:::
-
-If we view our neural network as a sequential composition of modules (in our work so far, it has been an alternation between a linear transformation with a weight matrix, and a component-wise application of a non-linear activation function), then we can define a simple API for a module that will let us compute the forward and backward passes, as well as do the necessary weight updates for gradient descent. Each module has to provide the following "methods." We are already using letters $a, x, y, z$ with particular meanings, so here we will use $u$ as the vector input to the module and $v$ as the vector output:
-
--   forward: $u \rightarrow v$
-
--   backward: $u, v, \partial L /
-              \partial v \rightarrow \partial L / \partial u$
-
-:::{.column-margin}
-Notice that the backward pass does not output $\partial v / \partial u$, even though the forward pass maps from $u$ to $v$. In the backward pass, we are always directly computing and ``passing around'' gradients of the loss.
-:::
-
--   weight grad: $u, \partial L / \partial v \rightarrow \partial L
-              / \partial W$ only needed for modules that have weights $W$
-
-In homework we will ask you to implement these modules for neural network components, and then use them to construct a network and train it as described in the next section.
--->
 
 
 
 
 ## Training
 
-Here we go! Here's how to do stochastic gradient descent training on a feed-forward neural network. After this pseudo-code, we motivate the choice of initialization in lines 2 and 3. The actual computation of the gradient values (e.g., $\partial\text{loss}/\partial A^L$) is not directly defined in this code, because we want to make the structure of the computation clear.
+Here we go! Here's how to do stochastic gradient descent training on a feed-forward neural network. The procedure takes the layer input sizes $m^1, \ldots, m^L$ along with the output size $n^L$; the remaining output sizes are determined by $n^l = m^{l+1}$. After this pseudo-code, we motivate the choice of initialization for the weights. The actual computation of the gradient values (e.g., $\partial\text{loss}/\partial A^L$) is not directly defined in this code, because we want to make the structure of the computation clear.
 
 :::{.study-question-callout}
 What is $\partial Z^l / \partial W^l$?
@@ -1204,7 +912,7 @@ Which terms in the code below depend on $f^L$?
 #| pdf-line-number: true
 \begin{algorithm}
 \begin{algorithmic}[1]
-\Procedure{SGD-NEURAL-NET}{$\mathcal{D}_n, T, L,\left(m^1, \ldots, m^L\right),\left(f^1, \ldots, f^{L}\right), \text{Loss}$}
+\Procedure{SGD-NEURAL-NET}{$\mathcal{D}_n, T, L,\left(m^1, \ldots, m^L, n^L\right),\left(f^1, \ldots, f^{L}\right), \text{Loss}$}
   \For{$l \gets 1$ to $L$}
     \State $W_{ij}^l \sim \text{Gaussian}(0, 1/m^l)$
     \State $W_{0j}^l \sim \text{Gaussian}(0, 1)$
@@ -1214,7 +922,7 @@ Which terms in the code below depend on $f^L$?
     \State $i \gets \text{random sample from } \{1,\ldots,n\}$
     \State $A^0 \gets x^{(i)}$  \Comment{forward pass to compute $A^L$}
     \For{$l \gets 1$ to $L$}
-      \State $Z^l \gets W^{l^T} A^{l-1} + W_0^l$
+      \State $Z^l \gets (W^l)^\top A^{l-1} + W_0^l$
       \State $A^l \gets f^l(Z^l)$
     \EndFor
 
@@ -1233,7 +941,9 @@ Which terms in the code below depend on $f^L$?
       \State $\displaystyle \frac{\partial\text{loss}}{\partial W_0^l} \gets 
               \frac{\partial \text{loss}}{\partial Z^l}$
 
-      \Comment{SGD update}
+    \EndFor
+
+    \For{$l \gets 1$ to $L$} \Comment{SGD update}
       \State $W^l \gets W^l - \eta(t)\,\frac{\partial \text{loss}}{\partial W^l}$
       \State $W_0^l \gets W_0^l - \eta(t)\,\frac{\partial \text{loss}}{\partial W_0^l}$
     \EndFor
@@ -1245,7 +955,7 @@ Which terms in the code below depend on $f^L$?
 
 Initializing $W$ is important; if you do it badly there is a good chance the neural network training won't work well. First, it is important to initialize the weights to random values. We want different parts of the network to tend to "address" different aspects of the problem; if they all start at the same weights, the symmetry will often keep the values from moving in useful directions. Second, many of our activation functions have (near) zero slope when the pre-activation $z$ values have large magnitude, so we generally want to keep the initial weights small so we will be in a situation where the gradients are non-zero, so that gradient descent will have some useful signal about which way to go.
 
-One good general-purpose strategy is to choose each weight at random from a Gaussian (normal) distribution with mean 0 and standard deviation $(1/m)$ where $m$ is the number of inputs to the unit. 
+One good general-purpose strategy is to choose each weight at random from a Gaussian (normal) distribution with mean $0$ and variance $1/m$ (standard deviation $1/\sqrt{m}$), where $m$ is the number of inputs to the unit.
 
 :::{.study-question-callout}
 If the input $x$ to this unit is a vector of 1's, what would the expected pre-activation $z$ value be with these initial weights?
@@ -1321,14 +1031,14 @@ Picking $K$ unique data points at random from a large data-set is potentially co
 ```
 
 :::{.column-margin}
-In line 4 of the algorithm above, $\lceil \cdot \rceil$ is known as the *ceiling* function; it returns the smallest integer greater than or equal to its input. E.g., $\lceil 2.5 \rceil = 3$ and $\lceil 3 \rceil = 3$.
+In the mini-batch loop of the algorithm above, $\lceil \cdot \rceil$ is known as the *ceiling* function; it returns the smallest integer greater than or equal to its input. E.g., $\lceil 2.5 \rceil = 3$ and $\lceil 3 \rceil = 3$.
 :::
 
 ### Adaptive step-size
 
 Picking a value for $\eta$ is difficult and time-consuming. If it's too small, then convergence is slow and if it's too large, then we risk divergence or slow convergence due to oscillation. This problem is even more pronounced in stochastic or mini-batch mode, because we know we need to decrease the step size for the formal guarantees to hold.
 
-It's also true that, within a single neural network, we may well want to have different step sizes. As our networks become *deep* (with increasing numbers of layers) we can find that magnitude of the gradient of the loss with respect the weights in the last layer, $\partial \text{loss} / \partial W_L$, may be substantially different from the gradient of the loss with respect to the weights in the first layer $\partial \text{loss} / \partial W_1$. If you look carefully at @eq-gradz, you can see that the output gradient is multiplied by all the weight matrices of the network and is "fed back" through all the derivatives of all the activation functions. This can lead to a problem of *exploding* or *vanishing* gradients, in which the back-propagated gradient is much too big or small to be used in an update rule with the same step size.
+It's also true that, within a single neural network, we may well want to have different step sizes. As our networks become *deep* (with increasing numbers of layers) we can find that magnitude of the gradient of the loss with respect the weights in the last layer, $\partial \text{loss} / \partial W^L$, may be substantially different from the gradient of the loss with respect to the weights in the first layer $\partial \text{loss} / \partial W^1$. If you look carefully at @eq-gradz, you can see that the output gradient is multiplied by all the weight matrices of the network and is "fed back" through all the derivatives of all the activation functions. This can lead to a problem of *exploding* or *vanishing* gradients, in which the back-propagated gradient is much too big or small to be used in an update rule with the same step size.
 
 So, we can consider having an independent step-size parameter *for each weight*, and updating it based on a local view of how the gradient updates have been going. 
 
@@ -1349,7 +1059,7 @@ One group of strategies can, interestingly, be shown to have similar effects to 
 
 
 :::{.column-margin}
-Result is due to Bishop, described in his textbook and [here](doi.org/10.1162/neco.1995.7.1.108).
+Result is due to Bishop, described in his textbook and [here](https://doi.org/10.1162/neco.1995.7.1.108).
 :::
 
 
@@ -1361,17 +1071,17 @@ Warning: If you use your validation set in this way -- i.e., to set the number o
 
 Another common strategy is to simply penalize the norm of all the weights, as we did in ridge regression. This method is known as *weight decay*, because when we take the gradient of the objective 
 $$
-J(W) = \sum_{i = 1}^{n}\mathcal{L}(\text{NN}(x^{(i)}), y^{(i)}; W)
+J(W) = \sum_{i = 1}^{n}\mathcal{L}(\text{NN}(x^{(i)}; W), y^{(i)})
   + \lambda\|W\|^2
 $$ we end up with an update of the form 
 
 $$
 \begin{aligned}
   W_t & = W_{t-1} -
-  \eta\left(\left(\nabla_{W}\mathcal{L}(\text{NN}(x^{(i)}),
-  y^{(i)}; W_{t-1})\right) + 2\lambda W_{t-1}\right)                                      \\
-      & = W_{t-1}(1 - 2\lambda\eta) - \eta\left(\nabla_{W}\mathcal{L}(\text{NN}(x^{(i)}),
-    y^{(i)}; W_{t-1})\right) \;\;.
+  \eta\left(\left(\nabla_{W}\mathcal{L}(\text{NN}(x^{(i)}; W_{t-1}),
+  y^{(i)})\right) + 2\lambda W_{t-1}\right)                                      \\
+      & = W_{t-1}(1 - 2\lambda\eta) - \eta\left(\nabla_{W}\mathcal{L}(\text{NN}(x^{(i)}; W_{t-1}),
+    y^{(i)})\right) \;\;.
 \end{aligned}
 $$
 
@@ -1383,13 +1093,13 @@ Finally, the same effect can be achieved by perturbing the $x^{(i)}$ values of t
 
 Dropout is a regularization method that was designed to work with deep neural networks. The idea behind it is, rather than perturbing the data every time we train, we'll perturb the network! We'll do this by randomly, on each training step, selecting a set of units in each layer and prohibiting them from participating. Thus, all of the units will have to take a kind of "collective" responsibility for getting the answer right, and will not be able to rely on any small subset of the weights to do all the necessary computation. This tends also to make the network more robust to data perturbations.
 
-During the training phase, for each training example, for each unit, randomly with probability $p$ temporarily set $a^{\ell}_j = 0$. There will be no contribution to the output and no gradient update for the associated unit.
+During the training phase, for each training example, for each unit, randomly with probability $1-p$ temporarily set $a^{\ell}_j = 0$. There will be no contribution to the output and no gradient update for the associated unit.
 
 When we are done training and want to use the network to make predictions, we multiply all weights by $p$ to achieve the same average activation levels.
 
 Implementing dropout is easy! In the forward pass during training, we let $$
 a^{\ell} = f(z^{\ell}) * d^{\ell}
-$$ where $*$ denotes component-wise product and $d^{\ell}$ is a vector of $0$'s and $1$'s drawn randomly with probability $p$. The backwards pass depends on $a^{\ell}$, so we do not need to make any further changes to the algorithm.
+$$ where $*$ denotes component-wise product and $d^{\ell}$ is a vector whose entries are $1$ with probability $p$ and $0$ otherwise. The backwards pass depends on $a^{\ell}$, so we do not need to make any further changes to the algorithm.
 
 It is common to set $p$ to $0.5$, but this is something one might experiment with to get good results on your problem and data.
 
@@ -1405,7 +1115,7 @@ For more details see arxiv.org/abs/1502.03167.
 
 It was originally developed to address a problem of *covariate shift*: that is, if you consider the second layer of a two-layer neural network, the distribution of its input values is changing over time as the first layer's weights change. Learning when the input distribution is changing is extra difficult: you have to change your weights to improve your predictions, but also just to compensate for a change in your inputs (imagine, for instance, that the magnitude of the inputs to your layer is increasing over time---then your weights will have to decrease, just to keep your predictions the same).
 
-So, when training with mini-batches, the idea is to *standardize* the input values for each mini-batch, just in the way that we did it in @sec-realFeature of @sec-features, subtracting off the mean and dividing by the standard deviation of each input dimension. This means that the scale of the inputs to each layer remains the same, no matter how the weights in previous layers change. However, this somewhat complicates matters, because the computation of the weight updates will need to take into account that we are performing this transformation. In the modular view, batch normalization can be seen as a module that is applied to $z^l$, interposed after the product with $W^l$ and before input to $f^l$.
+So, when training with mini-batches, the idea is to *standardize* the input values for each mini-batch, just in the way that we did it in @sec-realFeature of @sec-features, subtracting off the mean and dividing by the standard deviation of each input dimension. This means that the scale of the inputs to each layer remains the same, no matter how the weights in previous layers change. However, this somewhat complicates matters, because the computation of the weight updates will need to take into account that we are performing this transformation. In the modular view, batch normalization can be seen as a module that is applied to $Z^l$, interposed after the product with $W^l$ and before input to $f^l$.
 
 :::{.column-margin}
 We follow here the suggestion from the original paper of applying batch normalization before the activation function.  Since then it has been shown that, in some cases, applying it after works a bit better. But there aren't any definite findings on which works better and when.
