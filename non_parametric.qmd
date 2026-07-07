@@ -1,6 +1,6 @@
 # Non-parametric Models {#sec-nonparametric}
 
-Neural networks have adaptable complexity in the sense that we can try different architectures and use cross-validation to pick one that works well on our data. In this chapter we turn to models that adapt their complexity *automatically* to the training data: the name *non-parametric* is misleading: these methods do have parameters, but the size of the parameterization can grow as we acquire more data, rather than being fixed in advance.
+Neural networks have adaptable complexity in the sense that we can try different architectures and use cross-validation to pick one that works well on our data. In this chapter we turn to models that adapt their complexity *automatically* to the training data. The name *non-parametric* is misleading: these methods do have parameters, but the size of the parameterization can grow as we acquire more data, rather than being fixed in advance.
 
 The methods we consider here tend to have the form of a composition of simple models:
 
@@ -19,12 +19,16 @@ Even in the era of large neural networks, these methods are worth knowing: they 
 In nearest-neighbor models, we don't do any processing of the data at training time -- we just remember it! All the work is done at prediction time.
 
 Input values $x$ can be from any domain $\mathcal X$ ($\mathbb{R}^d$, documents, tree-structured objects, etc.). We just need a distance metric, $d: \mathcal X \times \mathcal X
-  \rightarrow \mathbb{R}^+$, which satisfies the following, for all $x, x', x'' \in
+  \rightarrow \mathbb{R}^{\geq 0}$, which satisfies the following, for all $x, x', x'' \in
   \mathcal X$: $$\begin{aligned}
   d(x, x)   & = 0                        \\
   d(x, x')  & = d(x', x)                 \\
   d(x, x'') & \leq d(x, x') + d(x', x'')
 \end{aligned}$$
+
+:::{.column-margin}
+We reuse $d$ for the distance function here; context distinguishes it from the input dimension $d$.
+:::
 
 Given a dataset $\mathcal{D}= \{(x^{(i)},y^{(i)})\}_{i=1}^n$, our predictor for a new query $x \in \mathcal X$ is $$h(x) = y^{(i^*)} \quad \text{where} \quad i^* = \arg\min_i d(x, x^{(i)}),$$ with ties broken at random.
 
@@ -34,7 +38,7 @@ Geometrically, this partitions the input space into a *Voronoi diagram*: one reg
 
 ![Voronoi diagram: each region contains the points closest to one training example.](figures/voronoi.png){width="40%" fig-align="center"}
 
-There are several useful variations on this method. In *$k$-nearest-neighbors*, we find the $k$ training points nearest to the query point $x$ and output the majority $y$ value for classification or the average for regression. We can also do *locally weighted regression* in which we fit locally linear regression models to the $k$ nearest points, possibly giving less weight to those that are farther away. In large data-sets, it is important to use good data structures (e.g., ball trees) to perform the nearest-neighbor look-ups efficiently (without looking at all the data points each time).
+There are several useful variations on this method. In *$k$-nearest-neighbors*, we find the $k$ training points nearest to the query point $x$ and output the majority $y$ value for classification or the average for regression. We can also do *locally weighted regression* in which we fit locally linear regression models to the $k$ nearest points, possibly giving less weight to those that are farther away. In large datasets, it is important to use good data structures (e.g., ball trees) to perform the nearest-neighbor look-ups efficiently (without looking at all the data points each time).
 
 ## $k$-means Clustering {#sec-clustering}
 *Clustering* is the problem of automatically discovering meaningful groupings in a dataset, without pre-assigned labels. A doctor may notice that their patients come in cohorts that respond differently to different treatments; a biologist may identify that bats and whales, despite outward appearances, both belong to the same category ("mammal"). Once such groupings are found, they can be used to interpret the data and to make decisions per group.
@@ -68,7 +72,7 @@ $${#eq-kmeans_obj}
 
 where $\mu^{(j)} = \frac{1}{N_j} \sum_{i=1}^n \mathbb{1}(y^{(i)} = j) x^{(i)}$ is the mean of cluster $j$, $N_j = \sum_i \mathbb{1}(y^{(i)} = j)$ is its size, and $\mathbb{1}(\cdot)$ is the indicator function. Each inner sum is one cluster's within-cluster variance; the outer sum totals these across all $k$ clusters.
 
-The k-means algorithm minimizes this loss by alternating two steps: (1) reassign each datapoint to the cluster with the nearest mean, and (2) recompute each cluster mean from the points now assigned to it. Both steps are non-increasing in the loss, so the algorithm converges. @fig-kmeans_iters shows the first three iterations on our toy dataset; @fig-kmeans_converged shows the converged result after four iterations.
+The k-means algorithm minimizes this loss by alternating two steps: (1) reassign each datapoint to the cluster with the nearest mean, and (2) recompute each cluster mean from the points now assigned to it. Neither step can increase the loss, so the algorithm converges. @fig-kmeans_iters shows the first three iterations on our toy dataset; @fig-kmeans_converged shows the converged result after four iterations.
 
 ![The first three steps of running the k-means algorithm on this data. Datapoints are colored according to the cluster to which they are assigned. Cluster means are the larger X's with black outlines.](figures/kmeans_iters.png){#fig-kmeans_iters width="100%"}
 
@@ -109,7 +113,7 @@ In full detail:
 
 #### Using gradient descent to minimize the k-means objective
 
-We can also use gradient descent. Rewrite the objective as a differentiable function of $\mu$ alone, by choosing the optimal assignment for each point on the fly:
+We can also use gradient descent. Rewrite the objective as a function of $\mu$ alone (differentiable except where a point is equidistant from two centroids), by choosing the optimal assignment for each point on the fly:
 $$L(\mu) = \sum_{i=1}^n \min_j \lVert x^{(i)} - \mu^{(j)} \rVert^2.$$
 Run gradient descent on $L(\mu)$, then read off the cluster assignments from the optimized $\mu$:
 $$y^{(i)} = \arg\min_j \lVert x^{(i)} - \mu^{(j)} \rVert^2.$$
@@ -125,16 +129,16 @@ Both variants only converge to a local minimum, so the result depends on the ini
 
 A variety of methods have been developed to pick good initializations (see, for example, the *k-means++* algorithm). One simple option is to run the standard k-means algorithm multiple times, with different random initial conditions, and then pick from these the clustering that achieves the lowest k-means loss.
 
-#### Importance of k {#sec-importance_of_k}
+#### Importance of $k$ {#sec-importance_of_k}
 
 The number of clusters $k$ is a hyperparameter we have to pick (some advanced algorithms can infer it automatically, but k-means is not one of them).
 
-![Example of k-means run on our toy data, with two different values of k. Setting k=4, on the left, results in one cluster being merged, compared to setting k=5, on the right. Which clustering do you think is better? How could you decide?](figures/effect_of_k.png){#fig-effect_of_k width="67%"}
+![Example of k-means run on our toy data, with two different values of $k$. Setting $k=4$, on the left, results in one cluster being merged, compared to setting $k=5$, on the right. Which clustering do you think is better? How could you decide?](figures/effect_of_k.png){#fig-effect_of_k width="67%"}
 
-@fig-effect_of_k shows an example of the effect. Which result looks more correct? It can be hard to say! Using higher k we get more clusters, and with more clusters we can achieve lower within-cluster variance -- the k-means objective will never increase, and will typically strictly decrease as we increase k. Eventually, we can increase k to equal the total number of datapoints, so that each datapoint is assigned to its own cluster. Then the k-means objective is zero, but the clustering reveals nothing. Clearly, then, we cannot use the k-means objective itself to choose the best value for k. In @sec-eval, we will discuss some ways of evaluating the success of clustering beyond its ability to minimize the k-means objective, and it's with these sorts of methods that we might decide on a proper value of k.
+@fig-effect_of_k shows an example of the effect. Which result looks more correct? It can be hard to say! Using higher $k$ we get more clusters, and with more clusters we can achieve lower within-cluster variance -- the k-means objective will never increase, and will typically strictly decrease as we increase $k$. Eventually, we can increase $k$ to equal the total number of datapoints, so that each datapoint is assigned to its own cluster. Then the k-means objective is zero, but the clustering reveals nothing. Clearly, then, we cannot use the k-means objective itself to choose the best value for $k$. In @sec-eval, we will discuss some ways of evaluating the success of clustering beyond its ability to minimize the k-means objective, and it's with these sorts of methods that we might decide on a proper value of $k$.
 
 :::{.column-margin}
-*Hierarchical clustering* sidesteps picking a single $k$ by producing a tree of clusterings at multiple granularities (coarse near the root, fine near the leaves), useful for discovering taxonomies (e.g., species, families, kingdoms). See SKLEARN's [cluster](https://scikit-learn.org/1.5/modules/clustering.html) module for many other clustering algorithms.
+*Hierarchical clustering* sidesteps picking a single $k$ by producing a tree of clusterings at multiple granularities (coarse near the root, fine near the leaves), useful for discovering taxonomies (e.g., species, families, kingdoms). See scikit-learn's [cluster](https://scikit-learn.org/1.5/modules/clustering.html) module for many other clustering algorithms.
 :::
 
 #### k-means in feature space
@@ -210,7 +214,7 @@ It suffices to search over partitions of the *training data* (not the whole inpu
 
 So we'll be greedy: pick the best single split by some criterion, then recurse. For now we pick the split that minimizes the total sum-of-squared-errors across the two children; we'll consider other criteria later.
 
-In the pseudocode below, `BuildTree` operates on a subset $I$ of the training indices (so the recursive calls work on the children of each split). For a candidate split at dimension $j$ and value $s$, we write $I^+_{j,s}$ and $I^-_{j,s}$ for the two children, and $\hat{y}^\pm_{j,s}$ for their average $y$ values. The hyperparameter $k$ is the largest leaf size we'll allow.
+In the pseudocode below, `BuildTree` operates on a subset $I$ of the training indices (so the recursive calls work on the children of each split). For a candidate split at dimension $j$ and value $s$, we write $I^+_{j,s}$ and $I^-_{j,s}$ for the two children, and $\hat{y}^\pm_{j,s}$ for their average $y$ values. The hyperparameter $n_{\min}$ is the largest leaf size we'll allow.
 
 
 ```pseudocode
@@ -224,10 +228,10 @@ In the pseudocode below, `BuildTree` operates on a subset $I$ of the training in
 #| label: buildtree
 \begin{algorithm}
 \begin{algorithmic}[1]
-\Procedure{BuildTree}{$I, k$}
-  \If{$|I| \leq k$}
+\Procedure{BuildTree}{$I, n_{\min}$}
+  \If{$|I| \leq n_{\min}$}
     \State $\hat{y} \gets \frac{1}{|I|}\sum_{i \in I} y^{(i)}$
-    \Return $\text{Leaf}(\text{value} = \hat{y})$
+    \State \Return $\text{Leaf}(\text{value} = \hat{y})$
   \Else
     \ForAll{split dimension $j$, split value $s$}
       \State $I^+_{j,s} \gets \{i \in I \mid x_j^{(i)} \geq s\}$
@@ -237,7 +241,7 @@ In the pseudocode below, `BuildTree` operates on a subset $I$ of the training in
       \State $E_{j,s} \gets \sum_{i \in I^+_{j,s}} (y^{(i)} - \hat{y}^+_{j,s})^2 \; + \; \sum_{i \in I^-_{j,s}} (y^{(i)} - \hat{y}^-_{j,s})^2$
     \EndFor
     \State $(j^*, s^*) \gets \arg\min_{j,s} E_{j,s}$
-    \State \Return $\text{Node}\bigl(j^*, s^*, \text{BuildTree}(I^-_{j^*,s^*}, k), \text{BuildTree}(I^+_{j^*,s^*}, k)\bigr)$
+    \State \Return $\text{Node}\bigl(j^*, s^*, \text{BuildTree}(I^-_{j^*,s^*}, n_{\min}), \text{BuildTree}(I^+_{j^*,s^*}, n_{\min})\bigr)$
   \EndIf
 \EndProcedure
 \end{algorithmic}
@@ -259,25 +263,24 @@ and the natural region error is the count of misclassified points:
 $$E_m = \bigl|\{i \in I_m \mid y^{(i)} \neq O_m\}\bigr|.$$
 We will also need the *empirical class probability* in region $m$:
 $$\hat{P}_{m,k} = \frac{\bigl|\{i \in I_m \mid y^{(i)} = k\}\bigr|}{N_m}, \qquad N_m = |I_m|.$$
-For splits, $\hat{P}_{m,j,s}$ denotes the fraction of points in region $m$ falling into one branch of the split $(j, s)$, and $1 - \hat{P}_{m,j,s}$ the other.
 
 #### Splitting criteria {#splitting-criteria}
 
 The greedy algorithm needs a way to decide which split to make next; we measure the "impurity" of a child node and pick the split that decreases impurity most. We use *entropy*:
-$$Q_m(T) = H(I_m) = -\sum_k \hat{P}_{m,k}\log_2 \hat{P}_{m,k},$$
+$$H(I_m) = -\sum_k \hat{P}_{m,k}\log_2 \hat{P}_{m,k},$$
 with the convention $0\log_2 0 = 0$ so $H$ is well-defined when $\hat{P} = 0$.
 
 :::{.callout-note collapse="true"}
 # Other impurity measures
-Two other common choices are *misclassification error* $1 - \hat{P}_{m,O_m}$ and the *Gini index* $\sum_k \hat{P}_{m,k}(1 - \hat{P}_{m,k})$. All three vanish on pure regions ($\hat{P}_{m,0} \in \{0, 1\}$) and peak near $\hat{P}_{m,0} = 0.5$, as the impurity curves below show (with $p = \hat{P}_{m,0}$). Tradition uses entropy when growing the tree and misclassification error when pruning.
+Two other common choices are *misclassification error* $1 - \hat{P}_{m,O_m}$ and the *Gini index* $\sum_k \hat{P}_{m,k}(1 - \hat{P}_{m,k})$. In the binary case (classes $0$ and $1$), all three vanish on pure regions ($\hat{P}_{m,0} \in \{0, 1\}$) and peak at $\hat{P}_{m,0} = 0.5$, as the impurity curves below show (with $p = \hat{P}_{m,0}$). Tradition uses entropy when growing the tree and misclassification error when pruning.
 
 ![](figures/impurity.png){width="60%" fig-align="center"}
 :::
 
 Analogous to regression (where we picked the split minimizing the sum of squared errors $E_{j,s}$), here we pick the split minimizing the weighted-average entropy of the two children:
 $$\hat{H} = \frac{|I^-_{j,s}|}{N_m}\, H(I^-_{j,s}) + \frac{|I^+_{j,s}|}{N_m}\, H(I^+_{j,s}).$$
-This is equivalent to maximizing the *information gain* of the test $x_j = s$:
-$$\text{infoGain}(x_j = s, I_m) = H(I_m) - \hat{H}.$$
+This is equivalent to maximizing the *information gain* of the test $x_j \geq s$:
+$$\text{infoGain}(x_j \geq s, I_m) = H(I_m) - \hat{H}.$$
 
 ### Pruning
 
@@ -285,7 +288,7 @@ Pruning applies to both regression and classification trees: in either case, nai
 
 We define the *cost complexity* of a tree $T$ (with leaves indexed by $m$) as
 $$C_\alpha(T) = \sum_{m=1}^{|T|} E_m(T) + \alpha |T|,$$
-where $|T|$ is the number of leaves and $E_m$ is whichever per-region error matches the task (sum of squared errors for regression, misclassification count for classification). For a fixed $\alpha$, "weakest-link" pruning approximately minimizes $C_\alpha(T)$:
+where $|T|$ is the number of leaves and $E_m$ is whichever per-region error matches the task (sum of squared errors for regression, misclassification count for classification). Here $\alpha$ plays the same role as $\lambda$ in the earlier regression objective ($\alpha$ is the traditional symbol for cost-complexity pruning). For a fixed $\alpha$, "weakest-link" pruning approximately minimizes $C_\alpha(T)$:
 
 -   Create a sequence of trees by successively removing the bottom-level split that minimizes the increase in overall error, until the root is reached.
 
@@ -297,9 +300,9 @@ We pick $\alpha$ by cross-validation.
 
 There are many variations on the tree theme. One is to employ different regression or classification methods in each leaf. For example, a linear regression might be used to model the examples in each leaf, rather than using a constant value.
 
-In the relatively simple trees that we've considered, splits have been based on only a single feature at a time, and with the resulting splits being axis-parallel. Other methods for splitting are possible, including consideration of multiple features and linear classifiers based on those, potentially resulting in non-axis-parallel splits. Complexity is a concern in such cases, as many possible combinations of features may need to be considered, to select the best variable combination (rather than a single split variable).
+In the relatively simple trees that we've considered, splits have been based on only a single feature at a time, so the resulting splits are axis-aligned. Other methods for splitting are possible, including consideration of multiple features and linear classifiers based on those, potentially resulting in non-axis-parallel splits. Complexity is a concern in such cases, as many possible combinations of features may need to be considered, to select the best variable combination (rather than a single split variable).
 
-Another generalization is a *hierarchical mixture of experts*, where we make a "soft" version of trees, in which the splits are probabilistic (so every point has some degree of membership in every leaf). Such trees can be trained using a form of gradient descent. Combinations of bagging, boosting, and mixture tree approaches (e.g., *gradient boosted trees*) and implementations are readily available (e.g., XGBoost).
+Another generalization is a *hierarchical mixture of experts*, where we make a "soft" version of trees, in which the splits are probabilistic (so every point has some degree of membership in every leaf). Such trees can be trained using a form of gradient descent. Combinations of bagging, boosting, and mixture-tree approaches (e.g., *gradient boosted trees*) are readily available in off-the-shelf implementations (e.g., XGBoost).
 
 Trees remain a valuable tool: they are interpretable, fast to train, handle multi-class targets and varied loss functions naturally, and expose feature importance. They also perform surprisingly well in practice; random forests and boosted trees are often used as a baseline against which to evaluate more sophisticated models.
 
