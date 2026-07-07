@@ -2,7 +2,7 @@
 
 ## Problem formulation
 
-Classification is a machine learning problem seeking to map from inputs $\mathbb{R}^d$ to outputs in an unordered set. 
+Classification is a machine learning problem seeking to map from inputs in $\mathbb{R}^d$ to outputs in an unordered set. 
 
 :::{.column-margin}
 This is in contrast to a continuous real-valued output, as we saw for linear regression.
@@ -12,7 +12,7 @@ Examples of classification output sets could be $\{\text{apples}, \text{oranges}
 
 Like regression, classification is a *supervised learning* problem, in which we are given a training data set of the form 
 
-$${\cal D}_{\text{train}} = \left\{\left(x^{(1)}, y^{(1)}\right), \dots, \left(x^{(n)},
+$$\mathcal{D}_{\text{train}} = \left\{\left(x^{(1)}, y^{(1)}\right), \dots, \left(x^{(n)},
   y^{(n)}\right)\right\} \;\;.
 $$ 
 
@@ -20,7 +20,7 @@ We will assume that each $x^{(i)}$ is a $d \times 1$ *column vector*. The intend
 
 What makes a classifier useful? As in regression, we want it to work well on new data, making good predictions on examples it hasn't seen. But we don't know exactly what data this classifier might be tested on when we use it in the real world. So, we have to *assume* a connection between the training data and testing data; typically, they are drawn independently from the same probability distribution.
 
-In classification, we will often use 0-1 loss for evaluation (as discussed in @sec-evaluation). For that choice, we can write the training error and the testing error. In particular, given a training set ${\cal D}_{\text{train}}$ and a classifier $h$, we define the *training error* of $h$ to be 
+In classification, we will often use 0-1 loss for evaluation (as discussed in @sec-evaluation). For that choice, we can write the training error and the testing error. In particular, given a training set $\mathcal{D}_{\text{train}}$ and a classifier $h$, we define the *training error* of $h$ to be 
 
 $$
 \begin{aligned}
@@ -48,7 +48,7 @@ We start with the hypothesis class of *linear classifiers*. They are (relatively
 
 ### Linear classifiers: definition
 
-A linear classifier in $d$ dimensions is defined by a vector of parameters $\theta \in \mathbb{R}^d$ and scalar $\theta_0 \in \mathbb{R}$. So, the hypothesis class ${\cal H}$ of linear classifiers in $d$ dimensions is parameterized by the *set* of all vectors in $\mathbb{R}^{d+1}$. We'll assume that $\theta$ is a $d \times 1$ column vector.
+A linear classifier in $d$ dimensions is defined by a vector of parameters $\theta \in \mathbb{R}^d$ and scalar $\theta_0 \in \mathbb{R}$. So, the hypothesis class $\mathcal{H}$ of linear classifiers in $d$ dimensions is parameterized by the *set* of all vectors in $\mathbb{R}^{d+1}$. We'll assume that $\theta$ is a $d \times 1$ column vector.
 
 Given particular values for $\theta$ and $\theta_0$, the classifier is defined by 
 $$\begin{aligned}
@@ -172,7 +172,7 @@ What makes this a difficult optimization problem is its lack of "smoothness":
 
 -   All predictions are categorical: the classifier can't express a degree of certainty about whether a particular input $x$ should have an associated value $y$.
 
-For these reasons, if we are considering a hypothesis $\theta,\theta_0$ that makes five incorrect predictions, it is difficult to see how we might change $\theta,\theta_0$ so that it will perform better, which makes it difficult to design an algorithm that searches in a sensible way through the space of hypotheses for a good one. For these reasons, we investigate another hypothesis class: *linear logistic classifiers*, providing their definition, then an approach for learning such classifiers using optimization.
+For these reasons, if we are considering a hypothesis $\theta,\theta_0$ that makes five incorrect predictions, it is difficult to see how we might change $\theta,\theta_0$ so that it will perform better, which makes it difficult to design an algorithm that searches in a sensible way through the space of hypotheses for a good one. So, we investigate another hypothesis class: *linear logistic classifiers*, providing their definition, then an approach for learning such classifiers using optimization.
 
 ### Linear logistic classifiers: definition
 
@@ -218,7 +218,7 @@ Convince yourself the output of $\sigma$ is always in the interval $(0, 1)$.  Wh
 
 ### Linear logistic classifier: examples
 
-What does an LLC look like? Let's consider the simple case where $d = 1$, so our input points simply lie along the $x$ axis. Classifiers in this case have dimension $0$, meaning that they are points. The plot below shows LLCs for three different parameter settings: $\sigma(10x + 1)$, $\sigma(-2x + 1)$, and $\sigma(2x - 3).$
+What does an LLC look like? Let's consider the simple case where $d = 1$, so our input points simply lie along the $x$ axis. Separators in this case have dimension $0$, meaning that they are points. The plot below shows LLCs for three different parameter settings: $\sigma(10x + 1)$, $\sigma(-2x + 1)$, and $\sigma(2x - 3).$
 
 :::{.imagify}
 \begin{center}
@@ -270,7 +270,7 @@ When $d = 2$, then our inputs $x$ lie in a two-dimensional space with axes $x_1$
 
 :::{.study-question-callout}
 Convince yourself that the set of points for which
-  $\sigma(\theta^T x + \theta_0) = 0.5$, that is, the ``boundary''
+  $\sigma(\theta^T x + \theta_0) = 0.5$, that is, the "boundary"
   between positive and negative predictions with prediction threshold
   $0.5$, is a line in $(x_1, x_2)$ space. What particular line is it
   for the case in the figure above?
@@ -286,7 +286,7 @@ For learning LLCs, we'd have a class of hypotheses whose outputs are in $(0, 1)$
 
 :::{.study-question-callout}
 If $h(x)$ is the probability that $x$ belongs to class $+1$,
-  what is the probability that $x$ belongs to the class $-1$, assuming there are only these two classes?
+  what is the probability that $x$ belongs to the class $0$, assuming there are only these two classes?
 :::
 
 Intuitively, we would like to have *low loss if we assign a high probability to the correct class.* We'll define a loss function, called *negative log-likelihood* (NLL), that does just this. In addition, it has the cool property that it extends nicely to the case where we would like to classify our inputs into more than two classes.
@@ -345,7 +345,7 @@ The choice of log base doesn't make any real difference here. When we ask you fo
 
 **What is the objective function for linear logistic classification?** We can finally put all these pieces together and develop an objective function for optimizing regularized negative log-likelihood for a linear logistic classifier. In fact, this process is usually called "logistic regression," so we'll call our objective $J_\text{lr}$, and define it as 
 $$
-J_\text{lr}(\theta, \theta_0; {\cal D}) =
+J_\text{lr}(\theta, \theta_0; \mathcal{D}) =
   \left(\frac{1}{n} \sum_{i=1}^n
   \mathcal{L}_\text{nll}(\sigma(\theta^T x^{(i)} + \theta_0), y^{(i)})\right) +
   \lambda \left\lVert\theta\right\rVert^2\;\;.
@@ -365,7 +365,7 @@ Suppose we wish to obtain a linear logistic classifier for this one-dimensional 
 
 ![](figures/linear_logistic_classifier_and_regularization_data.png){width="45%" fig-align="center"}
 
-Clearly, this can be fit very nicely by a hypothesis $h(x)=\sigma(\theta x)$, but what is the best value for $\theta$? Evidently, when there is no regularization ($\lambda=0$), the objective function $J_{lr}(\theta)$ will approach zero for large values of $\theta$, as shown in the plot on the left, below. However, would the best hypothesis really have an infinite (or very large) value for $\theta$? Such a hypothesis would suggest that the data indicate strong certainty that a sharp transition between $y=0$ and $y=1$ occurs exactly at $x=0$, despite the actual data having a wide gap around $x=0$.
+Clearly, this can be fit very nicely by a hypothesis $h(x)=\sigma(\theta x)$, but what is the best value for $\theta$? Evidently, when there is no regularization ($\lambda=0$), the objective function $J_\text{lr}(\theta)$ will approach zero for large values of $\theta$, as shown in the plot on the left, below. However, would the best hypothesis really have an infinite (or very large) value for $\theta$? Such a hypothesis would suggest that the data indicate strong certainty that a sharp transition between $y=0$ and $y=1$ occurs exactly at $x=0$, despite the actual data having a wide gap around $x=0$.
 
 :::{layout-ncol="2"}
 
@@ -374,15 +374,15 @@ Clearly, this can be fit very nicely by a hypothesis $h(x)=\sigma(\theta x)$, bu
 ![](figures/linear_logistic_classifier_and_regularization_objective_withreg.png){width="45%"}
 :::
 
-In absence of other beliefs about the solution, we might prefer that our linear logistic classifier not be overly certain about its predictions, and so we might prefer a smaller $\theta$ over a large $\theta.$ By not being overconfident, we might expect a somewhat smaller $\theta$ to perform better on future examples drawn from this same distribution. This preference can be realized using a nonzero value of the regularization trade-off parameter, as illustrated in the plot on the right, above, with $\lambda=0.2$.
+In the absence of other beliefs about the solution, we might prefer that our linear logistic classifier not be overly certain about its predictions, and so we might prefer a smaller $\theta$ over a large $\theta.$ By not being overconfident, we might expect a somewhat smaller $\theta$ to perform better on future examples drawn from this same distribution. This preference can be realized using a nonzero value of the regularization trade-off parameter, as illustrated in the plot on the right, above, with $\lambda=0.2$.
 
 Another nice way of thinking about regularization is that we would like to prevent our hypothesis from being too dependent on the particular training data that we were given: we would like for it to be the case that if the training data were changed slightly, the hypothesis would not change by much.
 
 ## Gradient descent for logistic regression {#sec-gd_lrr}
 
-Now that we have a hypothesis class (LLC) and a loss function (NLL), we need to take some data and find parameters! Sadly, there is no lovely analytical solution like the one we obtained for regression, in @sec-ridge_regression. Good thing we studied gradient descent! We can perform gradient descent on the $J_{lr}$ objective, as we'll see next. We can also apply stochastic gradient descent to this problem.
+Now that we have a hypothesis class (LLC) and a loss function (NLL), we need to take some data and find parameters! Sadly, there is no lovely analytical solution like the one we obtained for regression, in @sec-ridge_regression. Good thing we studied gradient descent! We can perform gradient descent on the $J_\text{lr}$ objective, as we'll see next. We can also apply stochastic gradient descent to this problem.
 
-Luckily, $J_{lr}$ has enough nice properties that gradient descent and stochastic gradient descent should generally "work". We'll soon see some more challenging optimization problems though -- in the context of neural networks, in @sec-make_nn_work.
+Luckily, $J_\text{lr}$ has enough nice properties that gradient descent and stochastic gradient descent should generally "work". We'll soon see some more challenging optimization problems though -- in the context of neural networks, in @sec-make_nn_work.
 
 First we need derivatives with respect to both $\theta_0$ (the scalar component) and $\theta$ (the vector component) of $\Theta$. Explicitly, they are: 
 $$
@@ -399,9 +399,6 @@ $$
 $$ 
 
 Note that $\nabla_\theta J_\text{lr}$ will be of shape $d \times 1$ and $\frac{\partial J_\text{lr}}{\partial \theta_0}$ will be a scalar since we have separated $\theta_0$ from $\theta$ here.
-
-Putting everything together, our gradient descent algorithm for logistic regression becomes:
-
 
 ::: {.study-question-callout}
 Convince yourself that the dimensions of all these quantities are correct, under the assumption that $\theta$ is $d \times 1$.
@@ -422,6 +419,7 @@ $\left(\frac{\partial \mathcal{L}_\text{nll}\bigl(\sigma(\theta^T x + \theta_0),
 Use these last two results to verify our derivation above.
 :::
 
+Putting everything together, our gradient descent algorithm for logistic regression becomes:
 
 ```pseudocode
 #| html-indent-size: "1.2em"
@@ -432,18 +430,19 @@ Use these last two results to verify our derivation above.
 #| pdf-placement: "htb!"
 #| pdf-line-number: true
 
-\begin{algorithm}[H]
-\caption{LR-Gradient-Descent($\theta_{\text{init}}, \theta_{0\,\text{init}}, \eta, \epsilon$)}
-\begin{algorithmic}[1]
-\State $\theta^{(0)} \gets \theta_{\text{init}}$
-\State $\theta_0^{(0)} \gets \theta_{0\,\text{init}}$
-\State $t \gets 0$
-\Repeat
+\begin{algorithm}
+\begin{algorithmic}
+\Procedure{LR-Gradient-Descent}{$\theta_{\text{init}}, \theta_{0\,\text{init}}, \eta, \epsilon$}
+  \State $\theta^{(0)} \gets \theta_{\text{init}}$
+  \State $\theta_0^{(0)} \gets \theta_{0\,\text{init}}$
+  \State $t \gets 0$
+  \Repeat
     \State $t \gets t + 1$
-    \State $\theta^{(t)} \gets \theta^{(t-1)} - \eta \Biggl( \frac{1}{n}\sum_{i=1}^n \Bigl( \sigma\Bigl({\theta}^{(t-1)T} x^{(i)} + \theta_0^{(t-1)}\Bigr) - y^{(i)} \Bigr) x^{(i)} + 2\lambda\,\theta^{(t-1)} \Biggr)$
-    \State $\theta_0^{(t)} \gets \theta_0^{(t-1)} - \eta \Biggl( \frac{1}{n}\sum_{i=1}^n \Bigl( \sigma\Bigl({\theta}^{(t-1)T} x^{(i)} + \theta_0^{(t-1)}\Bigr) - y^{(i)} \Bigr) \Biggr)$
-\Until{$\Bigl| J_{\text{lr}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{lr}}(\theta^{(t-1)},\theta_0^{(t-1)}) \Bigr| < \epsilon$}
-\Return $\theta^{(t)}, \theta_0^{(t)}$
+    \State $\theta^{(t)} \gets \theta^{(t-1)} - \eta \Biggl( \frac{1}{n}\sum_{i=1}^n \Bigl( \sigma\Bigl(\left(\theta^{(t-1)}\right)^T x^{(i)} + \theta_0^{(t-1)}\Bigr) - y^{(i)} \Bigr) x^{(i)} + 2\lambda\,\theta^{(t-1)} \Biggr)$
+    \State $\theta_0^{(t)} \gets \theta_0^{(t-1)} - \eta \Biggl( \frac{1}{n}\sum_{i=1}^n \Bigl( \sigma\Bigl(\left(\theta^{(t-1)}\right)^T x^{(i)} + \theta_0^{(t-1)}\Bigr) - y^{(i)} \Bigr) \Biggr)$
+  \Until{$\Bigl| J_{\text{lr}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{lr}}(\theta^{(t-1)},\theta_0^{(t-1)}) \Bigr| < \epsilon$}
+  \Return{$\theta^{(t)}, \theta_0^{(t)}$}
+\EndProcedure
 \end{algorithmic}
 \end{algorithm}
 ```
@@ -500,7 +499,7 @@ So far, we have focused on the *binary* classification case, with only two possi
 
 -   Directly train a multi-class classifier using a hypothesis class that is a generalization of logistic regression, using a *one-hot* output encoding and NLL loss.
 
-The method based on NLL is in wider use, especially in the context of neural networks, and is explored here. In the following, we will assume that we have a data set ${\cal D}$ in which the inputs $x^{(i)} \in R^d$ but the outputs $y^{(i)}$ are drawn from a set of $K$ classes $\{c_1, \ldots, c_K\}$. Next, we extend the idea of NLL directly to multi-class classification with $K$ classes, where the training label is represented with what is called a *one-hot* vector $y=\begin{bmatrix} y_1, \ldots, y_K \end{bmatrix}^T$, where $y_k=1$ if the example is of class $k$ and $y_k = 0$ otherwise. Now, we have a problem of mapping an input $x^{(i)}$ that is in $\mathbb{R}^d$ into a $K$-dimensional output. Furthermore, we would like this output to be interpretable as a discrete probability distribution over the possible classes, which means the elements of the output vector have to be *non-negative* (greater than or equal to 0) and sum to 1.
+The method based on NLL is in wider use, especially in the context of neural networks, and is explored here. In the following, we will assume that we have a data set $\mathcal{D}$ in which the inputs $x^{(i)} \in \mathbb{R}^d$ but the outputs $y^{(i)}$ are drawn from a set of $K$ classes $\{c_1, \ldots, c_K\}$. Next, we extend the idea of NLL directly to multi-class classification with $K$ classes, where the training label is represented with what is called a *one-hot* vector $y=\begin{bmatrix} y_1, \ldots, y_K \end{bmatrix}^T$, where $y_k=1$ if the example is of class $k$ and $y_k = 0$ otherwise. Now, we have a problem of mapping an input $x^{(i)}$ that is in $\mathbb{R}^d$ into a $K$-dimensional output. Furthermore, we would like this output to be interpretable as a discrete probability distribution over the possible classes, which means the elements of the output vector have to be *non-negative* (greater than or equal to 0) and sum to 1.
 
 We will do this in two steps. First, we will map our input $x^{(i)}$ into a vector value $z^{(i)} \in \mathbb{R}^K$ by letting $\theta$ be a whole $d \times K$ *matrix* of parameters, and $\theta_0$ be a $K \times 1$ vector, so that 
 
@@ -521,9 +520,9 @@ g = \operatorname{softmax}(z) =
       \exp(z_1) / \sum_{i} \exp(z_i) \\
       \vdots                         \\
       \exp(z_K) / \sum_{i} \exp(z_i)
-    \end{bmatrix}\;\;.
-$$ 
-which can be interpreted as a probability distribution over $K$ items. To make the final prediction of the class label, we can then look at $g,$ find the most probable class over these $K$ entries in $g,$ (i.e. find the largest entry in $g,$) and return the corresponding index as the "one-hot" element of $1$ in our prediction.
+    \end{bmatrix}\;\;,
+$$
+which can be interpreted as a probability distribution over $K$ items. To make the final prediction of the class label, we can then find the largest of the $K$ entries in $g$ and return the corresponding index as our predicted class.
 
 :::{.study-question-callout}
 Convince yourself that the vector of $g$ values will be non-negative and sum to 1.
@@ -539,13 +538,13 @@ How many elements that are not equal to 1 will there be in this product?
 
 The negative log of the probability that we are making a correct guess is, then, for *one-hot* vector $y$ and *probability distribution* vector $g$, 
 $$
-\mathcal{L}_\text{nllm}(\text{g},\text{y}) =
-  - \sum_{k=1}^K \text{y}_k \cdot \log(\text{g}_k) \;\;.
+\mathcal{L}_\text{nllm}(g, y) =
+  - \sum_{k=1}^K y_k \cdot \log(g_k) \;\;.
 $$ 
 We'll call this nllm for *negative log likelihood multiclass.* It is also worth noting that the NLLM loss function is also convex; however, we will omit the proof.
 
 :::{.study-question-callout}
-Be sure you see that is $\mathcal{L}_\text{nllm}$ is minimized when the guess assigns high probability to the true class.
+Be sure you see that $\mathcal{L}_\text{nllm}$ is minimized when the guess assigns high probability to the true class.
 :::
 
 :::{.study-question-callout}
@@ -556,4 +555,4 @@ Show that $\mathcal{L}_\text{nllm}$ for $K = 2$ is the same as $\mathcal{L}_\tex
 
 In order to formulate classification with a smooth objective function that we can optimize robustly using gradient descent, we changed the output from discrete classes to probability values and the loss function from 0-1 loss to NLL. However, when time comes to actually make a prediction we usually have to make a hard choice: buy stock in Acme or not? And, we get rewarded if we guessed right, independent of how sure or not we were when we made the guess.
 
-The performance of a classifier is often characterized by its *accuracy*, which is the percentage of a data set that it predicts correctly in the case of 0-1 loss. We can see that accuracy of hypothesis $h$ on data ${\cal D}$ is the fraction of the data set that does not incur any loss: $$A(h; {\cal D}) = 1 - \frac{1}{n}\sum_{i=1}^n\mathcal{L}_{01}(g^{(i)}, y^{(i)})\;\;,$$ where $g^{(i)}$ is the final guess for one class or the other that we make from $h(x^{(i)})$, e.g., after thresholding. It's noteworthy here that we use a different loss function for optimization than for evaluation. This is a compromise we make for computational ease and efficiency.
+The performance of a classifier is often characterized by its *accuracy*, which is the percentage of a data set that it predicts correctly in the case of 0-1 loss. We can see that accuracy of hypothesis $h$ on data $\mathcal{D}$ is the fraction of the data set that does not incur any loss: $$A(h; \mathcal{D}) = 1 - \frac{1}{n}\sum_{i=1}^n\mathcal{L}_{01}(g^{(i)}, y^{(i)})\;\;,$$ where $g^{(i)}$ is the final guess for one class or the other that we make from $h(x^{(i)})$, e.g., after thresholding. It's noteworthy here that we use a different loss function for optimization than for evaluation. This is a compromise we make for computational ease and efficiency.

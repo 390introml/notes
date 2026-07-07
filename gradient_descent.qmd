@@ -1,6 +1,6 @@
 # Gradient Descent {#sec-gradient}
 
-In the previous chapter, we showed how to describe an interesting objective function for machine learning, but we need a way to find the optimal $\Theta^* = {\rm arg}\min_{\Theta} J(\Theta)$, particularly when the objective function is not amenable to analytical optimization. For example, this can happen when $J(\Theta)$ involves a more complex loss function or more general forms of regularization. It can also be the case when there are simply too many parameters to learn for it to be computationally feasible.
+In the previous chapter, we showed how to describe an interesting objective function for machine learning, but we need a way to find the optimal $\Theta^* = \arg\min_{\Theta} J(\Theta)$, particularly when the objective function is not amenable to analytical optimization. For example, this can happen when $J(\Theta)$ involves a more complex loss function or more general forms of regularization. It can also be the case when there are simply too many parameters to learn for it to be computationally feasible.
 
 There is an enormous and fascinating literature on the mathematical and algorithmic foundations of optimization, but for this class we will consider one of the simplest methods, called *gradient descent.*
 
@@ -10,11 +10,11 @@ You might want to consider studying optimization someday! It's one of the fundam
 
 Intuitively, in one or two dimensions, we can easily think of $J(\Theta)$ as defining a surface over $\Theta$; that same idea extends to higher dimensions. Now, our objective is to find the $\Theta$ value at the lowest point on that surface. One way to think about gradient descent is to start at some arbitrary point on the surface, see which direction the "hill" slopes downward most steeply, take a small step in that direction, determine the next steepest descent direction, take another small step, and so on.
 
-Below, we explicitly give gradient descent algorithms for one-  and multidimensional objective functions (@sec-gd_onedim and @sec-gd). We then illustrate the application of gradient descent to a loss function which is not merely mean squared loss (@sec-gd_ridge). And we present an important method known as *stochastic gradient descent* (@sec-sgd), which is especially useful when datasets are too large for descent in a single batch, and has some important behaviors of its own.
+Below, we explicitly give gradient descent algorithms for one-  and multidimensional objective functions (@sec-gd_onedim and @sec-gd). We then illustrate the application of gradient descent to a loss function which is not merely mean squared loss (@sec-gd_ridge). And we present an important method known as *stochastic gradient descent* (@sec-sgd), which is especially useful when datasets are too large for descent in a single batch, and has some important behaviors of its own. Finally, we present *mini-batch gradient descent* (@sec-minibatch), a practical middle ground between the two.
 
 ## Gradient descent in one dimension {#sec-gd_onedim}
 
-We start by considering gradient descent in one dimension. Assume $\Theta \in \mathbb{R}$, and that we know both $J(\Theta)$ and its first derivative with respect to $\Theta$, $J'(\Theta)$. Here is pseudocode for gradient descent on an arbitrary function $f$. Along with $f$ and its gradient $\nabla_{\Theta}f$ (which, in the case of a scalar $\Theta$, is the same as its derivative $f'$), we have to specify some hyper-parameters. These hyper-parameters include the initial value for parameter $\Theta$, a *learning rate* hyper-parameter $\eta$, and an *accuracy* hyper-parameter $\epsilon$.
+We start by considering gradient descent in one dimension. Assume $\Theta \in \mathbb{R}$, and that we know both $J(\Theta)$ and its first derivative with respect to $\Theta$, $J'(\Theta)$. Here is pseudocode for gradient descent on an arbitrary function $f$. Along with $f$ and its gradient $\nabla_{\Theta}f$ (which, in the case of a scalar $\Theta$, is the same as its derivative $f'$), we have to specify some hyperparameters. These hyperparameters include the initial value for parameter $\Theta$, a *learning rate* hyperparameter $\eta$, and an *accuracy* hyperparameter $\epsilon$.
 
 For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudocode below; and we'll see adaptive (non-constant) learning rates soon. What's important to notice, though, is that even when $\eta$ is constant, the actual magnitude of the change to $\Theta$ may not be constant, as that change depends on the magnitude of the gradient itself too.
 
@@ -29,8 +29,8 @@ For simplicity, $\eta$ may be taken as a constant, as is the case in the pseudoc
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{1D-Gradient-Descent}{$\Theta_{init}, \eta, f, f', \epsilon$}
-  \State $\Theta^{(0)} \gets \Theta_{init}$
+\Procedure{1D-Gradient-Descent}{$\Theta_{\text{init}}, \eta, f, f', \epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\text{init}}$
   \State $t \gets 0$
   \Repeat
     \State $t \gets t+1$
@@ -56,7 +56,7 @@ Consider all of the potential stopping criteria for `1D-Gradient-Descent`, both 
 :::
 
 :::{#thm-gd}
-*Choose any small distance $\tilde{\epsilon} > 0$. If we assume that $f$ has a minimum, is sufficiently "smooth" and convex, and if the learning rate $\eta$ is sufficiently small, gradient descent will reach a point within $\tilde{\epsilon}$ of a global optimum point $\Theta$.*
+*Choose any small distance $\tilde{\epsilon} > 0$. If we assume that $f$ has a minimum, is sufficiently "smooth" and convex, and if the learning rate $\eta$ is sufficiently small, gradient descent will reach a point within $\tilde{\epsilon}$ of a global minimum point $\Theta^*$.*
 :::
 
 However, we must be careful when choosing the learning rate to prevent slow convergence, non-converging oscillation around the minimum, or divergence.
@@ -86,7 +86,7 @@ The following plot illustrates a convex function $f(x) = (x - 2)^2$, starting gr
 :::
 
 
-If $f$ is non-convex, where gradient descent converges depends on $x_{\it init}$. First, let's establish some definitions. Let $f$ be a real-valued function defined over some domain $D$. A point $x_0 \in D$ is called a *global minimum point* of $f$ if $f(x_0) \leq f(x)$ for all other $x \in D$. A point $x_0 \in D$ is instead called a *local minimum point* of a function $f$ if there exists some constant $\epsilon > 0$ such that for all $x$ within the interval defined by $d(x,x_0) < \epsilon,$ $f(x_0) \leq f(x)$, where $d$ is some distance metric, e.g., $d(x,x_0) = || x - x_0 ||.$ A global minimum point is also a local minimum point, but a local minimum point does not have to be a global minimum point.
+If $f$ is non-convex, where gradient descent converges depends on $x_{\it init}$. First, let's establish some definitions. Let $f$ be a real-valued function defined over some domain $D$. A point $x_0 \in D$ is called a *global minimum point* of $f$ if $f(x_0) \leq f(x)$ for all other $x \in D$. A point $x_0 \in D$ is instead called a *local minimum point* of a function $f$ if there exists some constant $\delta > 0$ such that for all $x$ in the neighborhood defined by $d(x,x_0) < \delta$, $f(x_0) \leq f(x)$, where $d$ is some distance metric, e.g., $d(x,x_0) = \lVert x - x_0 \rVert.$ A global minimum point is also a local minimum point, but a local minimum point does not have to be a global minimum point.
 
 
 ::: {.study-question-callout}
@@ -97,7 +97,7 @@ What happens in this example with very small $\eta$?  With very big $\eta$?
 
 If $f$ is non-convex (and sufficiently smooth), one expects that gradient descent (run long enough with small enough learning rate) will get very close to a point at which the gradient is zero, though we cannot guarantee that it will converge to a global minimum point.
 
-There are two notable exceptions to this common sense expectation: First, gradient descent can stagnate while approaching a point $x$ that is not a local minimum or maximum, but satisfies $f'(x)=0$. For example, for $f(x)=x^3$, starting gradient descent from the initial guess $x_{\it init}=1$, while using learning rate $\eta<1/3$ will lead to $x^{(k)}$ converging to zero as $k\to\infty$. Second, there are functions (even convex ones) with no minimum points, such as $f(x)=\exp(-x)$, for which gradient descent with a positive learning rate converges to $+\infty$.
+There are two notable exceptions to this common sense expectation: First, gradient descent can stagnate while approaching a point $x$ that is not a local minimum or maximum, but satisfies $f'(x)=0$. For example, for $f(x)=x^3$, starting gradient descent from the initial guess $x_{\it init}=1$, while using learning rate $\eta<1/3$ will lead to $x^{(t)}$ converging to zero as $t\to\infty$. Second, there are functions (even convex ones) with no minimum points, such as $f(x)=\exp(-x)$, for which the gradient descent iterates head off to $+\infty$; there is no minimum point to converge to.
 
 The plot below shows two different $x_{\it init}$, and how gradient descent started from each point heads toward two different local optimum points.
 
@@ -148,10 +148,10 @@ The extension to the case of multidimensional $\Theta$ is straightforward. Let's
   \end{bmatrix}
   $$
    
-The algorithm remains the same, except that the update step in line 5 becomes 
+The algorithm remains the same, except that the update step becomes
 $$
 \Theta^{(t)} = \Theta^{(t-1)} - \eta\nabla_\Theta f(\Theta^{(t-1)})
-$$ and any termination criteria that depend on the dimensionality of $\Theta$ would have to change. The easiest thing is to keep the test in line 6 as $\left|f(\Theta^{(t)}) - f(\Theta^{(t-1)}) \right| < \epsilon$, which is sensible no matter the dimensionality of $\Theta$.
+$$ and any termination criteria that depend on the dimensionality of $\Theta$ would have to change. The easiest thing is to keep the termination test as $\left|f(\Theta^{(t)}) - f(\Theta^{(t-1)}) \right| < \epsilon$, which is sensible no matter the dimensionality of $\Theta$.
 
 ::: {.study-question-callout}
 Which termination criteria from the 1D case were defined in a way that assumes $\Theta$ is one dimensional?
@@ -175,6 +175,9 @@ $$
   \,.
 $$
 
+:::{.column-margin}
+Beware double superscripts!  $\left[ \theta \right]^T$ is the transpose of the vector $\theta$.
+:::
 
 ### Ridge regression
 Now, let's add in the regularization term, to get the ridge-regression
@@ -209,20 +212,15 @@ Convince yourself that the dimensions of all these
 :::
 
 ::: {.study-question-callout}
-Compute $\nabla_\theta ||\theta||^2$ by finding the
-  vector of partial derivatives $(\partial ||\theta||^2 / \partial
-    \theta_1, \ldots, \partial ||\theta||^2 / \partial
-    \theta_d)$. What is the shape of $\nabla_\theta ||\theta||^2$?
+Compute $\nabla_\theta \lVert\theta\rVert^2$ by finding the
+  vector of partial derivatives $(\partial \lVert\theta\rVert^2 / \partial
+    \theta_1, \ldots, \partial \lVert\theta\rVert^2 / \partial
+    \theta_d)$. What is the shape of $\nabla_\theta \lVert\theta\rVert^2$?
 :::
 
 ::: {.study-question-callout}
-Compute $\nabla_\theta J_\text{ridge}(
-    \theta^T x + \theta_0, y)$ by finding the
-  vector of partial derivatives $(\partial J_\text{ridge}(
-    \theta^T x + \theta_0, y)/ \partial \theta_1, \ldots,
-    \partial J_\text{ridge}(
-    \theta^T x + \theta_0, y) / \partial
-    \theta_d)$.
+Compute $\nabla_\theta \left(\theta^T x + \theta_0 - y\right)^2$ by finding the
+  vector of partial derivatives $\left(\partial (\theta^T x + \theta_0 - y)^2 / \partial \theta_1, \ldots, \partial (\theta^T x + \theta_0 - y)^2 / \partial \theta_d\right)$.
 :::
 
 ::: {.study-question-callout}
@@ -242,9 +240,9 @@ Putting everything together, our gradient descent algorithm for ridge regression
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{RR-Gradient-Descent}{$\theta_{\it init}, \theta_{0 {\it init}},\eta,\epsilon$}
-  \State $\theta^{(0)} \gets \theta_{\it init}$
-  \State $\theta_0^{(0)} \gets \theta_{0 {\it init}}$
+\Procedure{RR-Gradient-Descent}{$\theta_{\text{init}}, \theta_{0\,\text{init}},\eta,\epsilon$}
+  \State $\theta^{(0)} \gets \theta_{\text{init}}$
+  \State $\theta_0^{(0)} \gets \theta_{0\,\text{init}}$
   \State $t \gets 0$
   \Repeat
     \State   $t \gets t+1$
@@ -263,12 +261,9 @@ Putting everything together, our gradient descent algorithm for ridge regression
 \end{algorithmic}
 \end{algorithm}
 ```
-:::{.column-margin}
-Beware double superscripts!  $\left[ \theta \right]^T$ is the transpose of the vector $\theta$.
-:::
 
 :::{.study-question-callout}
-Is it okay that $\lambda$ doesn't appear in line 8?
+Is it okay that $\lambda$ doesn't appear explicitly in the termination test?
 :::
 
 :::{.study-question-callout}
@@ -303,8 +298,8 @@ $\nabla_\Theta J_i$ for all $i$ in $1\ldots n$. Note that, unlike standard gradi
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{Stochastic-Gradient-Descent}{$\Theta_{init},\eta,\{J_i\}_{i=1}^n,\epsilon$}
-  \State $\Theta^{(0)} \gets \Theta_{\it init}$
+\Procedure{Stochastic-Gradient-Descent}{$\Theta_{\text{init}},\eta,\{J_i\}_{i=1}^n,\epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\text{init}}$
   \State $t \gets 0$
   \Repeat
     \State $t \gets t+1$
@@ -322,8 +317,8 @@ Choosing a good stopping criterion can be a little trickier for SGD than traditi
 For SGD to converge to a local optimum point as $t$ increases, the learning rate has to decrease as a function of time. The next result shows one learning rate sequence that works.
 
 :::{#thm-sgd}
- *If $f$ is convex, and $\eta(t)$ is a sequence satisfying $$\sum_{t = 1}^{\infty}\eta(t) = \infty \;\;\text{and}\;\;
-    \sum_{t = 1}^{\infty}\eta(t)^2 < \infty \;\;,$$ then SGD converges *with probability one* to the optimal $\Theta$.*
+ *If $J$ is convex, and $\eta(t)$ is a sequence satisfying $$\sum_{t = 1}^{\infty}\eta(t) = \infty \;\;\text{and}\;\;
+    \sum_{t = 1}^{\infty}\eta(t)^2 < \infty \;\;,$$ then SGD converges with probability one to the optimal $\Theta$.*
 :::
 
 Why these two conditions? The intuition is that the first condition, on $\sum \eta(t)$, is needed to allow for the possibility of an unbounded potential range of exploration, while the second condition, on $\sum\eta(t)^2$, ensures that the learning rates get smaller and smaller as $t$ increases.
@@ -357,8 +352,8 @@ In practice, a common middle ground between GD and SGD is *mini-batch gradient d
 
 \begin{algorithm}
 \begin{algorithmic}
-\Procedure{Mini-batch-Gradient-Descent}{$\Theta_{init},\eta,b,\{J_i\}_{i=1}^n,\epsilon$}
-  \State $\Theta^{(0)} \gets \Theta_{\it init}$
+\Procedure{Mini-batch-Gradient-Descent}{$\Theta_{\text{init}},\eta,b,\{J_i\}_{i=1}^n,\epsilon$}
+  \State $\Theta^{(0)} \gets \Theta_{\text{init}}$
   \State $t \gets 0$
   \Repeat
     \State $t \gets t+1$
