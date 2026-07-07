@@ -7,7 +7,7 @@ Transformers are a very recent family of architectures that were originally intr
 Human language is inherently sequential in nature (e.g., characters form words, words form sentences, and sentences form paragraphs and documents). Prior to the advent of the transformers architecture, recurrent neural networks (RNNs) briefly dominated the field for their ability to process sequential information. However, RNNs, like many other architectures, processed sequential information in an iterative/sequential fashion, whereby each item of a sequence was individually processed one after another. Transformers offer many advantages over RNNs, including their ability to process all items in a sequence in a *parallel* fashion (as do CNNs).
 :::
 
-Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make Transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview @sec-transformers-overview. Then, we will dive into the details following the flow of data -- first describing how to represent inputs @sec-embeddings, and then describe the attention mechanism @sec-qkv, and finally we then assemble all these ideas together to arrive at the full transformer architecture in @sec-transformers-arch-details.
+Like CNNs, transformers factorize signal processing into stages, each involving independently and identically processed chunks. Transformers have many intricate components; however, we'll focus on their most crucial innovation: a new type of layer called the **attention layer**. Attention layers enable transformers to effectively mix information across chunks, allowing the entire transformer pipeline to model long-range dependencies among these chunks. To help make Transformers more digestible, in this chapter, we will first succinctly motivate and describe them in an overview (@sec-transformers-overview). Then we dive into the details following the flow of data: first how to represent inputs (@sec-embeddings), then the attention mechanism (@sec-qkv), and finally the full transformer architecture (@sec-transformers-arch-details).
 
 ## Transformers Overview {#sec-transformers-overview}
 
@@ -24,7 +24,7 @@ Below is another example. Suppose the sentence is the 2nd law of robotics: "A ro
 
 The transformer architecture processes inputs by applying multiple identical building blocks stacked in layers. Each block performs a transformation that progressively refines the internal representation of the data. 
 
-Specifically, each block consists of two primary sub-layers: an attention layer @sec-self-attention and a feed-forward network (or multi-layer perceptron) @sec-neural_networks. Attention layers mix information across different positions (or \"chunks\") in the sequence, allowing the model to effectively capture dependencies regardless of distance. Meanwhile, the feed-forward network significantly enhances the expressiveness of these representations by applying non-linear transformations independently to each position.
+Specifically, each block consists of two primary sub-layers: an attention layer (@sec-self-attention) and a feed-forward network, or multi-layer perceptron (@sec-neural_networks). Attention layers mix information across different positions (or \"chunks\") in the sequence, allowing the model to effectively capture dependencies regardless of distance. Meanwhile, the feed-forward network significantly enhances the expressiveness of these representations by applying non-linear transformations independently to each position.
 
 A notable strength of transformers is their capacity for parallel processing. Transformers process entire sequences simultaneously rather than sequentially token-by-token. This parallelization significantly boosts computational efficiency and makes it feasible to train larger and deeper models.
 
@@ -43,7 +43,7 @@ The field of NLP aims to represent words with vectors of floating-point numbers 
 
 To measure how similar any two word embeddings are (in terms of their numeric values) it is common to use some similarity as the metric, e.g. the dot-product similarity we saw in @sec-autoencoders.
 
-Thus, one can imagine plotting every word embedding in $d$-dimensional space and observing natural clusters to form, whereby similar words (e.g., synonyms) are located near each other. The problem of determining how to parse (aka tokenize) individual words is known as *tokenization*. This is an entire topic of its own, so we will not dive into the full details here. However, the high-level idea of tokenization is straightforward: the individual inputs of data that are represented and processed by a model are referred to as tokens. And, instead of processing each word as a whole, words are typically split into smaller, meaningful pieces (akin to syllables). For example, the word “evaluation” may be input into a model as 3 individual tokens (eval + ua + tion). Thus, when we refer to tokens, know that we’re referring to these sub-word units.
+Thus, one can imagine plotting every word embedding in $d$-dimensional space and observing natural clusters to form, whereby similar words (e.g., synonyms) are located near each other. The problem of determining how to split raw text into such units is known as *tokenization*. This is an entire topic of its own, so we will not dive into the full details here. However, the high-level idea of tokenization is straightforward: the individual inputs of data that are represented and processed by a model are referred to as tokens. And, instead of processing each word as a whole, words are typically split into smaller, meaningful pieces (akin to syllables). For example, the word “evaluation” may be input into a model as 3 individual tokens (eval + ua + tion). Thus, when we refer to tokens, know that we’re referring to these sub-word units.
 For any given application/model, all of the language data must be predefined by a finite vocabulary of valid tokens (typically on the order of 40,000 distinct tokens). 
 
 :::{.column-margin}
@@ -71,7 +71,7 @@ Thus, for a sequence of $n$ tokens, we generate $n$ distinct query vectors.
 
 ### Key Vectors
 
-To complement query vectors, we introduce **key vectors**, which tokens use to "answer" queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine the attention weight. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
+To complement query vectors, we introduce **key vectors**, which tokens use to "answer" queries about their relevance. Specifically, when evaluating token $x_3$, its query vector $q_3$ is compared to each token's key vector $k_j$ to determine an attention score. Each key vector $k_i$ is computed similarly using a learnable key weight matrix $W_k$:
 
 $$
 k_i = W_k^T x_i
@@ -80,10 +80,10 @@ $$
 The attention mechanism calculates similarity using the dot product, which efficiently measures vector similarity:
 
 $$
-a_i = \text{softmax}\left(\frac{[q_i^T k_1, q_i^T k_2, \dots, q_i^T k_n]}{\sqrt{d_k}}\right) \in \mathbb{R}^{1\times n}
+\alpha_i = \text{softmax}\left(\frac{[q_i^T k_1, q_i^T k_2, \dots, q_i^T k_n]}{\sqrt{d_k}}\right) \in \mathbb{R}^{1\times n}
 $$
 
-The vector $a_i$ (softmax'd attention scores) quantifies how much attention token $q_i$ should pay to each token in the sequence, normalized so that elements sum to 1. Normalizing by $\sqrt{d_k}$ prevents large dot-product magnitudes, stabilizing training.
+The vector $\alpha_i$ (softmax'd attention scores) quantifies how much attention token $x_i$ should pay to each token in the sequence, normalized so that elements sum to 1. Normalizing by $\sqrt{d_k}$ prevents large dot-product magnitudes, stabilizing training.
 
 ### Value Vectors
 
@@ -98,7 +98,7 @@ $$
 Finally, attention outputs are computed as weighted sums of value vectors, using the softmax'd attention scores:
 
 $$
-z_i = \sum_{j=1}^n a_{ij} v_j \in \mathbb{R}^{d_k}
+z_i = \sum_{j=1}^n \alpha_{ij} v_j \in \mathbb{R}^{d_k}
 $$
 
 This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating context from across the sequence, weighted by learned attention.
@@ -108,44 +108,44 @@ This vector $z_i$ represents token $x_i$'s enriched embedding, incorporating con
 
 Self-attention is an attention mechanism where the keys, values, and queries are all generated from the same input.
 
-At a very high level, a typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in $n$ tokens, each having feature dimension $d,$ and through many layers of transformation (most important of which are self-attention layers); the transformer finally outputs a sequence of $n$ tokens, each of which $d$-dimensional still. 
+At a very high level, a typical transformer with self-attention layers maps $\mathbb{R}^{n\times d} \longrightarrow \mathbb{R}^{n\times d}$. In particular, the transformer takes in $n$ tokens, each having feature dimension $d,$ and through many layers of transformation (most important of which are self-attention layers), the transformer finally outputs a sequence of $n$ tokens, each of which is still $d$-dimensional.
 
 With a self-attention layer, there can be multiple attention heads. We start with understanding a single head.
 
 
 ### A Single Self-attention Head
 
-A single self-attention head is largely the same as our discussion in @sec-qkv. The main additional info introduced in this part is a compact matrix form. The layer takes in $n$ tokens, each having feature dimension $d$. Thus, all tokens can be collectively written as $X\in \mathbb{R}^{n\times d}$, where the $i$-th row of $X$ stores the $i$-th token, denoted as $x_i\in\mathbb{R}^{1\times d}$. For each token $x_i$, self-attention computes (via learned projection matrices, discussed in @sec-qkv), a query $q_i \in \mathbb{R}^{d_q}$, key $k_{i} \in \mathbb{R}^{d_k}$, and value $v_{i} \in \mathbb{R}^{d_v}$, and overall, we will have $n$ queries, $n$ keys, and $n$ values; all of these vectors live in the same dimension in practice, and we often denote all three embedding dimensions via a unified $d_k$.
+A single self-attention head is largely the same as our discussion in @sec-qkv. The main additional info introduced in this part is a compact matrix form. The layer takes in $n$ tokens, each having feature dimension $d$. Thus, all tokens can be collectively written as $X\in \mathbb{R}^{n\times d}$, where the $i$-th row of $X$ is $x_i^T$, with $x_i\in\mathbb{R}^{d}$ the $i$-th token as in @sec-qkv. For each token $x_i$, self-attention computes (via learned projection matrices, discussed in @sec-qkv), a query $q_i \in \mathbb{R}^{d_q}$, key $k_{i} \in \mathbb{R}^{d_k}$, and value $v_{i} \in \mathbb{R}^{d_v}$, and overall, we will have $n$ queries, $n$ keys, and $n$ values; all of these vectors live in the same dimension in practice, and we often denote all three embedding dimensions via a unified $d_k$.
 
 The self-attention output is calculated as a weighted sum:
 
 $$
-{z}_i = \sum_{j=1}^n  a_{ij} v_{j}\in\mathbb{R}^{d_k }
+{z}_i = \sum_{j=1}^n  \alpha_{ij} v_{j}\in\mathbb{R}^{d_k }
 $$
 
-where $a_{ij}$ is the $j$th element in $a_i$.
+where $\alpha_{ij}$ is the $j$th element in $\alpha_i$.
 
-So far, we've discussed self-attention focusing on a single token input-output. Actually, we can calculate all outputs $z_i$ ($i=1,2,\ldots,n$) at the same time using a matrix form. For clearness, we first introduce the $Q\in\mathbb{R}^{n\times d_k}$ query matrix, $K\in\mathbb{R}^{n\times d_k}$ key matrix, and $V\in\mathbb{R}^{n\times d_k}$ value matrix:
+So far, we've discussed self-attention focusing on a single token input-output. Actually, we can calculate all outputs $z_i$ ($i=1,2,\ldots,n$) at the same time using a matrix form. For clarity, we first introduce the $Q\in\mathbb{R}^{n\times d_k}$ query matrix, $K\in\mathbb{R}^{n\times d_k}$ key matrix, and $V\in\mathbb{R}^{n\times d_k}$ value matrix:
 
 $$
 \begin{aligned}
 Q &= \begin{bmatrix}
-q_1^\top \\
-q_2^\top \\
+q_1^T \\
+q_2^T \\
 \vdots \\
-q_n^\top
+q_n^T
 \end{bmatrix} \in \mathbb{R}^{n \times d_k}, \quad
 K = \begin{bmatrix}
-k_1^\top \\
-k_2^\top \\
+k_1^T \\
+k_2^T \\
 \vdots \\
-k_n^\top
+k_n^T
 \end{bmatrix} \in \mathbb{R}^{n \times d_k}, \quad
 V = \begin{bmatrix}
-v_1^\top \\
-v_2^\top \\
+v_1^T \\
+v_2^T \\
 \vdots \\
-v_n^\top
+v_n^T
 \end{bmatrix} \in \mathbb{R}^{n \times d_k}
 \end{aligned}
 $$
@@ -155,14 +155,14 @@ It should be straightforward to understand that the $Q$, $K$, $V$ matrices simpl
 $$\begin{aligned}
 A = \begin{bmatrix}
     \text{softmax}\left( \begin{bmatrix}
-                           q_1^\top k_1 & q_1^\top k_2 & \cdots & q_1^\top k_{n}
+                           q_1^T k_1 & q_1^T k_2 & \cdots & q_1^T k_{n}
                          \end{bmatrix} / \sqrt{d_k} \right) \\
     \text{softmax}\left( \begin{bmatrix}
-                           q_2^\top k_1 & q_2^\top k_2 & \cdots & q_2^\top k_{n}
+                           q_2^T k_1 & q_2^T k_2 & \cdots & q_2^T k_{n}
                          \end{bmatrix} / \sqrt{d_k} \right) \\
-    \vdots &                                                                   \\
+    \vdots \\
     \text{softmax}\left( \begin{bmatrix}
-                           q_{n}^\top k_1 & q_{n}^\top k_2 & \cdots & q_{n}^\top k_{n}
+                           q_{n}^T k_1 & q_{n}^T k_2 & \cdots & q_{n}^T k_{n}
                          \end{bmatrix} / \sqrt{d_k} \right)
   \end{bmatrix}
 \end{aligned}
@@ -173,12 +173,12 @@ $$\begin{aligned}
 A = \text{softmax}\left(
 \frac{1}{\sqrt{d_k}}
 \begin{bmatrix}
-q_1^\top k_1 & q_1^\top k_2 & \cdots & q_1^\top k_n \\
-q_2^\top k_1 & q_2^\top k_2 & \cdots & q_2^\top k_n \\
+q_1^T k_1 & q_1^T k_2 & \cdots & q_1^T k_n \\
+q_2^T k_1 & q_2^T k_2 & \cdots & q_2^T k_n \\
 \vdots       & \vdots       & \ddots & \vdots       \\
-q_n^\top k_1 & q_n^\top k_2 & \cdots & q_n^\top k_n
+q_n^T k_1 & q_n^T k_2 & \cdots & q_n^T k_n
 \end{bmatrix}
-\right)\end{aligned}=\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)
+\right)\end{aligned}=\text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)
 $$
 
 Note that the Softmax operation is applied in a row-wise manner. The $i$th row of $A$ corresponds to the softmax'd attention scores computed for query $q_i$ over all keys (i.e., $\alpha_i$). The attention-head output can then be written compactly as:
@@ -186,10 +186,10 @@ Note that the Softmax operation is applied in a row-wise manner. The $i$th row o
 $$
 Z = 
 \begin{bmatrix}
-z_1^\top \\
-z_2^\top \\
+z_1^T \\
+z_2^T \\
 \vdots \\
-z_n^\top
+z_n^T
 \end{bmatrix}
 = AV
 \in \mathbb{R}^{n \times d_k}
@@ -202,18 +202,18 @@ where $V\in \mathbb{R}^{n \times d_k}$ is the matrix of value vectors stacked ro
 You will also see this compact notation `Attention` in the literature, which is an operation of three arguments $Q$, $K$, and $V$ (and we add an emphasis that the softmax is performed on each row):
 
 $$
-\text{Attention}(Q, K, V) = \text{softmax}_{row}\left(\frac{Q K^\top}{\sqrt{d_k}}\right)V
+\text{Attention}(Q, K, V) = \text{softmax}_{row}\left(\frac{Q K^T}{\sqrt{d_k}}\right)V
 $$
 
 
 
 ### Multi-head Self-attention
 
-Human language can be very nuanced. There are many properties of language that collectively contribute to a human’s understanding of any given sentence. For example, words have different tenses (past, present, future, etc), genders, abbreviations, slang references, implied words or meanings, cultural references, situational relevance, etc. While the attention mechanism allows us to appropriately focus on tokens in the input sentence, it’s unreasonable to expect a single set of $\{Q,K,V\}$ matrices to fully represent – and for a model to capture – the meaning of a sentence with all of its complexities. 
+Human language can be very nuanced. There are many properties of language that collectively contribute to a human’s understanding of any given sentence. For example, words have different tenses (past, present, future, etc), genders, abbreviations, slang references, implied words or meanings, cultural references, situational relevance, etc. While the attention mechanism allows us to appropriately focus on tokens in the input sentence, it’s unreasonable to expect a single set of $\{W_q, W_k, W_v\}$ projection matrices to fully represent – and for a model to capture – the meaning of a sentence with all of its complexities. 
 
-To address this limitation, the idea of multi-head attention is introduced. Instead of relying on just one attention head (i.e., a single set of $\{Q, K, V\}$ matrices), the model uses multiple attention heads, each with its own independently learned set of $\{Q, K, V\}$ matrices. This allows each head to attend to different parts of the input tokens and to model different types of semantic relationships. For instance, one head might focus on syntactic structure and another on verb tense or sentiment. These different “perspectives” are then concatenated and projected to produce a richer, more expressive representation of the input.
+To address this limitation, the idea of multi-head attention is introduced. Instead of relying on just one attention head (i.e., a single set of $\{W_q, W_k, W_v\}$ projection matrices), the model uses multiple attention heads, each with its own independently learned set of $\{W_q, W_k, W_v\}$ projection matrices. This allows each head to attend to different parts of the input tokens and to model different types of semantic relationships. For instance, one head might focus on syntactic structure and another on verb tense or sentiment. These different “perspectives” are then concatenated and projected to produce a richer, more expressive representation of the input.
 
-Now, we introduce the formal math notations. Let us denote the number of head as $H$. For the $h$th head, the input $X \in \mathbb{R}^{n \times d}$ is linearly projected into query, key, and value matrices using the projection matrices $W_q^{h}\in\mathbb{R}^{d\times d_k}$, $W_k^{h}\in\mathbb{R}^{d\times d_k}$, and $W_v^{h}\in\mathbb{R}^{d\times d_k}$:
+Now, we introduce the formal math notations. Let us denote the number of heads as $H$. For the $h$th head, the input $X \in \mathbb{R}^{n \times d}$ is linearly projected into query, key, and value matrices using the projection matrices $W_q^{h}\in\mathbb{R}^{d\times d_k}$, $W_k^{h}\in\mathbb{R}^{d\times d_k}$, and $W_v^{h}\in\mathbb{R}^{d\times d_k}$:
 
 $$
 \begin{aligned}
@@ -233,11 +233,11 @@ where the concatenation operation concatenates $Z^h$ horizontally, yielding a ma
 
 ### Positional Embeddings 
 
-An extremely observant reader might have been suspicious of a small but very important detail that we have not yet discussed: the attention mechanism, as introduced so far, does not encode the order of the input tokens. For instance, when computing softmax'd attention scores and building token representations, the model is fundamentally permutation-equivariant — the same set of tokens, even if scrambled into a different order, would result in identical outputs permuted in the same order --- Formally, when we fix $\{W_q,W_k,W_v\}$ and switch the input $x_i$ with $x_j$, then the output $z_i$ and $z_j$ will be switched. However, natural language is not a bag of words: meaning is tied closely to word order. 
+An extremely observant reader might have been suspicious of a small but very important detail that we have not yet discussed: the attention mechanism, as introduced so far, does not encode the order of the input tokens. For instance, when computing softmax'd attention scores and building token representations, the model is fundamentally permutation-equivariant — the same set of tokens, even if scrambled into a different order, would result in identical outputs permuted in the same order. Formally, when we fix $\{W_q,W_k,W_v\}$ and switch the input $x_i$ with $x_j$, then the output $z_i$ and $z_j$ will be switched. However, natural language is not a bag of words: meaning is tied closely to word order. 
 
 To address this, transformers incorporate positional embeddings — additional information that encodes the position of each token in the sequence. These embeddings are added to the input token embeddings before any attention layers are applied, effectively injecting ordering information into the model.
 
-There are two main strategies for positional embeddings: (i) learned positional embeddings, where a trainable vector $p_i\in\mathbb{R}^d$ is assigned to each position (i.e., token index) $i=0, 1, 2, ..., n$. These vectors are learned alongside all other model parameters and allow the model to discover how best to encode position for a given task, (ii) fixed positional embeddings, such as sinusoidal positional embedding proposed in the original Transformer paper:
+There are two main strategies for positional embeddings: (i) learned positional embeddings, where a trainable vector $p_i\in\mathbb{R}^d$ is assigned to each position (i.e., token index) $i = 1, 2, \ldots, n$. These vectors are learned alongside all other model parameters and allow the model to discover how best to encode position for a given task, (ii) fixed positional embeddings, such as sinusoidal positional embedding proposed in the original Transformer paper:
 
 $$
 \begin{aligned}
@@ -246,7 +246,7 @@ p_{(i, 2k+1)} = \cos\left( \frac{i}{10000^{2k/d}} \right)
 \end{aligned}
 $$ 
 
-where $i=1,2,..,n$ is the token index, while $k=1,2,...,d$ is the dimension index. Namely, this sinusoidal positional embedding uses sine for the even dimension and cosine for the odd dimension. Regardless of learnable or fixed positional embedding, it will enter the computation of attention at the input place: $x_i^*=x_i+p_i~,$​ where $x_i$ is the $i$th original input token, and $p_i$ is its positional embedding. The $x_i^*$ will now be what we really feed into the attention layer, so that the input to the attention mechanism now carries information about both what the token is and where it appears in the sequence.
+where $i=1,2,\ldots,n$ is the token index, and $k=0,1,\ldots,\lfloor d/2 \rfloor - 1$ indexes pairs of embedding dimensions. Namely, this sinusoidal positional embedding uses sine for the even dimension and cosine for the odd dimension. Regardless of learnable or fixed positional embedding, it will enter the computation of attention at the input place: $x_i^* = x_i + p_i$, where $x_i$ is the $i$th original input token, and $p_i$ is its positional embedding. The $x_i^*$ will now be what we really feed into the attention layer, so that the input to the attention mechanism now carries information about both what the token is and where it appears in the sequence.
 
 This simple additive design enables attention layers to leverage both semantic content and ordering structure when deciding where to focus. In practice, this addition occurs at the very first layer of the transformer stack, and all subsequent layers operate on position-aware representations. This is a key design choice that allows transformers to work effectively with sequences of text, audio, or even image patches (as in Vision Transformers).
 
@@ -267,18 +267,18 @@ $$
 
 and we now have the masked attention matrix:
 
-\begin{aligned}
+$$\begin{aligned}
 A = \text{softmax}\left(
 \frac{1}{\sqrt{d_k}}
 \begin{bmatrix}
-q_1^\top k_1 & q_1^\top k_2 & \cdots & q_1^\top k_n \\
-q_2^\top k_1 & q_2^\top k_2 & \cdots & q_2^\top k_n \\
+q_1^T k_1 & q_1^T k_2 & \cdots & q_1^T k_n \\
+q_2^T k_1 & q_2^T k_2 & \cdots & q_2^T k_n \\
 \vdots       & \vdots       & \ddots & \vdots       \\
-q_n^\top k_1 & q_n^\top k_2 & \cdots & q_n^\top k_n
+q_n^T k_1 & q_n^T k_2 & \cdots & q_n^T k_n
 \end{bmatrix}
-+ M \right)\end{aligned}
++ M \right)\end{aligned}$$
 
-The softmax is performed on each row independently. The attention output is still $Y= A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking before performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
+The softmax is performed on each row independently. The attention output is still $Z = A V$. Essentially, the lower-triangular property of $M$ ensures that the self-attention operation for the $j$-th query only considers tokens $0,1,...,j$. Note that we should apply the masking before performing softmax, so that the attention matrix can be properly normalized (i.e., each row sum to 1).
 
 
 Each self-attention stage is trained to have key, value, and query embeddings that lead it to pay specific attention to some particular feature of the input. We generally want to pay attention to many different kinds of features in the input; for example, in translation one feature might be the verbs, and another might be objects or subjects. A transformer utilizes multiple instances of self-attention, each known as an "attention head," to allow combinations of attention paid to many different features.

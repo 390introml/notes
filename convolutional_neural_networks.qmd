@@ -34,7 +34,7 @@ We will design neural network structures that take advantage of these properties
 We begin by discussing *image filters*. 
 
 :::{.column-margin}
-Unfortunately in AI/ML/CS/Math, the word ``filter'' gets used in many ways: in
+Unfortunately in AI/ML/CS/Math, the word "filter" gets used in many ways: in
   addition to the one we describe here, it can describe a temporal
   process (in fact, our moving averages are a kind of filter) and even
   a somewhat esoteric algebraic structure.
@@ -205,7 +205,7 @@ Two-dimensional versions of filters like these are thought to be found in the vi
 :::
 
 
-All of the filters in the first group are applied to the original image; if there are $k$ such filters, then the result is $k$ new images, which are called *channels*. Now imagine stacking all these new images up so that we have a cube of data, indexed by the original row and column indices of the image, as well as by the channel. The next set of filters in the filter bank will generally be *three-dimensional*: each one will be applied to a sub-range of the row and column indices of the image and to all of the channels.
+All of the filters in the first group are applied to the original image; if there are $m$ such filters, then the result is $m$ new images, which are called *channels*. Now imagine stacking all these new images up so that we have a cube of data, indexed by the original row and column indices of the image, as well as by the channel. The next set of filters in the filter bank will generally be *three-dimensional*: each one will be applied to a sub-range of the row and column indices of the image and to all of the channels.
 
 These 3D chunks of data are called *tensors*. The algebra of tensors is fun, and a lot like matrix algebra, but we won't go into it in any detail.
 
@@ -214,11 +214,11 @@ There are now many useful neural-network software packages, such
 as *TensorFlow* and *PyTorch* that make operations on tensors easy.
 :::
 
-Here is a more complex example of two-dimensional filtering. We have two $3 \times 3$ filters in the first layer, $f_1$ and $f_2$. You can think of each one as "looking" for three pixels in a row, $f_1$ vertically and $f_2$ horizontally. Assuming our input image is $n
+Here is a more complex example of two-dimensional filtering. We have two $3 \times 3$ filters in the first layer, $f_1$ and $f_2$. You can think of each one as "looking" for three pixels in a row, $f_1$ vertically and $f_2$ horizontally. If our input image is $n
   \times n$, then the result of filtering with these two filters is an $n
   \times n \times 2$ tensor. Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $n \times  n$ image.
 
-:::{.margin-note}
+::: {.column-margin}
 When we have a color image as input, we treat it as having three
 channels, and hence as an $n \times n \times 3$ tensor.
 :::
@@ -374,10 +374,10 @@ For simplicity, we are assuming that  all images and filters are square (having 
 -   *padding*: $p^l$ is the addition of extra border values to an input before convolution to control output size and edge behavior. For an input of size $n^{l-1} \times n^{l-1} \times m^{l-1}$, our new effective input size with padding becomes $(n^{l-1} + 2 \cdot p^l) \times (n^{l-1} + 2 \cdot p^l) \times m^{l-1}$.
 
 This layer will produce an output tensor of size $n^l \times n^l \times
-  m^l$, where $n^l = \lceil (n^{l-1} + 2 \cdot p^l - (k^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $m^l$ different $k^l \times k^l \times m^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
+  m^l$, where $n^l = \lceil (n^{l-1} + 2 \cdot p^l - (k^l - 1)) / s^l \rceil$, equivalently $\lfloor (n^{l-1}+2p^l-k^l)/s^l \rfloor + 1$. The weights are the values defining the filter: there will be $m^l$ different $k^l \times k^l \times m^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(0.5, -0.5, 0.5, -0.5, 0.5, -1.5, 1.5, -0.5, 0.5, 0.5)$ instead of $(0,-1,0,-1,0,-2,1,-1,0,0)$.
 
 :::{.column-margin}
-Recall that $\lceil \cdot \rceil$ is the \emph{ceiling} function; it returns the smallest
+Recall that $\lceil \cdot \rceil$ is the *ceiling* function; it returns the smallest
   integer greater than or equal to its input. E.g., $\lceil 2.5 \rceil = 3$ and $\lceil 3 \rceil = 3$.
 :::
 
@@ -409,7 +409,7 @@ Usually, we apply max pooling with the following traits:
 
 As a result of applying a max pooling layer, we don't keep track of the precise location of a pattern. This helps our filters to learn to recognize patterns independent of their location.
 
-Consider a max pooling layer where both the strides and $k$ are set to be 2. This would map a $64 \times 64 \times 3$ image to a $32 \times 32 \times 3$ image. Note that max pooling layers do not have additional bias or offset values.
+Consider a max pooling layer where both the stride and $k$ are set to 2. This would map a $64 \times 64 \times 3$ image to a $32 \times 32 \times 3$ image. Note that max pooling layers do not have additional bias or offset values.
 
 ::: {.study-question-callout}
 Maximilian Poole thinks it would be a good idea to add two max pooling layers of size $k$, one right after the other, to their network. What single layer would be equivalent?
@@ -473,13 +473,14 @@ Let's work through a *very* simple example of how back-propagation can work on a
 For simplicity assume $k$ is odd, let the input image $X = A^0$, and assume we are using squared loss. Then we can describe the forward pass as follows: $$\begin{aligned}
   Z_i^1                        & = {W^1}^TA^0_{[i-\lfloor k/2 \rfloor
   : i + \lfloor k/2 \rfloor]}                                         \\
-  A^1                          & = ReLU(Z^1)                          \\
+  A^1                          & = \text{ReLU}(Z^1)                          \\
   A^2                          & = Z^2 = {W^2}^T A^1                  \\
-  \mathcal{L}_{square}(A^2, y) & = (A^2-y)^2
+  \mathcal{L}_{\text{SE}}(A^2, y) & = (A^2-y)^2
 \end{aligned}$$
+where the subscript range in the first line is inclusive on both ends, so the slice has $k$ elements.
 
 :::{.study-question-callout}
-Assuming a stride of $1,$ for a filter of size $k$, how much padding do we need to add to the top and bottom of the image? We see one zero at the top and bottom in the figure just above; what filter size is implicitly being shown in the figure? (Recall the padding is for the sake of getting an output the same size as the input.)
+Assuming a stride of $1$, for a filter of size $k$, how much padding do we need to add to the top and bottom of the image? We see one zero at the top and bottom in the figure just above; what filter size is implicitly being shown in the figure? (Recall the padding is for the sake of getting an output the same size as the input.)
 :::
 
 ### Weight update
@@ -493,7 +494,7 @@ $$
   \frac{\partial \text{loss}}{\partial A^1}
 $$
 
--   $\partial Z^1/\partial W^1$ is the $k \times n$ matrix such that $\partial Z_i^1/\partial W_j^1 = X_{i-\lfloor k/2 \rfloor+j-1}$. So, for example, if $i = 10$, which corresponds to column 10 in this matrix, which illustrates the dependence of pixel 10 of the output image on the weights, and if $k = 5$, then the elements in column 10 will be $X_8, X_9, X_{10}, X_{11}, X_{12}$.
+-   $\partial Z^1/\partial W^1$ is the $k \times n$ matrix such that $\partial Z_i^1/\partial W_j^1 = X_{i-\lfloor k/2 \rfloor+j-1}$. So, for example, if $i = 10$ and $k = 5$, then column 10 of this matrix (which captures the dependence of output pixel 10 on the weights) has elements $X_8, X_9, X_{10}, X_{11}, X_{12}$.
 
 - $\partial A^1/\partial Z^1$ is the $n \times n$ diagonal matrix such that 
 
@@ -507,7 +508,7 @@ $$
 \end{aligned}
 $$
 
--   $\partial \text{loss}/{\partial A^1} = (\partial \text{loss} / {\partial A^2}) (\partial A^2 / {\partial A^1}) = 2(A^2 - y)W^2$, an $n \times 1$ vector
+-   $\partial \text{loss}/{\partial A^1} = (\partial A^2 / {\partial A^1}) (\partial \text{loss} / {\partial A^2}) = 2(A^2 - y)W^2$, an $n \times 1$ vector
 
 Multiplying these components yields the desired gradient, of shape $k \times 1$.
 
