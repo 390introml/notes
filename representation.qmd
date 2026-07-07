@@ -16,7 +16,7 @@ More formally, given data $x \in \mathbb{R}^d$, a representation is a function $
 While representations are often lower-dimensional ($k < d$), this is not required. In many modern systems (e.g., transformers), representations may actually be higher-dimensional, but are structured in a way that makes relevant information easier to extract.
 :::
 
-What makes a representation *good*? Not all compressions are equally useful — a representation that discards the wrong information is worse than useless. Bengio et al. (2013) identify several desirable properties:
+What makes a representation *good*? Not all compressions are equally useful --- a representation that discards the wrong information is worse than useless. Bengio et al. (2013) identify several desirable properties:
 
 1. **Compact** (*minimal*): the representation uses few dimensions, discarding noise and redundancy.
 2. **Explanatory** (*sufficient*): it retains enough information to reconstruct or reason about the original data.
@@ -35,13 +35,13 @@ These properties are sometimes in tension --- for instance, maximizing compactne
 **Representations as embeddings.** Each layer of a neural network maps its input to a vector of *activations*. We can think of this activation vector as an *embedding* --- a point in a high-dimensional space where position encodes meaning. It is important to distinguish between the *weights* of a layer and the *activations* it produces: the weights are the learned parameters (the filters in a CNN, the entries of a weight matrix), while the activations are the outputs produced when those weights are applied to a specific input. The embedding of a data point is its activation vector, not the weights themselves --- the weights define the *mapping* between embedding spaces, while the activations are the *representation* of a particular input at a given level of abstraction. Thus, representation learning can be viewed as learning a geometry over the dataset, where distances and directions encode semantic relationships.
 
 :::{.column-margin}
-In a CNN, the learned filters are the "alphabet" or building blocks of the representation. The embedding of a specific image is the vector of filter activations --- how strongly each filter responds at each location. Two images of the same object will produce similar activation patterns even if their pixels differ substantially. (For example, think of the weights as a dictionary — fixed after training, they define what the network knows how to detect. The activations are the result of looking something up in that dictionary for a specific input. Two images of the same dog produce similar activations (similar lookup results) even if their pixel values differ substantially.)
+In a CNN, the learned filters are the "alphabet" or building blocks of the representation. The embedding of a specific image is the vector of filter activations --- how strongly each filter responds at each location. Two images of the same object will produce similar activation patterns even if their pixels differ substantially. (For example, think of the weights as a dictionary --- fixed after training, they define what the network knows how to detect. The activations are the result of looking something up in that dictionary for a specific input.)
 :::
 
-For example, given an image $x$, the activations at some intermediate layer form a vector that represents the image at a particular level of abstraction. We might call this "im2vec" by analogy with "word2vec" (discussed in @sec-embeddings below). If the network has learned a good representation, then semantically similar images will have embeddings that are close together --- two photos of golden retrievers will be nearby in this space, even if the actual pixel values are very different.
+For example, given an image $x$, the activations at some intermediate layer form a vector that represents the image at a particular level of abstraction. We might call this "im2vec" by analogy with "word2vec" (discussed in @sec-context-embeddings below). If the network has learned a good representation, then semantically similar images will have embeddings that are close together --- two photos of golden retrievers will be nearby in this space, even if the actual pixel values are very different.
 
 
-## Transfer learning and finetuning {#sec-transfer}
+## Transfer learning and fine-tuning {#sec-transfer}
 
 We have already seen representation learning at work, even if we didn't call it that. When a CNN is trained to classify images, its internal layers learn a hierarchy of increasingly abstract features.
 
@@ -61,17 +61,17 @@ If a deep network's internal representations capture general-purpose features (e
 
 1. **Pretrain** a network on a large dataset for task A (e.g., classifying 1000 object categories on ImageNet), obtaining learned parameters $W$ and $b$.
 2. **Transfer** some or all of these parameters to initialize a new network for task B (e.g., recognizing room types from indoor photographs).
-3. **Finetune** the new network on task B's (often much smaller) dataset, resulting in updated parameters $W'$ and $b'$.
+3. **Fine-tune** the new network on task B's (often much smaller) dataset, resulting in updated parameters $W'$ and $b'$.
 
 :::{.column-margin}
 The "learned representation" being transferred is precisely the weights and biases of the pretrained network --- these encode the feature detectors that the network has discovered.
 :::
 
-This works because early layers learn general features (edges, textures) that are useful across many visual tasks, while later layers become increasingly task-specific. Finetuning allows the network to adapt its higher-level representations to the new task while preserving the useful lower-level features. When you finetune, the early layers have already mostly "learned" low-level structure, so gradient updates mostly affect the later layers, which adapt to the new task's semantics. Training from scratch, by contrast, must relearn everything — an expensive and data-hungry process.
+This works because early layers learn general features (edges, textures) that are useful across many visual tasks, while later layers become increasingly task-specific. Fine-tuning allows the network to adapt its higher-level representations to the new task while preserving the useful lower-level features. When you fine-tune, the early layers have already mostly "learned" low-level structure, so most of the useful adaptation happens in the later layers, which adjust to the new task's semantics. Training from scratch, by contrast, must relearn everything --- an expensive and data-hungry process.
 
-Transfer learning is now standard practice in deep learning. Rather than training from scratch, practitioners typically start from a pretrained model and finetune for their specific application. This dramatically reduces the amount of labeled data needed and often yields better results than training from scratch, even with substantial datasets.
+Transfer learning is now standard practice in deep learning. Rather than training from scratch, practitioners typically start from a pretrained model and fine-tune for their specific application. This dramatically reduces the amount of labeled data needed and often yields better results than training from scratch, even with substantial datasets.
 
-In practice, how much of the network to update during finetuning is a design choice. One common strategy is to freeze the early layers entirely (set their gradients to zero) and only train the later layers — this is faster and reduces the risk of overwriting useful low-level features. As a rule of thumb: the more similar task B is to task A, the more layers you can safely freeze.
+In practice, how much of the network to update during fine-tuning is a design choice. One common strategy is to freeze the early layers entirely (exclude their weights from the gradient updates) and only train the later layers --- this is faster and reduces the risk of overwriting useful low-level features. As a rule of thumb: the more similar task B is to task A, the more layers you can safely freeze.
 
 
 ## Learning representations without labels
@@ -85,7 +85,7 @@ There is reason to think we can. The key insight of *self-supervised learning* i
 
 The idea behind *self-supervised learning* is conceptually simple: instead of requiring human-provided labels, we create a supervised learning problem *from the data itself*, using the structure of the data to generate labels automatically.
 
-The key idea is to design a *pretext task* --- an auxiliary prediction problem whose labels are free. By training a network to solve the pretext task, useful representations emerge in its internal layers. This is a natural extension of the supervised learning students are already familiar with --- the only difference is *where the labels come from*.
+The key idea is to design a *pretext task* --- an auxiliary prediction problem whose labels are free. By training a network to solve the pretext task, useful representations emerge in its internal layers. This is a natural extension of the supervised learning you are already familiar with --- the only difference is *where the labels come from*.
 
 Examples of pretext tasks include:
 
@@ -120,11 +120,11 @@ $$a^T b = a \cdot b = \sum_{j} a_j \, b_j$$
 A related measure is *cosine similarity*, $\frac{a^T b}{\|a\| \, \|b\|}$, which normalizes for vector magnitude and measures only directional alignment.
 :::
 
-The inner product indicates how aligned two vectors are: highly positive values imply strong similarity, negative values indicate opposition, and values near zero suggest no similarity (up to a scaling factor related to the magnitude).
+The inner product indicates how aligned two vectors are: highly positive values imply strong similarity, negative values indicate opposition, and values near zero suggest little alignment. (The inner product also grows with the vectors' magnitudes; cosine similarity, shown in the margin, normalizes this away.)
 
 A groundbreaking embedding method, *word2vec* (Mikolov et al., 2013), produced embeddings where vector arithmetic corresponds to semantic relationships:
 
-$$\text{embedding}_{\tt paris} - \text{embedding}_{\tt france} + \text{embedding}_{\tt italy} \approx \text{embedding}_{\tt rome}$$
+$$\text{embedding}_{\texttt{paris}} - \text{embedding}_{\texttt{france}} + \text{embedding}_{\texttt{italy}} \approx \text{embedding}_{\texttt{rome}}$$
 
 Such embeddings revealed meaningful semantic relationships like analogies across diverse vocabulary (e.g., $\textit{uncle} - \textit{man} + \textit{woman} \approx \textit{aunt}$). The training procedure is a form of self-supervised learning: the network learns to predict a word from its context (or vice versa), and the word vectors that emerge from this training capture distributional semantics --- the principle that "you shall know a word by the company it keeps."
 
@@ -166,10 +166,10 @@ Zero-shot means the model can handle categories it was never explicitly trained 
 
 A special case of self-supervised learning arises when the pretext task is to reconstruct the input $x$ *itself* --- not a masked portion, not a neighboring patch, but the entire input. When this reconstruction is forced through a bottleneck, the result is an *autoencoder*, and the latent representation at the bottleneck becomes very explicit.
 
-In a simple, linearly connected network (without residual connections or separate convolution streams), we can think of the activations at an intermediate layer as the latent representation. The autoencoder makes this idea precise: the network is clamped to produce itself, and the bottleneck enforces an *information constraint* that forces a compressed encoding capturing the essential structure of the data.
+In a simple, linearly connected network (without residual connections or separate convolution streams), we can think of the activations at an intermediate layer as the latent representation. The autoencoder makes this idea precise: the network is trained to reproduce its own input, and the bottleneck enforces an *information constraint* that forces a compressed encoding capturing the essential structure of the data.
 
 Assume that we have input data $\mathcal{D} = \{x^{(1)}, \ldots,
-  x^{(n)} \}$, where $x^{(i)}\in \mathbb{R}^d$. We seek to learn an autoencoder that will produce a new dataset $\mathcal{D}_{out} =
+  x^{(n)} \}$, where $x^{(i)}\in \mathbb{R}^d$. We seek to learn an autoencoder that will produce a new dataset $\mathcal{D}_{\text{out}} =
   \{a^{(1)}, \ldots, a^{(n)}\}$, where $a^{(i)}\in \mathbb{R}^k$ with $k
   < d$. We can think about $a^{(i)}$ as the new *representation* of data point $x^{(i)}$. For example, in @fig-illustration we show the learned representations of a dataset of MNIST digits with $k=2$. We see, after inspecting the individual data points, that unsupervised learning has found a compressed (or *latent*) representation where images of the same digit are close to each other, potentially greatly aiding subsequent clustering or classification tasks.
 
@@ -179,19 +179,19 @@ Assume that we have input data $\mathcal{D} = \{x^{(1)}, \ldots,
   \mathbb{R}^k$, and a *decoder* $h : \mathbb{R}^k \rightarrow
   \mathbb{R}^d$ that maps the representation space back into the original data space.
 
-The encoder and decoder are typically neural networks. The basic architecture of a single-layer autoencoder is shown in @fig-autoencoder; note that bias terms $W^1_0$ and $W^2_0$ into the summation nodes exist, but are omitted for clarity in the figure. The original $d$-dimensional input is compressed into $k$ dimensions via the encoder $g(x; W^1, W^1_0)=f_1(W{^1}^T x + W^1_0)$ with $W^1 \in
-  \mathbb{R}^{d \times k}$ and $W^1_0 \in \mathbb{R}^k$, where the non-linearity $f_1$ is applied element-wise. To recover (an approximation to) the original instance, we then apply the decoder $h(a; W^2, W^2_0) = f_2(W{^2}^T
+The encoder and decoder are typically neural networks. The basic architecture of a single-layer autoencoder is shown in @fig-autoencoder; note that bias terms $W^1_0$ and $W^2_0$ into the summation nodes exist, but are omitted for clarity in the figure. The original $d$-dimensional input is compressed into $k$ dimensions via the encoder $g(x; W^1, W^1_0)=f_1({W^1}^T x + W^1_0)$ with $W^1 \in
+  \mathbb{R}^{d \times k}$ and $W^1_0 \in \mathbb{R}^k$, where the non-linearity $f_1$ is applied element-wise. To recover (an approximation to) the original instance, we then apply the decoder $h(a; W^2, W^2_0) = f_2({W^2}^T
   a + W^2_0)$, where $f_2$ denotes a different activation function. In general, both the encoder and decoder could involve multiple layers. Learning seeks parameters $W^1, W^1_0$ and $W^2, W^2_0$ such that the reconstructed instances, $h(g(x^{(i)}; W^{1}, W^1_0); W^{2}, W^2_0)$, are close to the original input $x^{(i)}$.
 
 ![Autoencoder structure, showing the encoder (left half, light green), and the decoder (right half, light blue), encoding inputs $x$ to the representation $a$, and decoding the representation to produce $\tilde{x}$, the reconstruction. In this specific example, the representation ($a_1$, $a_2$, $a_3$) only has three dimensions.](figures/autoencoder.png){#fig-autoencoder width="60%"}
 
-**Learning.** We learn the weights using the same tools from supervised learning: (stochastic) gradient descent to minimize a loss function. The loss $\mathcal{L}(\tilde{x}, x)$ measures the discrepancy between the reconstruction $\tilde{x} = h(g(x; W^{1}, W^1_0); W^{2}, W^2_0)$ and the original input $x$. For continuous-valued $x$, a natural choice is squared loss: $\mathcal{L}_{SE}(\tilde{x}, x) = \sum_{j=1}^{d} (x_j - \tilde{x}_j)^2$.
+**Learning.** We learn the weights using the same tools from supervised learning: (stochastic) gradient descent to minimize a loss function. The loss $\mathcal{L}(\tilde{x}, x)$ measures the discrepancy between the reconstruction $\tilde{x} = h(g(x; W^{1}, W^1_0); W^{2}, W^2_0)$ and the original input $x$. For continuous-valued $x$, a natural choice is squared loss: $\mathcal{L}_{\text{SE}}(\tilde{x}, x) = \sum_{j=1}^{d} (x_j - \tilde{x}_j)^2$.
 
 :::{.column-margin}
 Alternatively, you could think of this as *multi-task learning*, where the goal is to predict each dimension of $x$. One can mix-and-match loss functions as appropriate for each dimension's data type.
 :::
 
-Learning then seeks to optimize the parameters of $h$ and $g$ so as to minimize the reconstruction error: $$\min_{W^{1}, W^1_0, W^{2}, W^2_0} \sum_{i=1}^n \mathcal{L}_{SE}\left(h(g(x^{(i)}; W^{1}, W^1_0); W^{2}, W^2_0), x^{(i)}\right)$$
+Learning then seeks to optimize the parameters of $h$ and $g$ so as to minimize the reconstruction error: $$\min_{W^{1}, W^1_0, W^{2}, W^2_0} \sum_{i=1}^n \mathcal{L}_{\text{SE}}\left(h(g(x^{(i)}; W^{1}, W^1_0); W^{2}, W^2_0), x^{(i)}\right)$$
 
 **The importance of the bottleneck.** Without further constraints, it is always possible to perfectly reconstruct the input --- for example, by letting $k=d$ and using identity functions. To learn something useful, we must create a *bottleneck* by making $k$ smaller (often much smaller) than $d$. This forces the learning algorithm to discover transformations that describe the original data using as simple a description as possible. For the digits dataset, a compressed representation might capture the digit label (0--9), rotation, and stroke thickness. After learning, we can inspect the learned representations --- for example, by varying one dimension of $a$ and observing how the decoded output $h(a)$ changes --- to understand what the autoencoder has learned.
 
@@ -201,10 +201,10 @@ If we set $k = d$ (the bottleneck has the same dimension as the input), what wou
 
 **Linear encoders and PCA.** Even linear encoders and decoders can be powerful. When both $f_1$ and $f_2$ are the identity function, the optimal solution can be obtained in closed form via *principal components analysis* (PCA) using singular value decomposition (SVD). The neural network autoencoders discussed above can be thought of as nonlinear generalizations of PCA, just as a multilayer neural network for regression generalizes linear regression.
 
-**From compression to downstream tasks.** Once a good encoder has been learned, the decoder can be discarded and the encoder used as a feature extractor. The representations $a = g(x)$ can then be fed into a classifier or regressor trained with supervised learning --- potentially using a much smaller labeled dataset. This connects autoencoders to the semi-supervised learning setting described in @sec-self-supervised: we use a large unlabeled dataset to learn the representation and a small labeled dataset for the downstream task.
+**From compression to downstream tasks.** Once a good encoder has been learned, the decoder can be discarded and the encoder used as a feature extractor. The representations $a = g(x)$ can then be fed into a classifier or regressor trained with supervised learning --- potentially using a much smaller labeled dataset. This gives a *semi-supervised* recipe, mirroring the pretext-task idea of @sec-self-supervised: we use a large unlabeled dataset to learn the representation and a small labeled dataset for the downstream task.
 
 
-## Embeddings: a unifying view {#sec-embeddings}
+## Embeddings: a unifying view {#sec-embeddings-view}
 
 The representations learned by all the methods above are, at their core, *embeddings*: mappings from complex, high-dimensional data (images, words, sentences, graphs) into vectors in a lower-dimensional space. The key property of a good embedding is that **geometric relationships in the vector space reflect meaningful relationships in the original data**.
 
