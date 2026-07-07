@@ -11,7 +11,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Feature components use **subscripts**: `x_1, x_2, x_j`
 
 ### Vectors and Matrices
-- **Vectors**: bold lowercase via `\mathbf{}` -- e.g., `\mathbf{x}`
+- **Vectors**: italic lowercase -- e.g., `x` (no `\mathbf`)
 - **Matrices**: plain uppercase -- e.g., `X, W, A`
 - **Transpose**: `X^T` or `\theta^T`
 - Column vectors by default; `\theta^T x` for dot products
@@ -26,7 +26,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 
 ### Functions
 - **Hypothesis**: `h(x; \theta, \theta_0)` -- semicolon separates input from parameters
-- **Loss**: `\mathcal{L}(g, y)` for general loss; specific variants `\mathcal{L}_{\text{nll}}`, `\mathcal{L}_{\text{SE}}`
+- **Loss**: `\mathcal{L}(g, a)` for general loss (`g` = guess, `a` = actual); specific variants `\mathcal{L}_{\text{nll}}`, `\mathcal{L}_{\text{SE}}`
 - **Objective**: `J(\theta)` or `J(\theta, \theta_0)`
 - **Sigmoid**: `\sigma(z) = \frac{1}{1 + e^{-z}}`
 - **Softmax**: `\operatorname{softmax}`
