@@ -53,7 +53,7 @@ A linear classifier in $d$ dimensions is defined by a vector of parameters $\the
 Given particular values for $\theta$ and $\theta_0$, the classifier is defined by 
 $$\begin{aligned}
   h(x; \theta, \theta_0) = \text{step}(\theta^\top x + \theta_0)
-  = \begin{cases} +1 & \text{if $\theta^Tx + \theta_0 > 0$} \\ 0 &
+  = \begin{cases} +1 & \text{if $\theta^\top x + \theta_0 > 0$} \\ 0 &
               \text{otherwise}\end{cases} \;\;.
 \end{aligned}
 $$ 
