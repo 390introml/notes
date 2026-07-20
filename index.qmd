@@ -21,7 +21,7 @@ One crucial aspect of machine learning approaches to solving problems is that hu
 This aspect is often undervalued.
 :::
 
-The conceptual basis of learning from data is the *problem of induction*: Why do we think that previously seen data will help us predict the future? This is a serious long standing philosophical problem. We will operationalize it by making assumptions, such as that all training data are so-called i.i.d.(independent and identically distributed), and that queries will be drawn from the same distribution as the training data, or that the answer comes from a set of possible answers known in advance.
+The conceptual basis of learning from data is the *problem of induction*: Why do we think that previously seen data will help us predict the future? This is a serious long-standing philosophical problem. We will operationalize it by making assumptions, such as that all training data are so-called i.i.d. (independent and identically distributed), and that queries will be drawn from the same distribution as the training data, or that the answer comes from a set of possible answers known in advance.
 
 :::{.column-margin}
 This means that the elements in the set are related in the sense that they all come from the same underlying probability distribution, but not in other ways.
@@ -30,10 +30,6 @@ This means that the elements in the set are related in the sense that they all c
 In general, we need to solve these two problems:
 
 -   **estimation:** When we have data that are noisy reflections of some underlying quantity of interest, we have to aggregate the data and make estimates or predictions about the quantity. How do we deal with the fact that, for example, the same treatment may end up with different results on different trials? How can we predict how well an estimate may compare to future results?
-
-:::{.column-margin}
-For example, the same treatment may end up with different results on different trials. How can we predict how well an estimate compares to future results?
-:::
 
 -   **generalization:** How can we predict results of a situation or experiment that we have never encountered before in our data set?
 
@@ -52,14 +48,14 @@ We can describe problems and their solutions using six characteristics, three of
 6.  **Algorithm:** What computational process will be used to fit the model to the data and/or to make predictions?
 
 :::{.column-margin}
-In this course and in ML community, "model" and "hypothesis" (and "model class" and "hypothesis class") are used interchangeably. We will generally use these terms synonymously until we get to MDPs and RL, where "model" and "hypothesis" take on distinct meanings; we will point out the distinction there.
+In this course and in the ML community, "model" and "hypothesis" (and "model class" and "hypothesis class") are used interchangeably. We will generally use these terms synonymously until we get to MDPs and RL, where "model" and "hypothesis" take on distinct meanings; we will point out the distinction there.
 :::
 
 Without making some assumptions about the nature of the process generating the data, we cannot perform generalization. In the following sections, we elaborate on these ideas.
 
 ## Problem class
 
-There are many different *problem classes* in machine learning. They vary according to what kind of data is provided and what kind of conclusions are to be drawn from it. Five standard problem classes are described below, to establish some notation and terminology.
+There are many different *problem classes* in machine learning. They vary according to what kind of data is provided and what kind of conclusions are to be drawn from it. Several standard problem classes are described below, to establish some notation and terminology.
 
 In this course, we will focus on classification and regression (two examples of supervised learning), and we will touch on reinforcement learning, sequence learning, and clustering.
 
@@ -78,7 +74,7 @@ For a regression problem, the training data $\mathcal{D}_\text{train}$ is in the
 
 $$\mathcal{D}_\text{train}= \{(x^{(1)},
   y^{(1)}), \ldots, (x^{(n)}, y^{(n)})\},
-$$ where $x^{(i)}$ represents an input, most typically a $d$-dimensional vector of real and/or discrete values, and $y^{(i)}$ is the output to be predicted, in this case a real-number. The $y$ values are sometimes called *target values*.
+$$ where $x^{(i)}$ represents an input, most typically a $d$-dimensional vector of real and/or discrete values, and $y^{(i)}$ is the output to be predicted, in this case a real number. Each component $x_j$ of such a vector is called a *feature* of the input (for example, a house's size or its age). The $y$ values are sometimes called *target values*.
 
 :::{.column-margin}
 Many textbooks use $x_i$ and $t_i$ instead of $x^{(i)}$ and $y^{(i)}$. We find that notation somewhat difficult to manage when $x^{(i)}$ is itself a vector and we need to talk about its elements. The notation we are using is standard in some other parts of the ML literature.
@@ -101,7 +97,7 @@ Given samples $x^{(1)}, \ldots, x^{(n)} \in \mathbb{R}^d$, the goal is to find a
 
 #### Density estimation
 
-Given samples $x^{(1)}, \ldots, x^{(n)} \in \mathbb{R}^d$ drawn i.i.d. from some distribution $\Pr(X)$, the goal is to predict the probability $\Pr(x^{(n+1)})$ of an element drawn from the same distribution. Density estimation sometimes plays a role as a "subroutine" in the overall learning method for supervised learning, as well.
+Given samples $x^{(1)}, \ldots, x^{(n)} \in \mathbb{R}^d$ drawn i.i.d. from some distribution $\Pr(X)$, the goal is to estimate the probability density at a new point $x^{(n+1)}$ drawn from the same distribution. Density estimation sometimes plays a role as a "subroutine" in the overall learning method for supervised learning, as well.
 
 #### Dimensionality reduction
 
@@ -112,14 +108,13 @@ Dimensionality reduction is a standard technique that is particularly useful for
 
 ### Sequence learning
 
-In sequence learning, the goal is to learn a mapping from *input sequences* $x_0, \ldots, x_n$ to *output sequences* $y_1,
-  \ldots, y_m$. The mapping is typically represented as a *state machine*, with one function $f_s$ used to compute the next hidden internal state given the input, and another function $f_o$ used to compute the output given the current hidden state.
+In sequence learning, the goal is to learn a mapping from *input sequences* $x_1, \ldots, x_k$ to *output sequences* $y_1, \ldots, y_m$. The mapping is typically represented as a *state machine*, with one function $f_s$ used to compute the next hidden internal state given the input, and another function $f_o$ used to compute the output given the current hidden state.
 
 It is supervised in the sense that we are told what output sequence to generate for which input sequence, but the internal functions have to be learned by some method other than direct supervision, because we don't know what the hidden state sequence is.
 
 ### Reinforcement learning
 
-In reinforcement learning, the goal is to learn a mapping from input values (typically assumed to be states of an agent or system; for now, think e.g. the velocity of a moving car) to output values (typically we want control actions; for now, think e.g. if to accelerate or hit the brake). However, we need to learn the mapping without a direct supervision signal to specify which output values are best for a particular input; instead, the learning problem is framed as an agent interacting with an environment, in the following setting:
+In reinforcement learning, the goal is to learn a mapping from input values (typically assumed to be states of an agent or system; for now, think e.g. the velocity of a moving car) to output values (typically we want control actions; for now, think e.g. whether to accelerate or hit the brake). However, we need to learn the mapping without a direct supervision signal to specify which output values are best for a particular input; instead, the learning problem is framed as an agent interacting with an environment, in the following setting:
 
 -   The agent observes the current state ${s}_t$.
 
@@ -133,7 +128,7 @@ In reinforcement learning, the goal is to learn a mapping from input values (typ
 
 -   $\ldots$
 
-The goal is to find a policy $\pi$, mapping $s$ to $a$, (that is, states to actions) such that some long-term sum or average of rewards $r$ is maximized.
+The goal is to find a policy $\pi$, mapping $s$ to $a$ (that is, states to actions), such that some long-term sum or average of rewards $r$ is maximized.
 
 This setting is very different from either supervised learning or unsupervised learning, because the agent's action choices affect both its reward and its ability to observe the environment. It requires careful consideration of the long-term effects of actions, as well as all of the other issues that pertain to supervised learning.
 
@@ -208,13 +203,13 @@ Recall that the goal of a ML system is typically to estimate or generalize, base
 
 In some simple cases, in response to queries, we can generate predictions directly from the training data, without the construction of any intermediate model, or more precisely, without the learning of any parameters.
 
-For example, in regression or classification, we might generate an answer to a new query by averaging answers to recent queries, as in the *nearest neighbor* method.
+For example, in regression or classification, we might generate an answer to a new query by using the outputs associated with the most similar training examples, as in the *nearest neighbor* method.
 
 ### Parametric models
 
 This two-step process is more typical:
 
-1.  "Fit" a model (with some a-prior chosen parameterization) to the training data
+1.  "Fit" a model (with some a priori chosen parameterization) to the training data
 
 2.  Use the model directly to make predictions
 
@@ -224,7 +219,7 @@ The idea is that $\Theta$ is a set of one or more parameter values that will be 
 
 Given a new $x^{(n+1)}$, we would then make the prediction $h(x^{(n+1)}; \Theta)$.
 
-The fitting process is often articulated as an optimization problem: Find a value of $\Theta$ that minimizes some criterion involving $\Theta$ and the data. An optimal strategy, if we knew the actual underlying distribution on our data, $\Pr(X,Y)$ would be to predict the value of $y$ that minimizes the *expected loss*, which is also known as the *test error*. If we don't have that actual underlying distribution, or even an estimate of it, we can take the approach of minimizing the *training error*: that is, finding the prediction rule $h$ that minimizes the average loss on our training data set. So, we would seek $\Theta$ that minimizes 
+The fitting process is often articulated as an optimization problem: Find a value of $\Theta$ that minimizes some criterion involving $\Theta$ and the data. An optimal strategy, if we knew the actual underlying distribution on our data, $\Pr(X,Y)$ would be to predict the value of $y$ that minimizes the *expected loss* (the *risk* mentioned above; in practice we estimate it by the *test error*). If we don't have that actual underlying distribution, or even an estimate of it, we can take the approach of minimizing the *training error*: that is, finding the prediction rule $h$ that minimizes the average loss on our training data set. So, we would seek $\Theta$ that minimizes 
 
 $$\begin{aligned}
   \mathcal{E}_\text{train}(h; \Theta) =  \frac{1}{n}\sum_{i = 1}^n
@@ -238,12 +233,12 @@ We will find that minimizing training error alone is often not a good choice: it
 
 A model *class* ${\cal M}$ is a set of possible models, typically parameterized by a vector of parameters $\Theta$. What assumptions will we make about the form of the model? When solving a regression problem using a prediction-rule approach, we might try to find a linear function $h(x ; \theta, \theta_0) = \theta^T x + \theta_0$ that fits our data well. In this example, the parameter vector $\Theta = (\theta, \theta_0)$.
 
-For problem types such as classification, there are huge numbers of model classes that have been considered\...we'll spend much of this course exploring these model classes, especially neural networks models. We will almost completely restrict our attention to model classes with a fixed, finite number of parameters. Models that relax this assumption are called "non-parametric" models.
+For problem types such as classification, there are huge numbers of model classes that have been considered\...we'll spend much of this course exploring these model classes, especially neural network models. We will almost completely restrict our attention to model classes with a fixed, finite number of parameters. Models that relax this assumption are called "non-parametric" models.
 
-How do we select a model class? In some cases, the ML practitioner will have a good idea of what an appropriate model class is, and will specify it directly. In other cases, we may consider several model classes and choose the best based on some objective function. In such situations, we are solving a *model selection* problem: model-selection is to pick a model class ${\cal M}$ from a (usually finite) set of possible model classes, whereas *model fitting* is to pick a particular model in that class, specified by (usually continuous) parameters $\Theta$.
+How do we select a model class? In some cases, the ML practitioner will have a good idea of what an appropriate model class is, and will specify it directly. In other cases, we may consider several model classes and choose the best based on some objective function. In such situations, we are solving a *model selection* problem: model selection is to pick a model class ${\cal M}$ from a (usually finite) set of possible model classes, whereas *model fitting* is to pick a particular model in that class, specified by (usually continuous) parameters $\Theta$.
 
 ## Algorithm
 
 Once we have described a class of models and a way of scoring a model given data, we have an algorithmic problem: what sequence of computational instructions should we run in order to find a good model from our class? For example, determining the parameter vector which minimizes the training error might be done using a familiar least-squares minimization algorithm, when the model $h$ is a function being fit to some data $x$.
 
-Sometimes we can use software that was designed, generically, to perform optimization. In many other cases, we use algorithms that are specialized for ML problems, or for particular hypotheses classes. Some algorithms are not easily seen as trying to optimize a particular criterion. In fact, a historically important method for finding linear classifiers, the perceptron algorithm, has this character.
+Sometimes we can use software that was designed, generically, to perform optimization. In many other cases, we use algorithms that are specialized for ML problems, or for particular hypothesis classes. Some algorithms are not easily seen as trying to optimize a particular criterion. In fact, a historically important method for finding linear classifiers, the perceptron algorithm, has this character.
