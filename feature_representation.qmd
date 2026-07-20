@@ -6,7 +6,7 @@ Linear regression and classification are powerful tools, but in the real world, 
 
 Such behavior is actually ubiquitous in physical systems, e.g., in the vibrations of the surface of a drum, or scattering of light through an aperture. However, no single hyperplane would be a very good fit to such peaked responses!
 
-A richer class of hypotheses can be obtained by performing a non-linear feature transformation $\phi(x)$ before doing the regression. That is, $\theta^Tx + \theta_0$ is a linear function of $x$, but $\theta^\top\phi(x) + \theta_0$ is a non-linear function of $x,$ if $\phi$ is a non-linear function of $x$.
+A richer class of hypotheses can be obtained by performing a non-linear feature transformation $\phi(x)$ before doing the regression. That is, $\theta^\top x + \theta_0$ is a linear function of $x$, but $\theta^\top\phi(x) + \theta_0$ is a non-linear function of $x,$ if $\phi$ is a non-linear function of $x$.
 
 There are many different ways to construct $\phi$. Some are relatively systematic and domain independent. Others are directly related to the semantics (meaning) of the original features, and we construct them deliberately with our application (goal) in mind.
 
