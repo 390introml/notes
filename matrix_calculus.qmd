@@ -388,7 +388,7 @@ $$
 Now, to optimize, we set the derivative equal to 0:
 
 $$
-\frac{dJ}{d\theta} = \frac{2}{n} X^\top \cdot (X\theta - Y) = 0 \implies \theta^* = (X^TX)^{-1}X^TY
+\frac{dJ}{d\theta} = \frac{2}{n} X^\top \cdot (X\theta - Y) = 0 \implies \theta^* = (X^\top X)^{-1}X^\top Y
 $$
 
 That's it! You can now derive the optimal solution for any linear regression problem.
