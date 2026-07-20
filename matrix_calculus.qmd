@@ -466,10 +466,10 @@ $$\begin{aligned}
 &=& \frac{2}{n} X_{ad} \left( X_{ab}\theta_b-Y_a \right)
 \,,
 \end{aligned}$$
-where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^\top$ switches row and column indices, so $X_{ad} = X^T_{da}$. And $X^T_{da} X_{ab}$ *is* a matrix product of $X^\top$ with $X$! Thus, we have that
+where the second line follows from the first, with the definition that $\delta_{bd} = 1$ only when $b=d$ (and similarly for $\delta_{cd}$). And the third line follows from the second by recognizing that the two terms in the second line are identical. Now note that in this implicit summation notation, the $a, b$ element of the matrix product of $A$ and $B$ is $(AB)_{ac} = A_{ab}B_{bc}$. That is, ordinary matrix multiplication sums over indices which are adjacent to each other, because a row of $A$ times a column of $B$ becomes a scalar number. So the term in the above equation with $X_{ad} X_{ab}$ is not a matrix product of $X$ with $X$. However, taking the transpose $X^\top$ switches row and column indices, so $X_{ad} = X^\top_{da}$. And $X^\top_{da} X_{ab}$ *is* a matrix product of $X^\top$ with $X$! Thus, we have that
 
 $$\begin{aligned}
-\frac{dJ}{d\theta_d} =& \frac{2}{n} X^T_{da} \left( X_{ab}\theta_b-Y_a \right)
+\frac{dJ}{d\theta_d} =& \frac{2}{n} X^\top_{da} \left( X_{ab}\theta_b-Y_a \right)
 \\
 =& \frac{2}{n} \left[ X^\top \left( X\theta-Y\right) \right]_{d}
 \,,
