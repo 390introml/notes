@@ -186,7 +186,7 @@ and the output vector is $$A = f(Z) = f(W^TX + W_0)\;\;.$$ The activation functi
 
 A single neural network generally combines multiple layers, most typically by feeding the outputs of one layer into the inputs of another layer.
 
-We have to start by establishing some nomenclature. We will use $l$ to name a layer, and let $m^l$ be the number of inputs to the layer and $n^l$ be the number of outputs from the layer. Then, $W^l$ and $W^l_0$ are of shape $m^l \times n^l$ and $n^l \times 1$, respectively. Note that the input to layer $l$ is the output from layer $l-1$, so we have $m^l= n^{l-1}$, and as a result $A^{l-1}$ is of shape $m^l \times 1$, or equivalently $n^{l-1} \times 1$. Let $f^l$ be the activation function of layer $l$. Then, the pre-activation outputs are the $n^l \times 1$ vector $$Z^l = {W^l}^TA^{l-1} + W^l_0$$ and the activation outputs are simply the $n^l \times 1$ vector 
+We have to start by establishing some nomenclature. We will use $l$ to name a layer, and let $m^l$ be the number of inputs to the layer and $n^l$ be the number of outputs from the layer. Then, $W^l$ and $W^l_0$ are of shape $m^l \times n^l$ and $n^l \times 1$, respectively. Note that the input to layer $l$ is the output from layer $l-1$, so we have $m^l= n^{l-1}$, and as a result $A^{l-1}$ is of shape $m^l \times 1$, or equivalently $n^{l-1} \times 1$. Let $f^l$ be the activation function of layer $l$. Then, the pre-activation outputs are the $n^l \times 1$ vector $$Z^l = {W^l}^\top A^{l-1} + W^l_0$$ and the activation outputs are simply the $n^l \times 1$ vector 
 $$
 A^l = f^l(Z^l)\;\;.
 $$
