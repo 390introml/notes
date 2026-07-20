@@ -341,10 +341,10 @@ Recall that our ultimate goal is to find an optimal fitting hyperplane, paramete
 
 $$\begin{aligned}
 \theta_{\text{aug}}^*&=\left ( \begin{bmatrix} X^\top\\\mathbb{1}^\top\end{bmatrix}\begin{bmatrix}X&\mathbb{1}\end{bmatrix}\right)^{-1}\begin{bmatrix}X^\top\\ \mathbb{1}^\top\end{bmatrix}Y\\
-&=\begin{bmatrix}X^TX&X^\top\mathbb{1}\\\mathbb{1}^TX&\mathbb{1}^\top\mathbb{1}\end{bmatrix}^{-1}\begin{bmatrix}X^\top\\ \mathbb{1}^\top\end{bmatrix}Y\\
-&=\begin{bmatrix}X^TX&0\\0&n\end{bmatrix}^{-1}\begin{bmatrix}X^\top\\\mathbb{1}^\top\end{bmatrix}Y\\
-&=\begin{bmatrix}(X^TX)^{-1}X^TY\\\frac{1}{n}\mathbb{1}^TY\end{bmatrix}\\
-&=\begin{bmatrix}(X^TX)^{-1}X^TY\\0\end{bmatrix}\\
+&=\begin{bmatrix}X^\top X&X^\top\mathbb{1}\\\mathbb{1}^\top X&\mathbb{1}^\top\mathbb{1}\end{bmatrix}^{-1}\begin{bmatrix}X^\top\\ \mathbb{1}^\top\end{bmatrix}Y\\
+&=\begin{bmatrix}X^\top X&0\\0&n\end{bmatrix}^{-1}\begin{bmatrix}X^\top\\\mathbb{1}^\top\end{bmatrix}Y\\
+&=\begin{bmatrix}(X^\top X)^{-1}X^\top Y\\\frac{1}{n}\mathbb{1}^\top Y\end{bmatrix}\\
+&=\begin{bmatrix}(X^\top X)^{-1}X^\top Y\\0\end{bmatrix}\\
 &=\begin{bmatrix}\theta^*\\\theta_0^*\end{bmatrix}\\
 \end{aligned}
 $$
