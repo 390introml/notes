@@ -268,10 +268,10 @@ $${#eq-ols_solution}
 :::{.column-margin}
 Here are two related alternate angles to view this formula, for intuition's sake:
 
-1) Note that $(X^TX)^{-1}X^\top \eqqcolon X^+$ is the [pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse#Linearly_independent_columns) of $X$. 
+1) Note that $(X^\top X)^{-1}X^\top \eqqcolon X^+$ is the [pseudo-inverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_inverse#Linearly_independent_columns) of $X$. 
 Thus, $\theta^*$ "pseudo-solves" $X\theta=Y$ (multiply both sides of this on the left by $X^+$).
 
-2) Note that $X(X^TX)^{-1}X^\top = \text{proj}_{\text{col}(X)}$ is the [projection matrix](https://en.wikipedia.org/wiki/Projection_matrix#Intuition) onto the column space of $X$.
+2) Note that $X(X^\top X)^{-1}X^\top = \text{proj}_{\text{col}(X)}$ is the [projection matrix](https://en.wikipedia.org/wiki/Projection_matrix#Intuition) onto the column space of $X$.
 Thus, $\theta^*$ solves $X\theta=\text{proj}_{\text{col}(X)}Y$.
 :::
 
