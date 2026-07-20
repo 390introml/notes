@@ -180,7 +180,7 @@ Since each unit has a vector of weights and a single offset, we can think of the
 
 -   $A$, the *activation*, is an $n \times 1$ column vector,
 
-and the output vector is $$A = f(Z) = f(W^TX + W_0)\;\;.$$ The activation function $f$ is applied element-wise to the pre-activation values $Z$.
+and the output vector is $$A = f(Z) = f(W^\top X + W_0)\;\;.$$ The activation function $f$ is applied element-wise to the pre-activation values $Z$.
 
 ### Many layers
 
