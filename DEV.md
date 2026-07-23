@@ -23,7 +23,7 @@ Run a full `quarto render` before opening a PR; some errors (crossref problems, 
 ## Repo layout
 
 - Chapter sources are the root `*.qmd` files, in the order listed under `chapters:` in `_quarto.yml`. Appendices are listed under `appendices:`.
-- `NOTATION.md` is the course-wide notation and style guide. Follow it for any math edits.
+- `NOTATION.md` is the course-wide notation and style guide. Follow it for any math edits; the rules most often violated are word subscripts in `\text{}` (`\mathcal{D}_{\text{train}}`, not `\mathcal{D}_{train}`), upright `\mathrm{R}, \mathrm{T}, \mathrm{V}, \mathrm{Q}` for MDP functions, and `\lVert \cdot \rVert` for norms (never raw `||`).
 - `figures/` holds chapter images; `logo/` the site assets; `_extensions/` the Quarto filters (`pseudocode`, `imagify`).
 - `style.css`, `ga.html`, and `pre-title.html` are site chrome wired up in `_quarto.yml` and `index.qmd`.
 
