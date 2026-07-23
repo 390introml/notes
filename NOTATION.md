@@ -88,4 +88,5 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Sets: calligraphic `\mathcal{}` -- `\mathcal{D}` (dataset), `\mathcal{M}` (model class), `\mathcal{H}` (hypothesis class)
 - Real numbers: `\mathbb{R}`
 - Iteration/time index: superscript in parens `\theta^{(t)}`
+- Word subscripts (and superscripts) in `\text{}`: `\theta_{\text{init}}`, `\mathcal{D}_{\text{train}}`, `\mathcal{D}_{\text{test}}`, `x_{\text{new}}`, `J_{\text{lr}}` -- any multi-letter word used as a label. Bare italic (`J_{lr}`, `\mathcal{D}_{train}`) renders as a product of variables; never use it
 
