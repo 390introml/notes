@@ -12,3 +12,12 @@
 .study-question-callout .icon {
     color: #007BFF; /* Change icon color */
 }
+/* Pin the license notice to the bottom of the sidebar */
+#quarto-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+#quarto-sidebar .quarto-sidebar-footer {
+  margin-top: auto;
+  padding-bottom: 0.75rem;
+}
