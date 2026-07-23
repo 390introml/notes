@@ -123,8 +123,6 @@ format:
 # latex-auto-install: true
 ## comments:
 ##   hypothesis: true
-resources:
-  - demos/
 filters:
   - pseudocode
   - imagify
