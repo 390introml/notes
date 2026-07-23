@@ -12,8 +12,8 @@ book:
   repo-subdir: ""
   site-url: https://introml.mit.edu/notes
   twitter-card: true
-  favicon: logo/favicon.svg
-  # cover-image: logo/390.png
+  favicon: assets/logo/favicon.svg
+  # cover-image: assets/logo/390.png
   chapters:
     - index.qmd
     - regression.qmd
@@ -58,7 +58,7 @@ book:
 format:
   html:
     # citation-style: elsevier-with-titles.csl
-    css: style.css
+    css: assets/style.css
     anchor-sections: true
     fontsize: "16px"
     linestretch: 1.6
@@ -90,7 +90,7 @@ format:
         - key: app
           kind: float
           reference-prefix: Appendix
-    include-in-header: ga.html
+    include-in-header: assets/ga.html
     # include-in-header: title-block.html
 
   # pdf:

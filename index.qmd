@@ -1,5 +1,5 @@
 ---
-include-before-body: pre-title.html
+include-before-body: assets/pre-title.html
 title-block-style: none
 ---
 
