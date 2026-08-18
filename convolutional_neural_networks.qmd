@@ -309,8 +309,8 @@ Both slices of the tensor filter are identical here, so the output is simply the
     \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {0}; \node at (3.5,1.5) {2}; \node at (4.5,1.5) {0}; \node at (5.5,1.5) {0};
     \node at (0.5,2.5) {1}; \node at (1.5,2.5) {1}; \node at (2.5,2.5) {1}; \node at (3.5,2.5) {3}; \node at (4.5,2.5) {1}; \node at (5.5,2.5) {1};
     \node at (0.5,3.5) {1}; \node at (1.5,3.5) {1}; \node at (2.5,3.5) {1}; \node at (3.5,3.5) {3}; \node at (4.5,3.5) {1}; \node at (5.5,3.5) {1};
-    \node at (0.5,4.5) {1}; \node at (1.5,4.5) {1}; \node at (2.5,4.5) {1}; \node at (3.5,4.5) {2}; \node at (4.5,4.5) {1}; \node at (5.5,4.5) {1};
-    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {0}; \node at (3.5,5.5) {1}; \node at (4.5,5.5) {0}; \node at (5.5,5.5) {0};
+    \node at (0.5,4.5) {1}; \node at (1.5,4.5) {1}; \node at (2.5,4.5) {1}; \node at (3.5,4.5) {3}; \node at (4.5,4.5) {1}; \node at (5.5,4.5) {1};
+    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {0}; \node at (3.5,5.5) {2}; \node at (4.5,5.5) {0}; \node at (5.5,5.5) {0};
   \end{scope}
 
   % === ARROWS FROM RESULTS TO TENSOR FILTER ===
@@ -349,8 +349,8 @@ Both slices of the tensor filter are identical here, so the output is simply the
     \node at (0.5,1.5) {0}; \node at (1.5,1.5) {0}; \node at (2.5,1.5) {1}; \node at (3.5,1.5) {3}; \node at (4.5,1.5) {1}; \node at (5.5,1.5) {0};
     \node at (0.5,2.5) {1}; \node at (1.5,2.5) {1}; \node at (2.5,2.5) {2}; \node at (3.5,2.5) {4}; \node at (4.5,2.5) {2}; \node at (5.5,2.5) {1};
     \node at (0.5,3.5) {3}; \node at (1.5,3.5) {4}; \node at (2.5,3.5) {4}; \node at (3.5,3.5) {6}; \node at (4.5,3.5) {4}; \node at (5.5,3.5) {3};
-    \node at (0.5,4.5) {1}; \node at (1.5,4.5) {1}; \node at (2.5,4.5) {2}; \node at (3.5,4.5) {3}; \node at (4.5,4.5) {2}; \node at (5.5,4.5) {1};
-    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {1}; \node at (3.5,5.5) {2}; \node at (4.5,5.5) {1}; \node at (5.5,5.5) {0};
+    \node at (0.5,4.5) {1}; \node at (1.5,4.5) {1}; \node at (2.5,4.5) {2}; \node at (3.5,4.5) {4}; \node at (4.5,4.5) {2}; \node at (5.5,4.5) {1};
+    \node at (0.5,5.5) {0}; \node at (1.5,5.5) {0}; \node at (2.5,5.5) {1}; \node at (3.5,5.5) {3}; \node at (4.5,5.5) {1}; \node at (5.5,5.5) {0};
   \end{scope}
 \end{tikzpicture}
 :::
