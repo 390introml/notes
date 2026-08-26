@@ -1,0 +1,287 @@
+<div class="c2d-wrap" id="c2d-conv">
+  <svg class="c2d-svg" viewBox="-1.3 -11 39.1 17.4" role="img"
+       aria-label="Animation of a two-filter bank. A 3 by 3 window slides over the 6 by 6 padded input, filling one cell of each of the two channels at a time; then a tensor filter slides over both channels together, filling the final output.">
+  </svg>
+  <div class="c2d-bar">
+    <button type="button" class="c2d-btn" data-c2d="play">Play</button>
+    <button type="button" class="c2d-btn" data-c2d="prev" aria-label="Previous step">&#9664;</button>
+    <button type="button" class="c2d-btn" data-c2d="next" aria-label="Next step">&#9654;</button>
+    <input class="c2d-range" type="range" min="0" max="73" step="1" value="0" aria-label="Step">
+    <span class="c2d-status" aria-live="polite"></span>
+  </div>
+</div>
+
+<style>
+.c2d-wrap{
+  --c2d-ink: var(--bs-body-color, #222);
+  --c2d-bg: var(--bs-body-bg, #fff);
+  --c2d-f2: #b85c00;
+  --c2d-f1: #1f5fc4;
+  --c2d-hl: #e0a800;
+  margin: 1rem 0 1.5rem;
+}
+body.quarto-dark .c2d-wrap{ --c2d-f2:#f0a355; --c2d-f1:#7fb0f5; --c2d-hl:#f2cd4a; }
+.c2d-svg{ width:100%; height:auto; display:block; }
+.c2d-svg text{ fill:var(--c2d-ink); font-family:inherit; }
+.c2d-svg text.c2d-inv{ fill:var(--c2d-bg); }
+.c2d-svg text.c2d-tx-f2{ fill:var(--c2d-f2); }
+.c2d-svg text.c2d-tx-f1{ fill:var(--c2d-f1); }
+.c2d-svg .c2d-ln{ stroke:var(--c2d-ink); fill:none; }
+.c2d-svg .c2d-ln-f2{ stroke:var(--c2d-f2); fill:none; }
+.c2d-svg .c2d-ln-f1{ stroke:var(--c2d-f1); fill:none; }
+.c2d-svg .c2d-solid{ fill:var(--c2d-ink); }
+.c2d-svg .c2d-paper{ fill:var(--c2d-bg); }
+.c2d-svg .c2d-ar-ink{ fill:var(--c2d-ink); }
+.c2d-svg .c2d-ar-f2{ fill:var(--c2d-f2); }
+.c2d-svg .c2d-ar-f1{ fill:var(--c2d-f1); }
+.c2d-svg .c2d-win-f2{ fill:var(--c2d-f2); fill-opacity:.12; stroke:var(--c2d-f2); stroke-width:.15; }
+.c2d-svg .c2d-win-f1{ fill:var(--c2d-f1); fill-opacity:.12; stroke:var(--c2d-f1); stroke-width:.15; }
+.c2d-svg .c2d-cell-f2{ fill:var(--c2d-f2); fill-opacity:.30; stroke:var(--c2d-f2); stroke-width:.13; }
+.c2d-svg .c2d-cell-f1{ fill:var(--c2d-f1); fill-opacity:.30; stroke:var(--c2d-f1); stroke-width:.13; }
+.c2d-svg .c2d-cell-out{ fill:var(--c2d-hl); fill-opacity:.40; stroke:var(--c2d-ink); stroke-width:.11; }
+.c2d-svg .c2d-off{ visibility:hidden; }
+.c2d-bar{ display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; margin-top:.5rem; font-size:.85rem; }
+.c2d-btn{ font:inherit; font-size:.85rem; line-height:1.3; color:inherit; background:transparent;
+  border:1px solid var(--c2d-ink); border-radius:.25rem; padding:.1rem .6rem; cursor:pointer; }
+.c2d-btn:hover{ background:rgba(128,128,128,.18); }
+.c2d-range{ flex:1 1 10rem; min-width:7rem; accent-color:var(--c2d-f1); }
+.c2d-status{ flex:0 1 auto; opacity:.85; font-variant-numeric:tabular-nums; }
+</style>
+
+<script>
+(function () {
+  var root = document.getElementById('c2d-conv');
+  if (!root || root.dataset.c2dReady) return;
+  root.dataset.c2dReady = '1';
+
+  var NS = 'http://www.w3.org/2000/svg';
+  var svg = root.querySelector('.c2d-svg');
+  var N = 6;
+
+  // row 0 is the TOP row, matching the reading order of the static figure
+  var X = [
+    [0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0],
+    [1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0]
+  ];
+  var F2 = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];   // horizontal detector
+  var F1 = [[0, 1, 0], [0, 1, 0], [0, 1, 0]];   // vertical detector
+
+  function conv(img, ker) {
+    var out = [], r, c, i, j, rr, cc, s;
+    for (r = 0; r < N; r++) {
+      out.push([]);
+      for (c = 0; c < N; c++) {
+        s = 0;
+        for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) {
+          rr = r + i - 1; cc = c + j - 1;
+          if (rr >= 0 && rr < N && cc >= 0 && cc < N) s += img[rr][cc] * ker[i][j];
+        }
+        out[r].push(s);
+      }
+    }
+    return out;
+  }
+  var Y2 = conv(X, F2), Y1 = conv(X, F1);
+  var FIN = Y1.map(function (row, r) {
+    return row.map(function (v, c) { return v + Y2[r][c]; });
+  });
+
+  // tikz y-up -> svg y-down
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag), k;
+    for (k in attrs) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e);
+    return e;
+  }
+  function marker(id, cls) {
+    var m = el('marker', {id: id, viewBox: '0 0 5 5', refX: 4.4, refY: 2.5,
+      markerWidth: 5, markerHeight: 5, orient: 'auto'}, defs);
+    el('path', {d: 'M0,0 L5,2.5 L0,5 z', 'class': cls}, m);
+  }
+  function lines(g, ox, oy, n, cls) {
+    var k;
+    for (k = 1; k < n; k++) {
+      el('line', {x1: ox + k, y1: -(oy + n), x2: ox + k, y2: -oy,
+        'class': cls, 'stroke-width': 0.05}, g);
+      el('line', {x1: ox, y1: -(oy + k), x2: ox + n, y2: -(oy + k),
+        'class': cls, 'stroke-width': 0.05}, g);
+    }
+    el('rect', {x: ox, y: -(oy + n), width: n, height: n,
+      'class': cls, 'stroke-width': 0.11}, g);
+  }
+  function num(g, ox, oy, n, r, c, val, cls) {
+    var t = el('text', {x: ox + c + 0.5, y: -(oy + n - r - 0.5),
+      'text-anchor': 'middle', 'dominant-baseline': 'central',
+      'font-size': 0.62, 'class': cls || ''}, g);
+    t.textContent = String(val);
+    return t;
+  }
+  // binary grid: 1s drawn as solid cells with reversed-out numerals
+  function binGrid(ox, oy, n, m, cls) {
+    var r, c;
+    for (r = 0; r < n; r++) for (c = 0; c < n; c++) {
+      if (m[r][c]) el('rect', {x: ox + c, y: -(oy + n - r), width: 1, height: 1,
+        'class': 'c2d-solid'}, gGrid);
+    }
+    lines(gGrid, ox, oy, n, cls);
+    for (r = 0; r < n; r++) for (c = 0; c < n; c++) {
+      num(gText, ox, oy, n, r, c, m[r][c], m[r][c] ? 'c2d-inv' : '');
+    }
+  }
+  // value grid: numerals kept in a flat array so frames can reveal them one by one
+  function valGrid(ox, oy, vals, cls) {
+    lines(gGrid, ox, oy, N, cls);
+    var out = [], r, c;
+    for (r = 0; r < N; r++) for (c = 0; c < N; c++) {
+      out.push(num(gText, ox, oy, N, r, c, vals[r][c], 'c2d-off'));
+    }
+    return out;
+  }
+  function caption(x, y, sub, tail, cls) {
+    var t = el('text', {x: x, y: -y, 'text-anchor': 'middle',
+      'font-size': 0.75, 'class': cls}, gText);
+    var f = el('tspan', {'font-style': 'italic'}, t);
+    f.textContent = 'f';
+    var s = el('tspan', {dy: 0.22, 'font-size': 0.55}, t);
+    s.textContent = sub;
+    var e = el('tspan', {dy: -0.22}, t);
+    e.textContent = tail;
+    return t;
+  }
+  function arrow(x1, y1, x2, y2, cls, mk) {
+    el('line', {x1: x1, y1: -y1, x2: x2, y2: -y2, 'class': cls,
+      'stroke-width': 0.12, 'marker-end': 'url(#' + mk + ')'}, gGrid);
+  }
+
+  var defs = el('defs', {});
+  var gGrid = el('g', {});
+  var gHL = el('g', {});
+  var gText = el('g', {});
+  marker('c2d-ar-ink', 'c2d-ar-ink');
+  marker('c2d-ar-f2', 'c2d-ar-f2');
+  marker('c2d-ar-f1', 'c2d-ar-f1');
+
+  // --- static scene, same layout as the figure above ---
+  binGrid(0, 0, N, X, 'c2d-ln');
+  binGrid(9, 6.5, 3, F2, 'c2d-ln-f2');
+  binGrid(9, -4.5, 3, F1, 'c2d-ln-f1');
+  caption(10.5, 10.1, '2', ' (horizontal)', 'c2d-tx-f2');
+  caption(10.5, -5.6, '1', ' (vertical)', 'c2d-tx-f1');
+
+  arrow(6.5, 4.5, 8.5, 8, 'c2d-ln-f2', 'c2d-ar-f2');
+  arrow(6.5, 1.5, 8.5, -2, 'c2d-ln-f1', 'c2d-ar-f1');
+  arrow(12.5, 8, 14.5, 8, 'c2d-ln-f2', 'c2d-ar-f2');
+  arrow(12.5, -3, 14.5, -3, 'c2d-ln-f1', 'c2d-ar-f1');
+  arrow(21.5, 8, 24.5, 4, 'c2d-ln-f2', 'c2d-ar-f2');
+  arrow(21.5, -3, 24.5, 2, 'c2d-ln-f1', 'c2d-ar-f1');
+  arrow(29, 3, 31, 3, 'c2d-ln', 'c2d-ar-ink');
+
+  var txY2 = valGrid(15, 5, Y2, 'c2d-ln-f2');
+  var txY1 = valGrid(15, -6, Y1, 'c2d-ln-f1');
+  var txFin = valGrid(31.5, 0, FIN, 'c2d-ln');
+
+  // tensor filter: back slice is the f_2 channel, front slice the f_1 channel.
+  // Own group, drawn back-to-front, so the front slice hides the back one.
+  var gTensor = el('g', {});
+  [[25.5, 2.0, 'c2d-ln-f2'], [25.0, 1.5, 'c2d-ln-f1']].forEach(function (s) {
+    var ox = s[0], oy = s[1], r, c;
+    el('rect', {x: ox, y: -(oy + 3), width: 3, height: 3, 'class': 'c2d-paper'}, gTensor);
+    lines(gTensor, ox, oy, 3, s[2]);
+    for (r = 0; r < 3; r++) for (c = 0; c < 3; c++) {
+      num(gTensor, ox, oy, 3, r, c, (r === 1 && c === 1) ? 1 : 0, '');
+    }
+  });
+  var tf = el('text', {x: 26.75, y: -5.6, 'text-anchor': 'middle', 'font-size': 0.75}, gText);
+  tf.textContent = 'tensor filter';
+
+  // --- moving parts ---
+  var winIn2 = el('rect', {width: 3, height: 3, 'class': 'c2d-win-f2 c2d-off'}, gHL);
+  var winIn1 = el('rect', {width: 2.6, height: 2.6, 'class': 'c2d-win-f1 c2d-off',
+    'fill-opacity': 0}, gHL);
+  var cellY2 = el('rect', {width: 1, height: 1, 'class': 'c2d-cell-f2 c2d-off'}, gHL);
+  var cellY1 = el('rect', {width: 1, height: 1, 'class': 'c2d-cell-f1 c2d-off'}, gHL);
+  var winY2 = el('rect', {width: 3, height: 3, 'class': 'c2d-win-f2 c2d-off'}, gHL);
+  var winY1 = el('rect', {width: 3, height: 3, 'class': 'c2d-win-f1 c2d-off'}, gHL);
+  var cellFin = el('rect', {width: 1, height: 1, 'class': 'c2d-cell-out c2d-off'}, gHL);
+
+  function show(e, on) { e.classList.toggle('c2d-off', !on); }
+  function putCell(e, ox, oy, r, c) {
+    e.setAttribute('x', ox + c);
+    e.setAttribute('y', -(oy + N - r));
+  }
+  function putWin(e, ox, oy, r, c, inset) {
+    e.setAttribute('x', ox + c - 1 + inset);
+    e.setAttribute('y', -(oy + N + 1 - r) + inset);
+  }
+
+  var STEPS = N * N;
+  var TOTAL = 2 * STEPS + 2;          // layout frame + both sweeps + final frame
+  var range = root.querySelector('.c2d-range');
+  var status = root.querySelector('.c2d-status');
+  var playBtn = root.querySelector('[data-c2d="play"]');
+  var frame = 0, timer = null;
+
+  function render(i) {
+    var stage = i === 0 ? 0 : (i <= STEPS ? 1 : (i <= 2 * STEPS ? 2 : 3));
+    var step = stage === 1 ? i - 1 : (stage === 2 ? i - 1 - STEPS : 0);
+    var r = Math.floor(step / N), c = step % N, k;
+
+    for (k = 0; k < STEPS; k++) {
+      show(txY2[k], stage >= 2 || (stage === 1 && k <= step));
+      show(txY1[k], stage >= 2 || (stage === 1 && k <= step));
+      show(txFin[k], stage === 3 || (stage === 2 && k <= step));
+    }
+    show(winIn2, stage === 1); show(winIn1, stage === 1);
+    show(cellY2, stage === 1); show(cellY1, stage === 1);
+    show(winY2, stage === 2); show(winY1, stage === 2);
+    show(cellFin, stage === 2);
+
+    if (stage === 1) {
+      putWin(winIn2, 0, 0, r, c, 0);
+      putWin(winIn1, 0, 0, r, c, 0.2);
+      putCell(cellY2, 15, 5, r, c);
+      putCell(cellY1, 15, -6, r, c);
+    } else if (stage === 2) {
+      putWin(winY2, 15, 5, r, c, 0);
+      putWin(winY1, 15, -6, r, c, 0);
+      putCell(cellFin, 31.5, 0, r, c);
+    }
+
+    status.textContent =
+      stage === 0 ? 'Ready: input, two filters, tensor filter, output.' :
+      stage === 1 ? 'Filters over the input → channel cell (row ' + (r + 1) + ', col ' + (c + 1) + ')' :
+      stage === 2 ? 'Tensor filter over both channels → output cell (row ' + (r + 1) + ', col ' + (c + 1) + ')' :
+                    'Done: this frame matches the figure above.';
+    range.value = i;
+    frame = i;
+  }
+
+  function pause() {
+    if (timer) { clearInterval(timer); timer = null; }
+    playBtn.textContent = 'Play';
+  }
+  function play() {
+    if (frame >= TOTAL - 1) render(0);
+    timer = setInterval(function () {
+      if (frame >= TOTAL - 1) { pause(); return; }
+      render(frame + 1);
+    }, 380);
+    playBtn.textContent = 'Pause';
+  }
+  playBtn.addEventListener('click', function () { timer ? pause() : play(); });
+  root.querySelector('[data-c2d="prev"]').addEventListener('click', function () {
+    pause(); render(Math.max(0, frame - 1));
+  });
+  root.querySelector('[data-c2d="next"]').addEventListener('click', function () {
+    pause(); render(Math.min(TOTAL - 1, frame + 1));
+  });
+  range.addEventListener('input', function () { pause(); render(Number(range.value)); });
+
+  range.max = TOTAL - 1;
+  render(0);
+})();
+</script>
