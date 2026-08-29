@@ -13,6 +13,8 @@ curl -s https://introml.mit.edu/notes/ | grep -o 'quarto-[0-9.]*' | head -1
 
 For anything beyond ordinary markdown and math, check the live page after it deploys, and follow the raw HTML rule below.
 
+**The server's Quarto stays where it is.** Quarto 1.10 ships MathJax 4, and the `pseudocode` extension's `pseudocode.js` recognizes only the MathJax 3 global. Under 1.10 it throws `Uncaught EvalError: No math backend found. Please setup KaTeX or MathJax.` and every algorithm block silently disappears: the container is still in the page, but nothing renders inside it, while the surrounding prose goes on referring to the algorithm. Upgrading the extension to its current release does not help. Everything else in the book renders the same on 1.10 (content is identical; only vertical spacing shifts slightly), so the algorithms are the sole blocker. Before moving the server to 1.10 or later, confirm the algorithm blocks render.
+
 If a render fails with `sh: latex: command not found`, TeX is installed but not on the PATH of the shell running Quarto. On macOS:
 
 ```sh
