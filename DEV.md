@@ -2,10 +2,20 @@
 
 ## Prerequisites
 
-1. **Quarto CLI**. Install from [quarto.org](https://quarto.org/docs/get-started/); the step-one CLI download is enough. Check with `quarto --version`.
+1. **Quarto CLI**, matching the version the server builds with (1.6.39). Check yours with `quarto --version`. Download that version directly rather than taking the latest from [quarto.org](https://quarto.org/docs/get-started/):
+
+   | Platform | Download |
+   |---|---|
+   | macOS installer | [quarto-1.6.39-macos.pkg](https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.39/quarto-1.6.39-macos.pkg) |
+   | macOS tarball | [quarto-1.6.39-macos.tar.gz](https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.39/quarto-1.6.39-macos.tar.gz) |
+   | Linux x86-64 | [.deb](https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.39/quarto-1.6.39-linux-amd64.deb) or [.tar.gz](https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.39/quarto-1.6.39-linux-amd64.tar.gz) |
+   | Linux arm64 | [.deb](https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.39/quarto-1.6.39-linux-arm64.deb) or [.tar.gz](https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.39/quarto-1.6.39-linux-arm64.tar.gz) |
+
+   The tarballs need no installer and no admin rights: unpack one anywhere and run its `bin/quarto`, which is handy for keeping this version alongside a newer Quarto you use for other projects.
+2. **A TeX distribution** (MacTeX on macOS, TeX Live elsewhere). The tikz figures in the notes compile through the `imagify` filter, which shells out to `latex` and `dvisvgm`. Both must be on your PATH.
 2. **A TeX distribution** (MacTeX on macOS, TeX Live elsewhere). The tikz figures in the notes compile through the `imagify` filter, which shells out to `latex` and `dvisvgm`. Both must be on your PATH.
 
-The published site is built on the web server, not in CI: the GitHub workflow only POSTs to a webhook that runs `git pull && quarto render` on the host, so the host's Quarto is what ships. Your local version can be newer, and a few constructs parse differently between versions, so a page can render correctly for you and still break on the site. To see which version the server is running:
+The published site is built on the web server, not in CI: the GitHub workflow only POSTs to a webhook that runs `git pull && quarto render` on the host, so the host's Quarto is what ships. A newer local version parses a few constructs differently, so a page can render correctly for you and still break on the site, which is why the table above pins a version. To confirm what the server is running:
 
 ```sh
 curl -s https://introml.mit.edu/notes/ | grep -o 'quarto-[0-9.]*' | head -1
