@@ -20,4 +20,11 @@
 #quarto-sidebar .quarto-sidebar-footer {
   margin-top: auto;
   padding-bottom: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: left;
+  text-wrap: balance;
+}
+#quarto-sidebar .quarto-sidebar-footer p {
+  margin-bottom: 0;
 }
