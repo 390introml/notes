@@ -148,8 +148,8 @@ Given a data set and the hypothesis class of linear classifiers, our goal will b
 
 For classification, it is natural to make predictions in $\{+1, 0\}$ and use the 0-1 loss function, $\mathcal{L}_{01}$, as introduced in @sec-intro: 
 
-$$\mathcal{L}_{01}(g, a) = \begin{cases}
-    0 & \text{if $g = a$} \\
+$$\mathcal{L}_{01}(g, y) = \begin{cases}
+    0 & \text{if $g = y$} \\
     1 & \text{otherwise}
   \end{cases} \; .
 $$ 
@@ -336,6 +336,11 @@ $$
   -\left(\text{actual}\cdot \log (\text{guess}) + (1 - \text{actual})\cdot\log (1 -
   \text{guess})\right) \;\;.
 $$ 
+
+In symbols, with $g$ for the guess and $y$ for the actual label, 
+$$
+\mathcal{L}_\text{nll}(g, y) = -\left(y \log g + (1 - y)\log(1 - g)\right) \;\;.
+$$
 
 This loss function is also sometimes referred to as the *log loss* or *cross entropy*.
 
