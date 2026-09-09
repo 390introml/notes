@@ -26,7 +26,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 
 ### Functions
 - **Hypothesis**: `h(x; \theta, \theta_0)` -- semicolon separates input from parameters
-- **Loss**: `\mathcal{L}(g, y)` for general loss (`g` = guess, `y` = actual label; never `a`, which is reserved for activations, actions, and learned representations); specific variants `\mathcal{L}_{\text{nll}}`, `\mathcal{L}_{\text{SE}}`
+- **Loss**: `\mathcal{L}(g, y)` for general loss (`g` = guess, `y` = actual label; never `a`, which is reserved for activations, actions, learned representations, and per-example weights); specific variants `\mathcal{L}_{\text{nll}}`, `\mathcal{L}_{\text{SE}}`
 - **Objective**: `J(\theta)` or `J(\theta, \theta_0)`
 - **Sigmoid**: `\sigma(z) = \frac{1}{1 + e^{-z}}`
 - **Softmax**: `\operatorname{softmax}`
