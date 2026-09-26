@@ -91,7 +91,7 @@ We also specify an *activation function* $f : \mathbb{R}\rightarrow \mathbb{R}$.
 
 The function represented by the neuron is expressed as: $$a = f(z) = f\left(\left(\sum_{j=1}^m x_jw_j\right) + w_0\right) = f(w^Tx + w_0)\;\;.$$
 
-Before thinking about a whole network, we can consider how to train a single unit. Given a loss function $\mathcal{L}(\text{guess}, \text{actual})$ and a dataset $\{(x^{(1)}, y^{(1)}), \ldots,
+Before thinking about a whole network, we can consider how to train a single unit. Given a loss function $\mathcal{L}(\text{guess}, \text{actual})$, that is, $\mathcal{L}(g, y)$, and a dataset $\{(x^{(1)}, y^{(1)}), \ldots,
   (x^{(n)},y^{(n)})\}$, we can do (stochastic) gradient descent, adjusting the weights $w, w_0$ to minimize $$J(w, w_0) = \frac{1}{n}\sum_{i} \mathcal{L}\left(\text{NN}(x^{(i)}; w, w_0), y^{(i)}\right)\;,$$ where $\text{NN}$ is the output of our single-unit neural net for a given input.
 
 We have already studied two special cases of the neuron: linear logistic classifiers (LLCs) and regressors! The activation function for the LLC is $f(x) =
@@ -100,7 +100,7 @@ We have already studied two special cases of the neuron: linear logistic classif
 
 :::{.study-question-callout}
 Just for a single neuron, imagine for some reason, that we decide to
-  use activation function $f(z) = e^z$ and loss function $\mathcal{L}(\text{guess}, \text{actual}) = (\text{guess} - \text{actual})^2$.  Derive a gradient descent update for $w$ and $w_0$.
+  use activation function $f(z) = e^z$ and loss function $\mathcal{L}(\text{guess}, \text{actual}) = (\text{guess} - \text{actual})^2$, that is, $\mathcal{L}(g, y) = (g - y)^2$.  Derive a gradient descent update for $w$ and $w_0$.
 :::
 
 ## Networks

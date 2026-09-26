@@ -160,24 +160,24 @@ The effect of an assumption is often to reduce the "size" or "expressiveness" of
 
 Once we have specified a problem class, we need to say what makes an output or the answer to a query good, given the training data. We specify evaluation criteria at two levels: how an individual prediction is scored, and how the overall behavior of the prediction or estimation system is scored.
 
-The quality of predictions from a learned model is often expressed in terms of a *loss function*. A loss function $\mathcal{L}(g, a)$ tells you how much you will be penalized for making a guess $g$ when the answer is actually $a$. There are many possible loss functions. Here are some frequently used examples:
+The quality of predictions from a learned model is often expressed in terms of a *loss function*. A loss function $\mathcal{L}(g, y)$ tells you how much you will be penalized for making a guess $g$ when the answer is actually $y$. There are many possible loss functions. Here are some frequently used examples:
 
 -   **0-1 Loss** applies to predictions drawn from finite domains. 
 
-$$\mathcal{L}(g, a) = \begin{cases}
-                0 & \text{if $g = a$} \\
+$$\mathcal{L}(g, y) = \begin{cases}
+                0 & \text{if $g = y$} \\
                 1 & \text{otherwise}
               \end{cases}$$
 
--   **Squared loss** $$\mathcal{L}(g, a) = (g - a)^2$$
+-   **Squared loss** $$\mathcal{L}(g, y) = (g - y)^2$$
 
--   **Absolute loss** $$\mathcal{L}(g, a) = |g - a|$$
+-   **Absolute loss** $$\mathcal{L}(g, y) = |g - y|$$
 
 -   **Asymmetric loss** Consider a situation in which you are trying to predict whether someone is having a heart attack. It might be much worse to predict "no" when the answer is really "yes", than the other way around. 
 
-$$\mathcal{L}(g, a) = \begin{cases}
-                1  & \text{if $g = 1$ and $a = 0$} \\
-                10 & \text{if $g = 0$ and $a = 1$} \\
+$$\mathcal{L}(g, y) = \begin{cases}
+                1  & \text{if $g = 1$ and $y = 0$} \\
+                10 & \text{if $g = 0$ and $y = 1$} \\
                 0  & \text{otherwise}
               \end{cases}$$
 
@@ -225,7 +225,7 @@ $$\begin{aligned}
   \mathcal{E}_\text{train}(h; \Theta) =  \frac{1}{n}\sum_{i = 1}^n
   \mathcal{L}(h(x^{(i)};\Theta), y^{(i)})\;\;,
 \end{aligned}$$ 
-where the loss function $\mathcal{L}(g, a)$ measures how bad it would be to make a guess of $g$ when the actual value is $a$.
+where the loss function $\mathcal{L}(g, y)$ measures how bad it would be to make a guess of $g$ when the actual value is $y$.
 
 We will find that minimizing training error alone is often not a good choice: it is possible to emphasize fitting the current data too strongly and end up with a hypothesis that does not generalize well when presented with new $x$ values.
 

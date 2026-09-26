@@ -46,8 +46,8 @@ book:
         href: https://accessibility.mit.edu/
         icon: universal-access
     footer: |
-      <small>© MIT and the 6.390 (formerly 6.036) course staff.
-      Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).</small>
+      [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)<br>
+      &copy; MIT 6.390 (formerly 6.036) staff
   page-navigation: true
 
 # bibliography:
