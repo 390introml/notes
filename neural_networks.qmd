@@ -1258,7 +1258,7 @@ It will often turn out (especially for fancier activations and loss functions) t
 
 ## Optimizing neural network parameters {#sec-make_nn_work}
 
-Because neural networks are just parametric functions, we can optimize loss with respect to the parameters using standard gradient-descent software, but we can take advantage of the structure of the loss function and the hypothesis class to improve optimization. As we have seen, the modular function-composition structure of a neural network hypothesis makes it easy to organize the computation of the gradient. As we have also seen earlier, the structure of the loss function as a sum over terms, one per training data point, allows us to consider stochastic gradient methods. In this section we'll consider some alternative strategies for organizing training, and also for making it easier to handle the step-size parameter.
+Because neural networks are just parametric functions, we can optimize loss with respect to the parameters using standard gradient-descent software, but we can take advantage of the structure of the loss function and the hypothesis class to improve optimization. As we have seen, the modular function-composition structure of a neural network hypothesis makes it easy to organize the computation of the gradient. As we have also seen earlier, the structure of the loss function as a sum over terms, one per training data point, allows us to consider stochastic gradient methods. In this section we'll consider some alternative strategies for organizing training, and also for making it easier to handle the learning rate.
 
 ### Batches
 
@@ -1269,7 +1269,13 @@ $$
 W_t = W_{t-1} - \eta\nabla_W J(W_{t-1})\;\;,$$ which is equivalent to $$W_t = W_{t-1} - \frac{\eta}{n}\sum_{i=1}^n \nabla_W \mathcal{L}(h(x^{(i)}; W_{t-1}), y^{(i)})\;\;.
 $$
 
-So, we sum up the gradient of loss at each training point, with respect to $W$, and then take a step in the negative direction of the gradient.
+Here, $\eta>0$ is the **learning rate**. The **step size** is the magnitude of the parameter update:
+$$
+\lVert W_t-W_{t-1}\rVert = \eta\lVert\nabla_W J(W_{t-1})\rVert.
+$$
+A fixed learning rate does not imply a fixed step size; the gradient magnitude also matters.
+
+So, we average the gradient of loss over the training points, with respect to $W$, and then take a step in the negative direction of the gradient.
 
 In *stochastic* gradient descent, we repeatedly pick a point $(x^{(i)}, y^{(i)})$ at random from the data set, and execute a weight update on that point alone: 
 $$
@@ -1324,20 +1330,20 @@ Picking $K$ unique data points at random from a large data-set is potentially co
 In line 4 of the algorithm above, $\lceil \cdot \rceil$ is known as the *ceiling* function; it returns the smallest integer greater than or equal to its input. E.g., $\lceil 2.5 \rceil = 3$ and $\lceil 3 \rceil = 3$.
 :::
 
-### Adaptive step-size
+### Adaptive learning rates {#adaptive-step-size}
 
-Picking a value for $\eta$ is difficult and time-consuming. If it's too small, then convergence is slow and if it's too large, then we risk divergence or slow convergence due to oscillation. This problem is even more pronounced in stochastic or mini-batch mode, because we know we need to decrease the step size for the formal guarantees to hold.
+Picking a value for the learning rate $\eta$ is difficult and time-consuming. If it's too small, then convergence is slow and if it's too large, then we risk divergence or slow convergence due to oscillation. This problem is even more pronounced in stochastic or mini-batch mode, because we know we need to decrease the learning rate for the formal guarantees to hold.
 
-It's also true that, within a single neural network, we may well want to have different step sizes. As our networks become *deep* (with increasing numbers of layers) we can find that magnitude of the gradient of the loss with respect the weights in the last layer, $\partial \text{loss} / \partial W_L$, may be substantially different from the gradient of the loss with respect to the weights in the first layer $\partial \text{loss} / \partial W_1$. If you look carefully at @eq-gradz, you can see that the output gradient is multiplied by all the weight matrices of the network and is "fed back" through all the derivatives of all the activation functions. This can lead to a problem of *exploding* or *vanishing* gradients, in which the back-propagated gradient is much too big or small to be used in an update rule with the same step size.
+It's also true that, within a single neural network, we may well want to have different learning rates. As our networks become *deep* (with increasing numbers of layers) we can find that magnitude of the gradient of the loss with respect the weights in the last layer, $\partial \text{loss} / \partial W_L$, may be substantially different from the gradient of the loss with respect to the weights in the first layer $\partial \text{loss} / \partial W_1$. If you look carefully at @eq-gradz, you can see that the output gradient is multiplied by all the weight matrices of the network and is "fed back" through all the derivatives of all the activation functions. This can lead to a problem of *exploding* or *vanishing* gradients, in which the back-propagated gradient is much too big or small to be used in an update rule with the same learning rate.
 
-So, we can consider having an independent step-size parameter *for each weight*, and updating it based on a local view of how the gradient updates have been going. 
+So, we can consider having an effective learning rate *for each weight*, and updating it based on a local view of how the gradient updates have been going.
 
 :::{.column-margin}
 This section is very strongly influenced
 by Sebastian Ruder's excellent blog posts on the topic: [ruder.io/optimizing-gradient-descent](https://ruder.io/optimizing-gradient-descent)
 :::
 
-Some common strategies for this include *momentum* ("averaging" recent gradient updates), *Adadelta* (take larger steps in parts of the space where $J(W)$ is nearly flat), and *Adam* (which combines these two previous ideas). Details of these approaches are described in @sec-adaptive-step-size-appendix.
+Some common ways to control parameter updates include *momentum* ("averaging" recent gradient updates), *Adadelta* (scaling updates using recent gradient magnitudes), and *Adam* (which combines averaging gradients with adaptive learning rates). Details of these approaches are described in @sec-adaptive-step-size-appendix.
 
 ## Regularization
 
@@ -1412,5 +1418,3 @@ We follow here the suggestion from the original paper of applying batch normaliz
 :::
 
 Although batch-norm was originally justified based on the problem of covariate shift, it's not clear that that is actually why it seems to improve performance. Batch normalization can also end up having a regularizing effect for similar reasons that adding noise and dropout do: each mini-batch of data ends up being mildly perturbed, which prevents the network from exploiting very particular values of the data points. For those interested, the equations for batch normalization, including a derivation of the forward pass and backward pass, are described in @sec-batch-norm-appendix.
-
-
