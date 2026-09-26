@@ -1,6 +1,6 @@
 # Optimizing Neural Networks {#sec-nn-details}
 
-## Strategies towards adaptive step-size {#sec-adaptive-step-size-appendix}
+## Momentum and adaptive learning rates {#sec-adaptive-step-size-appendix}
 
 ### Running averages
 
@@ -33,7 +33,7 @@ Prove to yourself that the previous assertion holds.
 
 ### Momentum
 
-Now, we can use methods that are a bit like running averages to describe strategies for computing $\eta$. The simplest method is *momentum*, in which we try to "average" recent gradient updates, so that if they have been bouncing back and forth in some direction, we take out that component of the motion. For momentum, we have
+Now, we can use methods that are a bit like running averages to describe strategies for computing parameter updates. The simplest method is *momentum*, in which we try to "average" recent gradient updates, so that if they have been bouncing back and forth in some direction, we take out that component of the motion. For momentum, we have
 
 $$
 \begin{aligned}
@@ -43,7 +43,7 @@ $$
 \end{aligned}
 $$
 
-This doesn't quite look like an adaptive step size. But what we can see is that, if we let $\eta = \eta'(1-\gamma)$, then the rule looks exactly like doing an update with step size $\eta'$ on a moving average of the gradients with parameter $\gamma$:
+Here, momentum keeps the learning rate $\eta$ fixed while accumulating recent gradients. If we let $\eta = \eta'(1-\gamma)$, then the rule is equivalent to applying learning rate $\eta'$ to a moving average of the gradients with parameter $\gamma$:
 
 $$
 \begin{aligned}
@@ -71,7 +71,7 @@ If you set $\gamma = 0.1$, would momentum have more of an effect or less of an e
 
 ### Adadelta
 
-Another useful idea is this: we would like to take larger steps in parts of the space where $J(W)$ is nearly flat (because there's no risk of taking too big a step due to the gradient being large) and smaller steps when it is steep. We'll apply this idea to each weight independently, and end up with a method called *adadelta*, which is a variant on *adagrad* (for adaptive gradient). Even though our weights are indexed by layer, input unit, and output unit, for simplicity here, just let $W_j$ be any weight in the network (we will do the same thing for all of them).
+Another useful idea is to give each weight a larger effective learning rate when its recent gradients have small magnitudes, and a smaller effective learning rate when they have large magnitudes. We'll apply this idea to each weight independently, and end up with a method called *adadelta*, which is a variant on *adagrad* (for adaptive gradient). Even though our weights are indexed by layer, input unit, and output unit, for simplicity here, just let $W_j$ be any weight in the network (we will do the same thing for all of them).
 
 $$
 \begin{aligned}
@@ -81,11 +81,11 @@ $$
 \end{aligned}
 $$
 
-The sequence $G_{t,j}$ is a moving average of the square of the $j$th component of the gradient. We square it in order to be insensitive to the sign—we want to know whether the magnitude is big or small. Then, we perform a gradient update to weight $j$, but divide the step size by $\sqrt{G_{t,j}+\epsilon}$, which is larger when the surface is steeper in direction $j$ at point $W_{t-1}$ in weight space; this means that the step size will be smaller when it's steep and larger when it's flat.
+The sequence $G_{t,j}$ is a moving average of the square of the $j$th component of the gradient. We square it in order to be insensitive to the sign—we want to know whether the magnitude is big or small. The effective learning rate for weight $j$ is $\eta/\sqrt{G_{t,j}+\epsilon}$. A smaller moving average of squared gradients gives a larger effective learning rate, and a larger moving average gives a smaller effective learning rate. The magnitude of the update also depends on the current gradient component $g_{t,j}$.
 
 ### Adam
 
-Adam has become the default method of managing step sizes in neural networks.
+Adam is a common method that combines momentum with adaptive learning rates in neural networks.
 
 :::{.column-margin}
 Although, interestingly, it may actually violate the convergence conditions of SGD: [arxiv.org/abs/1705.08292](https://arxiv.org/abs/1705.08292)
@@ -117,7 +117,7 @@ Note that $B_1^t$ is $B_1$ raised to the power $t$, and likewise for $B_2^t$. To
 Define $\hat{m}_{t,j}$ directly as a moving average of $g_{t,j}$. What is the decay ($\gamma$ parameter)?
 :::
 
-Even though we now have a step size for each weight, and we have to update various quantities on each iteration of gradient descent, it's relatively easy to implement by maintaining a matrix for each quantity ($m^{\ell}_t$, $v^{\ell}_t$, $g^{\ell}_t$, ${g^{2}_t}^{\ell}$) in each layer of the network.
+Even though we now have an effective learning rate for each weight, and we have to update various quantities on each iteration of gradient descent, it's relatively easy to implement by maintaining a matrix for each quantity ($m^{\ell}_t$, $v^{\ell}_t$, $g^{\ell}_t$, ${g^{2}_t}^{\ell}$) in each layer of the network.
 
 ## Batch Normalization Details {#sec-batch-norm-appendix}
 
