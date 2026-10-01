@@ -271,20 +271,16 @@ We'll start by listing some encoding strategies, and then work through some exam
 -   **Numeric:** Assign each of these values a number, say $1.0/k,
               2.0/k, \ldots, 1.0$. We might want to then do some further processing, as described in Section @sec-realFeature. This is a sensible strategy *only* when the discrete values really do signify some sort of numeric quantity, so that these numerical values are meaningful.
 
--   **Thermometer code:** If your discrete values have a natural ordering, from $1, \ldots, k$, but not a natural mapping into real numbers, a good strategy is to use a vector of length $k$ binary variables, where we convert discrete input value $0 < j \leq k$ into a vector in which the first $j$ values are $1.0$ and the rest are $0.0$. This does not necessarily imply anything about the spacing or numerical quantities of the inputs, but does convey something about ordering.
-
 -   **Factored code:** If your discrete values can sensibly be decomposed into two parts (say the "maker" and "model" of a car), then it's best to treat those as two separate features, and choose an appropriate encoding of each one from this list.
 
--   **One-hot code:** If there is no obvious numeric, ordering, or factorial structure, then the best strategy is to use a vector of length $k$, where we convert discrete input value $0 < j \leq k$ into a vector in which all values are $0.0$, except for the $j$th, which is $1.0$.
-
--   **Binary code:** It might be tempting for the computer scientists among us to use some binary code, which would let us represent $k$ values using a vector of length $\log k$. *This is a bad idea!* Decoding a binary code takes a lot of work, and by encoding your inputs this way, you'd be forcing your system to *learn* the decoding algorithm.
+-   **One-hot code:** If there is no obvious numeric or factored structure, then the best strategy is to use a vector of length $k$, where we convert discrete input value $0 < j \leq k$ into a vector in which all values are $0$, except for the $j$th, which is $1$.
 
 As an example, imagine that we want to encode blood types, that are drawn from the set $\{A+, A-, B+, B-, AB+, AB-, O+, O-\}$. There is no obvious linear numeric scaling or even ordering to this set. But there is a reasonable *factoring*, into two features: $\{A, B, AB,
   O\}$ and $\{+, -\}$. And, in fact, we can further reasonably factor the first group into $\{A, {\rm not}A\}$, $\{B, {\rm not}B\}$. So, here are two plausible encodings of the whole set:
 
 -   Use a 6-D vector, with two components of the vector each encoding the corresponding factor using a one-hot encoding.
 
--   Use a 3-D vector, with one dimension for each factor, encoding its presence as $1.0$ and absence as $-1.0$ (this is sometimes better than $0.0$). In this case, $AB+$ would be $[1.0, 1.0, 1.0]^T$ and $O-$ would be $[-1.0, -1.0, -1.0]^T$.
+-   Use a 3-D vector, with one dimension for each factor, encoding its presence as $1$ and absence as $-1$ (this is sometimes better than $0$). In this case, $AB+$ would be $[1, 1, 1]^T$ and $O-$ would be $[-1, -1, -1]^T$.
 
 :::{.study-question-callout}
 How would you encode $A+$ in both of these approaches?
@@ -294,7 +290,7 @@ How would you encode $A+$ in both of these approaches?
 
 The problem of taking a text (such as a tweet or a product review, or even this document!) and encoding it as an input for a machine-learning algorithm is interesting and complicated. Much later in the class, we'll study sequential input models, where, rather than having to encode a text as a fixed-length feature vector, we feed it into a hypothesis word by word (or even character by character!).
 
-There are some simple encodings that work well for basic applications. One of them is the *bag of words* (bow) model, which can be used to encode documents. The idea is to let $d$ be the number of words in our vocabulary (either computed from the training set or some other body of text or dictionary). We will then make a binary vector (with values $1.0$ and $0.0$) of length $d$, where element $j$ has value $1.0$ if word $j$ occurs in the document, and $0.0$ otherwise.
+There are some simple encodings that work well for basic applications. One of them is the *bag of words* (bow) model, which can be used to encode documents. The idea is to let $d$ be the number of words in our vocabulary (either computed from the training set or some other body of text or dictionary). We will then make a binary vector (with values $1$ and $0$) of length $d$, where element $j$ has value $1$ if word $j$ occurs in the document, and $0$ otherwise.
 
 ### Numeric values {#sec-realFeature}
 
