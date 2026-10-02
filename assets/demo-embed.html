@@ -1,0 +1,12 @@
+<script>
+// An embed gets its src only once its box is shown, so a phone, which hides
+// the embed behind the demo button, never loads the demo.
+document.querySelectorAll('.demo-embed').forEach((box) => {
+  const frame = box.querySelector('iframe');
+  new ResizeObserver(() => {
+    if (!box.clientWidth) return;
+    if (!frame.getAttribute('src')) frame.src = frame.dataset.src;
+    frame.style.transform = `scale(${box.clientWidth / 1280})`;
+  }).observe(box);
+});
+</script>

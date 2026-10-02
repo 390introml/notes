@@ -90,6 +90,7 @@ format:
           kind: float
           reference-prefix: Appendix
     include-in-header: assets/ga.html
+    include-after-body: assets/demo-embed.html
     # include-in-header: title-block.html
 
   # pdf:

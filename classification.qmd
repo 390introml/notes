@@ -62,8 +62,9 @@ Remember that we can think of $\theta, \theta_0$ as specifying a $d$-dimensional
 
 Below is an embedded demo illustrating the separator and normal vector. Open demo in [full screen](https://shenshen.mit.edu/demos/separator.html).
 
-::: {.callout-tip title="Demo: Linear classifier separator"}
-<iframe src="https://shenshen.mit.edu/demos/separator.html" width="100%" height="600px" frameborder="2"></iframe>
+::: {.callout-tip .column-page-right title="Demo: Linear classifier separator"}
+<div class="demo-embed"><iframe data-src="https://shenshen.mit.edu/demos/separator.html?embed" title="Linear classifier separator demo"></iframe></div>
+<a class="demo-button btn btn-outline-primary" href="https://shenshen.mit.edu/demos/separator.html" target="_blank" rel="noopener"><i class="bi bi-play-circle"></i> Open demo</a>
 :::
 
 For example, in two dimensions ($d=2$) the separator has dimension 1, which means it is a line, and the two components of $\theta = [\theta_1, \theta_2]^T$ give the orientation of the separator, as illustrated in the following example.
