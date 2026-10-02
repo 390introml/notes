@@ -1,0 +1,8 @@
+<script>
+document.querySelectorAll('.demo-embed').forEach((box) => {
+  const frame = box.querySelector('iframe');
+  new ResizeObserver(() => {
+    frame.style.transform = `scale(${box.clientWidth / 1280})`;
+  }).observe(box);
+});
+</script>

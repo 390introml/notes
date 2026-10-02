@@ -28,3 +28,16 @@
 #quarto-sidebar .quarto-sidebar-footer p {
   margin-bottom: 0;
 }
+/* Demos are built at 1280x720 slide pixels. The iframe keeps that size and
+   scales down to the column width (assets/demo-embed.html sets the scale),
+   so the notes show the slide layout intact. */
+.demo-embed {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.demo-embed iframe {
+  width: 1280px;
+  height: 720px;
+  border: 0;
+  transform-origin: 0 0;
+}
