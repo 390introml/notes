@@ -27,7 +27,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 ### Functions
 - **Hypothesis**: `h(x; \theta, \theta_0)` -- semicolon separates input from parameters
 - **Loss**: `\mathcal{L}(g, y)` for general loss (`g` = guess, `y` = actual label; never `a`, which is reserved for activations, actions, and learned representations); specific variants `\mathcal{L}_{\text{nll}}`, `\mathcal{L}_{\text{SE}}`
-- **Objective**: `J(\theta)` or `J(\theta, \theta_0)`
+- **Objective**: `J(\theta)` or `J(\theta, \theta_0)`; with the ridge penalty `\lambda\|\theta\|^2`, `J_{\text{ridge}}` for squared loss and `J_{\text{ridge-nll}}` for NLL loss
 - **Sigmoid**: `\sigma(z) = \frac{1}{1 + e^{-z}}`
 - **Softmax**: `\operatorname{softmax}`
 - **ReLU**: `\text{ReLU}(z) = \max(0, z)` -- capitalize "ReLU" in text
@@ -88,5 +88,5 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Sets: calligraphic `\mathcal{}` -- `\mathcal{D}` (dataset), `\mathcal{M}` (model class), `\mathcal{H}` (hypothesis class)
 - Real numbers: `\mathbb{R}`
 - Iteration/time index: superscript in parens `\theta^{(t)}`
-- Word subscripts (and superscripts) in `\text{}`: `\theta_{\text{init}}`, `\mathcal{D}_{\text{train}}`, `\mathcal{D}_{\text{test}}`, `x_{\text{new}}`, `J_{\text{nll}}` -- any multi-letter word used as a label. Bare italic (`J_{nll}`, `\mathcal{D}_{train}`) renders as a product of variables; never use it
+- Word subscripts (and superscripts) in `\text{}`: `\theta_{\text{init}}`, `\mathcal{D}_{\text{train}}`, `\mathcal{D}_{\text{test}}`, `x_{\text{new}}`, `J_{\text{ridge}}` -- any multi-letter word used as a label. Bare italic (`J_{ridge}`, `\mathcal{D}_{train}`) renders as a product of variables; never use it
 

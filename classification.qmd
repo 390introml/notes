@@ -348,9 +348,9 @@ This loss function is also sometimes referred to as the *log loss* or *cross ent
 The choice of log base doesn't make any real difference here. When we ask you for numbers, use log base $e$ (i.e., $\ln$).
 :::
 
-**What is the objective function for linear logistic classification?** We can finally put all these pieces together and develop an objective function for optimizing regularized negative log-likelihood for a linear logistic classifier. In fact, this process is usually called "logistic regression." Since the objective is built from the NLL loss, we'll call it $J_{\text{nll}}$, and define it as 
+**What is the objective function for linear logistic classification?** We can finally put all these pieces together and develop an objective function for optimizing regularized negative log-likelihood for a linear logistic classifier. In fact, this process is usually called "logistic regression." Since the objective adds the same ridge penalty as in @sec-ridge_regression to the average NLL loss, we'll call it $J_{\text{ridge-nll}}$, and define it as
 $$
-J_{\text{nll}}(\theta, \theta_0; {\cal D}) =
+J_{\text{ridge-nll}}(\theta, \theta_0; {\cal D}) =
   \left(\frac{1}{n} \sum_{i=1}^n
   \mathcal{L}_\text{nll}(\sigma(\theta^T x^{(i)} + \theta_0), y^{(i)})\right) +
   \lambda \left\lVert\theta\right\rVert^2\;\;.
@@ -370,7 +370,7 @@ Suppose we wish to obtain a linear logistic classifier for this one-dimensional 
 
 ![](figures/linear_logistic_classifier_and_regularization_data.png){width="45%" fig-align="center"}
 
-Clearly, this can be fit very nicely by a hypothesis $h(x)=\sigma(\theta x)$, but what is the best value for $\theta$? Evidently, when there is no regularization ($\lambda=0$), the objective function $J_{\text{nll}}(\theta)$ will approach zero for large values of $\theta$, as shown in the plot on the left, below. However, would the best hypothesis really have an infinite (or very large) value for $\theta$? Such a hypothesis would suggest that the data indicate strong certainty that a sharp transition between $y=0$ and $y=1$ occurs exactly at $x=0$, despite the actual data having a wide gap around $x=0$.
+Clearly, this can be fit very nicely by a hypothesis $h(x)=\sigma(\theta x)$, but what is the best value for $\theta$? Evidently, when there is no regularization ($\lambda=0$), the objective function $J_{\text{ridge-nll}}(\theta)$ will approach zero for large values of $\theta$, as shown in the plot on the left, below. However, would the best hypothesis really have an infinite (or very large) value for $\theta$? Such a hypothesis would suggest that the data indicate strong certainty that a sharp transition between $y=0$ and $y=1$ occurs exactly at $x=0$, despite the actual data having a wide gap around $x=0$.
 
 :::{layout-ncol="2"}
 
@@ -385,25 +385,25 @@ Another nice way of thinking about regularization is that we would like to preve
 
 ## Gradient descent for logistic regression {#sec-gd_lrr}
 
-Now that we have a hypothesis class (LLC) and a loss function (NLL), we need to take some data and find parameters! Sadly, there is no lovely analytical solution like the one we obtained for regression, in @sec-ridge_regression. Good thing we studied gradient descent! We can perform gradient descent on the $J_{\text{nll}}$ objective, as we'll see next. We can also apply stochastic gradient descent to this problem.
+Now that we have a hypothesis class (LLC) and a loss function (NLL), we need to take some data and find parameters! Sadly, there is no lovely analytical solution like the one we obtained for regression, in @sec-ridge_regression. Good thing we studied gradient descent! We can perform gradient descent on the $J_{\text{ridge-nll}}$ objective, as we'll see next. We can also apply stochastic gradient descent to this problem.
 
-Luckily, $J_{\text{nll}}$ has enough nice properties that gradient descent and stochastic gradient descent should generally "work". We'll soon see some more challenging optimization problems though -- in the context of neural networks, in @sec-make_nn_work.
+Luckily, $J_{\text{ridge-nll}}$ has enough nice properties that gradient descent and stochastic gradient descent should generally "work". We'll soon see some more challenging optimization problems though -- in the context of neural networks, in @sec-make_nn_work.
 
 First we need derivatives with respect to both $\theta_0$ (the scalar component) and $\theta$ (the vector component) of $\Theta$. Explicitly, they are: 
 $$
 \begin{aligned}
-  \nabla_\theta J_{\text{nll}}(\theta, \theta_0)                      & =  \frac{1}{n}\sum_{i=1}^n
+  \nabla_\theta J_{\text{ridge-nll}}(\theta, \theta_0)                      & =  \frac{1}{n}\sum_{i=1}^n
   \left(g^{(i)} -
   y^{(i)}\right) x^{(i)}
   + 2\lambda\theta                                                                              \\
-  \frac{\partial J_{\text{nll}}(\theta, \theta_0)}{\partial \theta_0} & =
+  \frac{\partial J_{\text{ridge-nll}}(\theta, \theta_0)}{\partial \theta_0} & =
   \frac{1}{n}\sum_{i=1}^n
   \left(g^{(i)} -
   y^{(i)} \right) \;\;.
 \end{aligned}
 $$ 
 
-Note that $\nabla_\theta J_{\text{nll}}$ will be of shape $d \times 1$ and $\frac{\partial J_{\text{nll}}}{\partial \theta_0}$ will be a scalar since we have separated $\theta_0$ from $\theta$ here.
+Note that $\nabla_\theta J_{\text{ridge-nll}}$ will be of shape $d \times 1$ and $\frac{\partial J_{\text{ridge-nll}}}{\partial \theta_0}$ will be a scalar since we have separated $\theta_0$ from $\theta$ here.
 
 Putting everything together, our gradient descent algorithm for logistic regression becomes:
 
@@ -447,7 +447,7 @@ Use these last two results to verify our derivation above.
     \State $t \gets t + 1$
     \State $\theta^{(t)} \gets \theta^{(t-1)} - \eta \Biggl( \frac{1}{n}\sum_{i=1}^n \Bigl( \sigma\Bigl({\theta}^{(t-1)T} x^{(i)} + \theta_0^{(t-1)}\Bigr) - y^{(i)} \Bigr) x^{(i)} + 2\lambda\,\theta^{(t-1)} \Biggr)$
     \State $\theta_0^{(t)} \gets \theta_0^{(t-1)} - \eta \Biggl( \frac{1}{n}\sum_{i=1}^n \Bigl( \sigma\Bigl({\theta}^{(t-1)T} x^{(i)} + \theta_0^{(t-1)}\Bigr) - y^{(i)} \Bigr) \Biggr)$
-\Until{$\Bigl| J_{\text{nll}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{nll}}(\theta^{(t-1)},\theta_0^{(t-1)}) \Bigr| < \epsilon$}
+\Until{$\Bigl| J_{\text{ridge-nll}}(\theta^{(t)},\theta_0^{(t)}) - J_{\text{ridge-nll}}(\theta^{(t-1)},\theta_0^{(t-1)}) \Bigr| < \epsilon$}
 \Return $\theta^{(t)}, \theta_0^{(t)}$
 \end{algorithmic}
 \end{algorithm}
