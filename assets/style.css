@@ -41,3 +41,17 @@
   border: 0;
   transform-origin: 0 0;
 }
+/* Below Quarto's phone breakpoint the scaled demo is too small to use, so the
+   page shows a button that opens it in a new tab instead. */
+.demo-button.btn {
+  display: none;
+}
+@media (max-width: 767.98px) {
+  .demo-embed {
+    display: none;
+  }
+  .demo-button.btn {
+    display: inline-block;
+    margin: 0.5rem 0;
+  }
+}
