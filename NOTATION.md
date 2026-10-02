@@ -27,7 +27,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 ### Functions
 - **Hypothesis**: `h(x; \theta, \theta_0)` -- semicolon separates input from parameters
 - **Loss**: `\mathcal{L}(g, y)` for general loss (`g` = guess, `y` = actual label; never `a`, which is reserved for activations, actions, and learned representations); specific variants `\mathcal{L}_{\text{nll}}`, `\mathcal{L}_{\text{SE}}`
-- **Objective**: `J(\theta)` or `J(\theta, \theta_0)`
+- **Objective**: `J(\theta)` or `J(\theta, \theta_0)`; specific variants `J_{\text{nll}}` (average NLL loss, no penalty), `J_{\text{nll-ridge}}` (average NLL loss plus the ridge penalty `\lambda\|\theta\|^2`), and `J_{\text{ridge}}` (average squared loss plus the ridge penalty). Keep `J_{\text{nll}}` and `J_{\text{nll-ridge}}` distinct: name an objective `J_{\text{nll}}` only when it has no `\lambda\|\theta\|^2` term
 - **Sigmoid**: `\sigma(z) = \frac{1}{1 + e^{-z}}`
 - **Softmax**: `\operatorname{softmax}`
 - **ReLU**: `\text{ReLU}(z) = \max(0, z)` -- capitalize "ReLU" in text
