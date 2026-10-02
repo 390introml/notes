@@ -12,10 +12,14 @@
 .study-question-callout .icon {
     color: #007BFF; /* Change icon color */
 }
-/* Pin the license notice to the bottom of the sidebar */
-#quarto-sidebar {
-  display: flex;
-  flex-direction: column;
+/* Pin the license notice to the bottom of the sidebar. Only from 992px up,
+   where the sidebar is always shown: below that Quarto collapses it, and a
+   display rule on the id would override the collapse and cover the page. */
+@media (min-width: 992px) {
+  #quarto-sidebar {
+    display: flex;
+    flex-direction: column;
+  }
 }
 #quarto-sidebar .quarto-sidebar-footer {
   margin-top: auto;
