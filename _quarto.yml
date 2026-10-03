@@ -57,7 +57,7 @@ book:
 format:
   html:
     # citation-style: elsevier-with-titles.csl
-    css: assets/style.css
+    css: assets/notes.css
     anchor-sections: true
     fontsize: "16px"
     linestretch: 1.6
