@@ -19,7 +19,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 
 ### Parameters and Weights
 - Linear model: `\theta` (weights), `\theta_0` (intercept/bias)
-- Neural network layers: `W^{(l)}` (weight matrix), `W_0^{(l)}` or `b^{(l)}` (bias), with **superscript in parens for layer index**
+- Neural network layers: `W^l` (weight matrix), `W_0^l` (bias), with a **bare superscript for the layer index**. Parentheses in a superscript always mean an example or iteration index (`x^{(i)}`, `\theta^{(t)}`), so never write `W^{(l)}`. `W^2` is the layer-2 weight matrix, not a square
 - ML estimate: `\theta_{\text{ml}}`
 - ERM estimate: `\theta_{\text{erm}}`
 - Model variant labels: `\theta^{\mathrm{multi}}`, `\theta^{\mathrm{bin}}`
@@ -34,10 +34,11 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - **Feature transform**: `\phi(x)` for transformed feature vector
 
 ### Neural Networks
-- Pre-activation: `Z^{(l)} = (W^{(l)})^T A^{(l-1)} + W_0^{(l)}`
-- Post-activation: `A^{(l)} = f^{(l)}(Z^{(l)})`
-- Input: `A^{(0)} = x`
-- Activation functions: `f^{(l)}(\cdot)` per-layer
+- Pre-activation: `Z^l = (W^l)^T A^{l-1} + W_0^l`
+- Post-activation: `A^l = f^l(Z^l)`
+- Input: `A^0 = x`
+- Activation functions: `f^l(\cdot)` per-layer
+- Layer index is a bare superscript throughout: `W^l`, `W_0^l`, `Z^l`, `A^l`, `f^l`
 
 ### Gradients
 - Gradient operator: `\nabla_\theta J(\theta)`
