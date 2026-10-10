@@ -11,7 +11,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Feature components use **subscripts**: `x_1, x_2, x_j`
 
 ### Vectors and Matrices
-- **Vectors**: italic lowercase -- e.g., `x` (no `\mathbf`)
+- **Vectors**: italic lowercase -- e.g., `x` (no `\mathbf`). Neural-network layer quantities are the one exception; see Neural Networks
 - **Matrices**: plain uppercase -- e.g., `X, W, A`
 - **Transpose**: `X^T` or `\theta^T`
 - Column vectors by default; `\theta^T x` for dot products
@@ -39,6 +39,8 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Input: `A^0 = x`
 - Activation functions: `f^l(\cdot)` per-layer
 - Layer index is a bare superscript throughout: `W^l`, `W_0^l`, `Z^l`, `A^l`, `f^l`
+- **Case**: layer quantities with one entry per unit (`Z^l`, `A^l`, `W^l`, `W_0^l`) are uppercase whether they hold one example (one column) or a batch of `K` examples (`K` columns, one per example). Never write `z^l` or `a^l` for a layer's vector
+- Single numbers are lowercase: entries (`z^l_j`, `a^l_j`, `w^l_{ij}`) and the values of a layer with one unit (`z^l`, `a^l`, `w_0^l`). That unit's weight vector is lowercase too (`w^l`), like a single neuron's `w`
 
 ### Gradients
 - Gradient operator: `\nabla_\theta J(\theta)`
