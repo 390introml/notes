@@ -502,7 +502,7 @@ As a final connection to earlier models:
 So linear regressors and logistic classifiers are simply single-neuron networks!
 
 :::{.study-question-callout}
-Suppose you choose squared loss. What is $\partial \text{loss} / \partial a^L$?
+Suppose you choose squared loss. What is $\partial \mathcal{L} / \partial g$?
 :::
 
 :::{.study-question-callout}
@@ -1411,7 +1411,7 @@ For more details see arxiv.org/abs/1502.03167.
 
 It was originally developed to address a problem of *covariate shift*: that is, if you consider the second layer of a two-layer neural network, the distribution of its input values is changing over time as the first layer's weights change. Learning when the input distribution is changing is extra difficult: you have to change your weights to improve your predictions, but also just to compensate for a change in your inputs (imagine, for instance, that the magnitude of the inputs to your layer is increasing over time---then your weights will have to decrease, just to keep your predictions the same).
 
-So, when training with mini-batches, the idea is to *standardize* the input values for each mini-batch, just in the way that we did it in @sec-realFeature of @sec-features, subtracting off the mean and dividing by the standard deviation of each input dimension. This means that the scale of the inputs to each layer remains the same, no matter how the weights in previous layers change. However, this somewhat complicates matters, because the computation of the weight updates will need to take into account that we are performing this transformation. In the modular view, batch normalization can be seen as a module that is applied to $z^l$, interposed after the product with $W^l$ and before input to $f^l$.
+So, when training with mini-batches, the idea is to *standardize* the input values for each mini-batch, just in the way that we did it in @sec-realFeature of @sec-features, subtracting off the mean and dividing by the standard deviation of each input dimension. This means that the scale of the inputs to each layer remains the same, no matter how the weights in previous layers change. However, this somewhat complicates matters, because the computation of the weight updates will need to take into account that we are performing this transformation. In the modular view, batch normalization can be seen as a module that is applied to $Z^l$, interposed after the product with $W^l$ and before input to $f^l$.
 
 :::{.column-margin}
 We follow here the suggestion from the original paper of applying batch normalization before the activation function.  Since then it has been shown that, in some cases, applying it after works a bit better. But there aren't any definite findings on which works better and when.
