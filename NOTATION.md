@@ -36,7 +36,8 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 ### Neural Networks
 - Pre-activation: `Z^l = (W^l)^T A^{l-1} + W_0^l`
 - Post-activation: `A^l = f^l(Z^l)`
-- Input: `A^0 = x`
+- Input: `A^0 = x` (lowercase: one example, not the data matrix `X`)
+- Layer widths: `d_l` units in layer `l`, with `d_0 = d`, so `W^l \in \mathbb{R}^{d_{l-1} \times d_l}` and `A^l, Z^l, W_0^l \in \mathbb{R}^{d_l \times 1}`. Never `m^l`/`n^l`, since `n` counts training examples
 - Activation functions: `f^l(\cdot)` per-layer
 - Layer index is a bare superscript throughout: `W^l`, `W_0^l`, `Z^l`, `A^l`, `f^l`
 

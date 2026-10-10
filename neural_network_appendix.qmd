@@ -121,15 +121,15 @@ Even though we now have an effective learning rate for each weight, and we have 
 
 ## Batch Normalization Details {#sec-batch-norm-appendix}
 
-Let's think of the batch-normalization layer as taking $Z^l$ as input and producing an output $\widehat{Z}^l$. But now, instead of thinking of $Z^l$ as an $n^l \times 1$ vector, we have to explicitly think about handling a mini-batch of data of size $K$ all at once, so $Z^l$ will be an $n^l \times K$ matrix, and so will the output $\widehat{Z}^l$.
+Let's think of the batch-normalization layer as taking $Z^l$ as input and producing an output $\widehat{Z}^l$. But now, instead of thinking of $Z^l$ as an $d_l \times 1$ vector, we have to explicitly think about handling a mini-batch of data of size $K$ all at once, so $Z^l$ will be an $d_l \times K$ matrix, and so will the output $\widehat{Z}^l$.
 
-Our first step will be to compute the *batchwise* mean and standard deviation. Let $\mu^l$ be the $n^l \times 1$ vector where
+Our first step will be to compute the *batchwise* mean and standard deviation. Let $\mu^l$ be the $d_l \times 1$ vector where
 
 $$
 \mu^l_i = \frac{1}{K}\sum_{j=1}^K Z^l_{ij},
 $$
 
-and let $\sigma^l$ be the $n^l \times 1$ vector where
+and let $\sigma^l$ be the $d_l \times 1$ vector where
 
 $$
 \sigma^l_i = \sqrt{\frac{1}{K}\sum_{j=1}^K \Bigl(Z^l_{ij} - \mu^l_i\Bigr)^2}.
@@ -143,7 +143,7 @@ $$
 
 where $\epsilon$ is a very small constant to guard against division by zero.
 
-However, if we let these be our $\widehat{Z}^l$ values, we really are forcing something too strong on our data—our goal was to normalize across the data batch, but not necessarily force the output values to have exactly mean 0 and standard deviation 1. So, we will give the layer the opportunity to shift and scale the outputs by adding new weights to the layer. These weights are $G^l$ and $B^l$, each of which is an $n^l \times 1$ vector. Using the weights, we define the final output to be
+However, if we let these be our $\widehat{Z}^l$ values, we really are forcing something too strong on our data—our goal was to normalize across the data batch, but not necessarily force the output values to have exactly mean 0 and standard deviation 1. So, we will give the layer the opportunity to shift and scale the outputs by adding new weights to the layer. These weights are $G^l$ and $B^l$, each of which is an $d_l \times 1$ vector. Using the weights, we define the final output to be
 
 $$
 \widehat{Z}^l_{ij} = G^l_i\, \overline{Z}^l_{ij} + B^l_i.
