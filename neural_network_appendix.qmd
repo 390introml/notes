@@ -121,32 +121,32 @@ Even though we now have an effective learning rate for each weight, and we have 
 
 ## Batch Normalization Details {#sec-batch-norm-appendix}
 
-Let's think of the batch-normalization layer as taking $Z^l$ as input and producing an output $\widehat{Z}^l$. But now, instead of thinking of $Z^l$ as an $d_l \times 1$ vector, we have to explicitly think about handling a mini-batch of data of size $K$ all at once, so $Z^l$ will be an $d_l \times K$ matrix, and so will the output $\widehat{Z}^l$.
+Let's think of the batch-normalization layer as taking $Z^l$ as input and producing an output $\widehat{Z}^l$. But now, instead of thinking of $Z^l$ as a $d_l \times 1$ vector, we have to explicitly think about handling a mini-batch of data of size $K$ all at once, so $Z^l$ will be a $K \times d_l$ matrix with one row per example, and so will the output $\widehat{Z}^l$.
 
 Our first step will be to compute the *batchwise* mean and standard deviation. Let $\mu^l$ be the $d_l \times 1$ vector where
 
 $$
-\mu^l_i = \frac{1}{K}\sum_{j=1}^K Z^l_{ij},
+\mu^l_i = \frac{1}{K}\sum_{j=1}^K Z^l_{ji},
 $$
 
 and let $\sigma^l$ be the $d_l \times 1$ vector where
 
 $$
-\sigma^l_i = \sqrt{\frac{1}{K}\sum_{j=1}^K \Bigl(Z^l_{ij} - \mu^l_i\Bigr)^2}.
+\sigma^l_i = \sqrt{\frac{1}{K}\sum_{j=1}^K \Bigl(Z^l_{ji} - \mu^l_i\Bigr)^2}.
 $$
 
-The basic normalized version of our data would be a matrix, element $(i,j)$ of which is
+The basic normalized version of our data would be a matrix, element $(j,i)$ of which is
 
 $$
-\overline{Z}^l_{ij} = \frac{Z^l_{ij} - \mu^l_i}{\sigma^l_i+\epsilon},
+\overline{Z}^l_{ji} = \frac{Z^l_{ji} - \mu^l_i}{\sigma^l_i+\epsilon},
 $$
 
 where $\epsilon$ is a very small constant to guard against division by zero.
 
-However, if we let these be our $\widehat{Z}^l$ values, we really are forcing something too strong on our data—our goal was to normalize across the data batch, but not necessarily force the output values to have exactly mean 0 and standard deviation 1. So, we will give the layer the opportunity to shift and scale the outputs by adding new weights to the layer. These weights are $G^l$ and $B^l$, each of which is an $d_l \times 1$ vector. Using the weights, we define the final output to be
+However, if we let these be our $\widehat{Z}^l$ values, we really are forcing something too strong on our data—our goal was to normalize across the data batch, but not necessarily force the output values to have exactly mean 0 and standard deviation 1. So, we will give the layer the opportunity to shift and scale the outputs by adding new weights to the layer. These weights are $G^l$ and $B^l$, each of which is a $d_l \times 1$ vector. Using the weights, we define the final output to be
 
 $$
-\widehat{Z}^l_{ij} = G^l_i\, \overline{Z}^l_{ij} + B^l_i.
+\widehat{Z}^l_{ji} = G^l_i\, \overline{Z}^l_{ji} + B^l_i.
 $$
 
 That's the forward pass. Whew!
@@ -162,16 +162,16 @@ $$
 \frac{\partial L}{\partial B} = \frac{\partial L}{\partial \widehat{Z}}\, \frac{\partial \widehat{Z}}{\partial B}.
 $$
 
-It's hard to think about these derivatives in matrix terms, so we'll see how it works for the components. $B_i$ contributes to $\widehat{Z}_{ij}$ for all data points $j$ in the batch. So,
+It's hard to think about these derivatives in matrix terms, so we'll see how it works for the components. $B_i$ contributes to $\widehat{Z}_{ji}$ for all data points $j$ in the batch. So,
 
 $$
-\frac{\partial L}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}.
+\frac{\partial L}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ji}}\, \frac{\partial \widehat{Z}_{ji}}{\partial B_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ji}}.
 $$
 
-Similarly, $G_i$ contributes to $\widehat{Z}_{ij}$ for all data points $j$ in the batch. Thus,
+Similarly, $G_i$ contributes to $\widehat{Z}_{ji}$ for all data points $j$ in the batch. Thus,
 
 $$
-\frac{\partial L}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \frac{\partial \widehat{Z}_{ij}}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ij}}\, \overline{Z}_{ij}.
+\frac{\partial L}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ji}}\, \frac{\partial \widehat{Z}_{ji}}{\partial G_i} = \sum_j \frac{\partial L}{\partial \widehat{Z}_{ji}}\, \overline{Z}_{ji}.
 $$
 
 Now, let's figure out how to do backprop. We can start schematically:
@@ -183,30 +183,30 @@ $$
 And because dependencies only exist across the batch, but not across the unit outputs,
 
 $$
-\frac{\partial L}{\partial Z_{ij}} = \sum_{k=1}^K \frac{\partial L}{\partial \widehat{Z}_{ik}}\, \frac{\partial \widehat{Z}_{ik}}{\partial Z_{ij}}.
+\frac{\partial L}{\partial Z_{ji}} = \sum_{k=1}^K \frac{\partial L}{\partial \widehat{Z}_{ki}}\, \frac{\partial \widehat{Z}_{ki}}{\partial Z_{ji}}.
 $$
 
 The next step is to note that
 
 $$
-\frac{\partial \widehat{Z}_{ik}}{\partial Z_{ij}} = \frac{\partial \widehat{Z}_{ik}}{\partial \overline{Z}_{ik}}\, \frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}} = G_i\, \frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}}.
+\frac{\partial \widehat{Z}_{ki}}{\partial Z_{ji}} = \frac{\partial \widehat{Z}_{ki}}{\partial \overline{Z}_{ki}}\, \frac{\partial \overline{Z}_{ki}}{\partial Z_{ji}} = G_i\, \frac{\partial \overline{Z}_{ki}}{\partial Z_{ji}}.
 $$
 
 And now that
 
 $$
-\frac{\partial \overline{Z}_{ik}}{\partial Z_{ij}} = \Bigl(\delta_{jk} - \frac{\partial \mu_i}{\partial Z_{ij}}\Bigr)\frac{1}{\sigma_i} - \frac{Z_{ik}-\mu_i}{\sigma_i^2}\, \frac{\partial \sigma_i}{\partial Z_{ij}},
+\frac{\partial \overline{Z}_{ki}}{\partial Z_{ji}} = \Bigl(\delta_{jk} - \frac{\partial \mu_i}{\partial Z_{ji}}\Bigr)\frac{1}{\sigma_i} - \frac{Z_{ki}-\mu_i}{\sigma_i^2}\, \frac{\partial \sigma_i}{\partial Z_{ji}},
 $$
 
 where $\delta_{jk} = 1$ if $j=k$ and 0 otherwise. We need two more pieces:
 
 $$
-\frac{\partial \mu_i}{\partial Z_{ij}} = \frac{1}{K}, \qquad
-\frac{\partial \sigma_i}{\partial Z_{ij}} = \frac{Z_{ij}-\mu_i}{K\,\sigma_i}.
+\frac{\partial \mu_i}{\partial Z_{ji}} = \frac{1}{K}, \qquad
+\frac{\partial \sigma_i}{\partial Z_{ji}} = \frac{Z_{ji}-\mu_i}{K\,\sigma_i}.
 $$
 
 Putting the whole thing together, we get
 
 $$
-\frac{\partial L}{\partial Z_{ij}} = \sum_{k=1}^K \frac{\partial L}{\partial \widehat{Z}_{ik}}\, G_i\, \frac{1}{K\,\sigma_i}\left(K\,\delta_{jk} - 1 - \frac{(Z_{ik}-\mu_i)(Z_{ij}-\mu_i)}{\sigma_i^2}\right).
+\frac{\partial L}{\partial Z_{ji}} = \sum_{k=1}^K \frac{\partial L}{\partial \widehat{Z}_{ki}}\, G_i\, \frac{1}{K\,\sigma_i}\left(K\,\delta_{jk} - 1 - \frac{(Z_{ki}-\mu_i)(Z_{ji}-\mu_i)}{\sigma_i^2}\right).
 $$
