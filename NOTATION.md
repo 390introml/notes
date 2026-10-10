@@ -39,7 +39,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Input: `A^0 = x`
 - Activation functions: `f^l(\cdot)` per-layer
 - Layer index is a bare superscript throughout: `W^l`, `W_0^l`, `Z^l`, `A^l`, `f^l`
-- **Case**: layer quantities with one entry per unit (`Z^l`, `A^l`, `W^l`, `W_0^l`) are uppercase whether they hold one example (one column) or a batch of `K` examples (`K` columns, one per example). Never write `z^l` or `a^l` for a layer's vector
+- **Case**: layer quantities with one entry per unit (`Z^l`, `A^l`, `W^l`, `W_0^l`) are uppercase whether they hold one example or a batch of `K` examples. Never write `z^l` or `a^l` for a layer's vector
 - Single numbers are lowercase: entries (`z^l_j`, `a^l_j`, `w^l_{ij}`) and the values of a layer with one unit (`z^l`, `a^l`, `w_0^l`). That unit's weight vector is lowercase too (`w^l`), like a single neuron's `w`
 
 ### Gradients
