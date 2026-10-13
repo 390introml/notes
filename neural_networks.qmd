@@ -1244,10 +1244,6 @@ Which terms in the code below depend on $f^L$?
 \end{algorithm}
 ```
 
-:::{.column-margin}
-Read the SGD update lines for $W^l$ and $W_0^l$ as running after the backward pass has reached layer 1: every gradient is computed with the same current weights, and then the weights of all layers update together. This is what PyTorch does: `loss.backward()` computes every gradient, and then `optimizer.step()` updates every parameter.
-:::
-
 Initializing $W$ is important; if you do it badly there is a good chance the neural network training won't work well. First, it is important to initialize the weights to random values. We want different parts of the network to tend to "address" different aspects of the problem; if they all start at the same weights, the symmetry will often keep the values from moving in useful directions. Second, many of our activation functions have (near) zero slope when the pre-activation $z$ values have large magnitude, so we generally want to keep the initial weights small so we will be in a situation where the gradients are non-zero, so that gradient descent will have some useful signal about which way to go.
 
 One good general-purpose strategy is to choose each weight at random from a Gaussian (normal) distribution with mean 0 and standard deviation $(1/m)$ where $m$ is the number of inputs to the unit. 
