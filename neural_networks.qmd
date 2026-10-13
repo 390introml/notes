@@ -1232,8 +1232,9 @@ Which terms in the code below depend on $f^L$?
               A^{l-1}\,\bigl(\frac{\partial \text{loss}}{\partial Z^l}\bigr)^\top$
       \State $\displaystyle \frac{\partial\text{loss}}{\partial W_0^l} \gets 
               \frac{\partial \text{loss}}{\partial Z^l}$
+    \EndFor
 
-      \Comment{SGD update}
+    \For{$l \gets 1$ to $L$} \Comment{SGD update, after every gradient is computed}
       \State $W^l \gets W^l - \eta(t)\,\frac{\partial \text{loss}}{\partial W^l}$
       \State $W_0^l \gets W_0^l - \eta(t)\,\frac{\partial \text{loss}}{\partial W_0^l}$
     \EndFor
