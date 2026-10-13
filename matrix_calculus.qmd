@@ -16,7 +16,7 @@ $$
 
 We can even, in a very hand-waving way, think of the $dx$'s canceling out nicely.
 
-## Multi-variable Calculus
+## Multi-variable Calculus {#sec-multivariable-calculus}
 
 In multi-variable calculus, we have $x \in \mathbb{R}^n$ and $f(x): \mathbb{R}^n \rightarrow \mathbb{R}^m$. We will use the following notation, which may seem a bit counter-intuitive at first:
 
