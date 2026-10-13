@@ -419,7 +419,7 @@ Each column of $W^l$ contains the incoming weights for one neuron in layer $l$.
 
 **Shape check:** $(W^l)^\top \in \mathbb{R}^{d_l \times d_{l-1}}$, so $(W^l)^\top A^{l-1}$ is $d_l \times 1$, consistent with $Z^l$.
 
-Gradients use the *denominator layout* (@sec-multivariable-calculus): the gradient of the scalar loss with respect to any quantity has the same shape as that quantity. So $\frac{\partial \mathcal{L}}{\partial Z^l}$ and $\frac{\partial \mathcal{L}}{\partial A^l}$ are $d_l \times 1$ columns, like $Z^l$ and $A^l$, and $\frac{\partial \mathcal{L}}{\partial W^l}$ is $d_{l-1} \times d_l$, like $W^l$.
+Recall from our convention in @sec-multivariable-calculus that the gradient of the scalar loss with respect to any quantity has the same shape as that quantity. So $\frac{\partial \mathcal{L}}{\partial Z^l}$ and $\frac{\partial \mathcal{L}}{\partial A^l}$ are $d_l \times 1$ columns, like $Z^l$ and $A^l$, and $\frac{\partial \mathcal{L}}{\partial W^l}$ is $d_{l-1} \times d_l$, like $W^l$.
 
 The per-example loss is $\mathcal{L}(g,y)$, and the overall training objective is
 $$
@@ -494,7 +494,7 @@ $$
 * Since the loss and $g$ are scalars, $\tfrac{\partial \mathcal{L}}{\partial g}$ and $f'(z)$ are scalars.
 * Because $z$ is a scalar and $w \in \mathbb{R}^{d_0 \times 1}$, $\tfrac{\partial z}{\partial w}$ is a vector with the same shape as $w$, which is consistent here.
 
-Also note the arrangement of the terms. Once we move to neural networks with vector outputs and multiple layers, the matrix form of the chain rule requires working from right to left. That order comes from the denominator layout we use (@sec-multivariable-calculus), in which a gradient has the same shape as its variable: $\frac{\partial \mathcal{L}}{\partial Z^l}$ is $d_l \times 1$, like $Z^l$. Conveniently, this order matches how computations are drawn in network block diagrams.
+Also note the arrangement of the terms. Once we move to neural networks with vector outputs and multiple layers, the matrix form of the chain rule requires working from right to left. That order comes from our convention in @sec-multivariable-calculus, in which a gradient has the same shape as its variable: $\frac{\partial \mathcal{L}}{\partial Z^l}$ is $d_l \times 1$, like $Z^l$. Conveniently, this order matches how computations are drawn in network block diagrams.
 
 As a final connection to earlier models:
 
