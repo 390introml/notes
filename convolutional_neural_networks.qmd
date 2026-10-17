@@ -218,7 +218,7 @@ Here is a more complex example of two-dimensional filtering. We have two $3 \tim
   \times w$, then the result of filtering with these two filters is an $h
   \times w \times 2$ tensor. Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $h \times  w$ image.
 
-:::{.margin-note}
+:::{.column-margin}
 When we have a color image as input, we treat it as having three
 channels, and hence as an $h \times w \times 3$ tensor.
 :::
@@ -381,7 +381,7 @@ This layer will produce an output tensor of size $h^l \times w^l \times
   k^l$, where $h^l = \lceil (h^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$ and $w^l = \lceil (w^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $k^l$ different $r^l \times r^l \times k^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
 
 :::{.column-margin}
-Recall that $\lceil \cdot \rceil$ is the \emph{ceiling} function; it returns the smallest
+Recall that $\lceil \cdot \rceil$ is the *ceiling* function; it returns the smallest
   integer greater than or equal to its input. E.g., $\lceil 2.5 \rceil = 3$ and $\lceil 3 \rceil = 3$.
 :::
 
