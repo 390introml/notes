@@ -437,7 +437,7 @@ Well, technically the derivative does not exist at every point, both because of 
 
 ## Backpropagation in a simple CNN
 
-Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $d \times 1 \times 1$, and a single filter $W^1$ of size $r \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $W^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
+Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $d \times 1 \times 1$, and a single filter $W^1$ of size $r \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $w^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
 
 :::{.imagify}
 \begin{tikzpicture}[scale=0.5, background rectangle/.style={fill=white},
