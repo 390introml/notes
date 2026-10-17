@@ -1285,19 +1285,19 @@ As long as we pick points uniformly at random from the data set, and decrease $\
 
 These two methods have offsetting virtues. The batch method takes steps in the exact gradient direction but requires a lot of computation before even a single step can be taken, especially if the data set is large. The stochastic method begins moving right away, and can sometimes make very good progress before looking at even a substantial fraction of the whole data set, but if there is a lot of variability in the data, it might require a very small $\eta$ to effectively average over the individual steps moving in "competing" directions.
 
-An effective strategy is to "average" between batch and stochastic gradient descent by using *mini-batches*. For a mini-batch of size $K$, we select $K$ distinct data points uniformly at random from the data set and do the update based just on their contributions to the gradient 
+An effective strategy is to "average" between batch and stochastic gradient descent by using *mini-batches*. For a mini-batch of size $b$, we select $b$ distinct data points uniformly at random from the data set and do the update based just on their contributions to the gradient 
 $$
-W_t = W_{t-1} - \frac{\eta}{K}\sum_{i=1}^K \nabla_W \mathcal{L}(h(x^{(i)}; W_{t-1}),
+W_t = W_{t-1} - \frac{\eta}{b}\sum_{i=1}^b \nabla_W \mathcal{L}(h(x^{(i)}; W_{t-1}),
   y^{(i)})\;\;.
 $$
 
 Most neural network software packages are set up to do mini-batches.
 
 :::{.study-question-callout}
-For what value of $K$ is mini-batch gradient descent equivalent to stochastic gradient descent? To batch gradient descent?
+For what value of $b$ is mini-batch gradient descent equivalent to stochastic gradient descent? To batch gradient descent?
 :::
 
-Picking $K$ unique data points at random from a large data-set is potentially computationally difficult. An alternative strategy, if you have an efficient procedure for randomly shuffling the data set (or randomly shuffling a list of indices into the data set) is to operate in a loop, roughly as follows:
+Picking $b$ unique data points at random from a large data-set is potentially computationally difficult. An alternative strategy, if you have an efficient procedure for randomly shuffling the data set (or randomly shuffling a list of indices into the data set) is to operate in a loop, roughly as follows:
 
 
 ```pseudocode
@@ -1311,12 +1311,12 @@ Picking $K$ unique data points at random from a large data-set is potentially co
 
 \begin{algorithm}
 \begin{algorithmic}[1]
-\Procedure{Mini-Batch-SGD}{\texttt{NN}, \texttt{data}, \texttt{K}}
+\Procedure{Mini-Batch-SGD}{\texttt{NN}, \texttt{data}, \texttt{b}}
   \State $n \gets \text{length}(\texttt{data})$
   \While{\texttt{not done}}
     \State \Call{Random-Shuffle}{\texttt{data}}
-    \For{$i \gets 1$ to $\left\lceil \frac{n}{K} \right\rceil$}
-      \State \Call{Batch-Gradient-Update}{\texttt{NN}, \texttt{data}[(i-1)K : iK]}
+    \For{$i \gets 1$ to $\left\lceil \frac{n}{b} \right\rceil$}
+      \State \Call{Batch-Gradient-Update}{\texttt{NN}, \texttt{data}[(i-1)b : ib]}
     \EndFor
   \EndWhile
 \EndProcedure
