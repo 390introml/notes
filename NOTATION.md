@@ -56,8 +56,10 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Output: `z_i = \sum_j \alpha_{ij} v_j`
 
 ### CNNs
-- Filter/kernel: lowercase `f` or `F`, shown as small matrices
-- Output size: `(\text{input} - \text{filter} + 2\text{padding}) / \text{stride} + 1`
+- Filter/kernel: lowercase `f`, numbered `f_1, f_2, \ldots` when there are several; shown as small matrices
+- Layer `l`: input `h^{l-1} \times w^{l-1} \times k^{l-1}` (height, width, channels); `k^l` filters, each `r^l \times r^l \times k^{l-1}`; stride `s^l`, padding `p^l`; output `h^l \times w^l \times k^l`. `k` is always the number of filters (channels) and `r` the filter size
+- Image size is lowercase and always the pair `h \times w`, never `n` (which counts training examples) and never uppercase (`W^l` is the weights). A 1-D image has `d` pixels
+- Output size: `h^l = \lceil (h^{l-1} + 2p^l - (r^l - 1)) / s^l \rceil`, and the same for `w^l`
 - Receptive field: set notation `\{(i,j), \ldots\}`
 
 ### MDPs and Reinforcement Learning
