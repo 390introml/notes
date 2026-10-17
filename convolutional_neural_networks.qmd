@@ -42,13 +42,10 @@ Unfortunately in AI/ML/CS/Math, the word ``filter'' gets used in many ways: in
 
 An image filter is a function that takes in a local spatial neighborhood of pixel values and detects the presence of some pattern in that data.
 
-Let's consider a very simple case to start, in which we have a 1-dimensional binary "image" and a filter $f$ of size two. The filter is a vector of two numbers, which we will move along the image, taking the dot product between the filter values and the image values at each step, and aggregating the outputs to produce a new image.
+Let's consider a very simple case to start, in which we have a 1-dimensional binary "image" and a filter $f$ (also called a *convolutional kernel*) of size two. The filter is a vector of two numbers, which we will move along the image, taking the dot product between the filter values and the image values at each step, and aggregating the outputs to produce a new image.
 
-Let $X$ be the original image, of size $d$; then pixel $i$ of the output image is specified by $$Y_i = f \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
+Let $x$ be the original image, of size $d$; then pixel $i$ of the output image $z$ is specified by $$z_i = f \cdot  (x_{i-1}, x_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
 
-:::{.column-margin}
-And filters are also sometimes called *convolutional kernels*.
-:::
 
 If you are already familiar with what a convolution is, you might notice that this definition corresponds to what is often called a correlation and not to a convolution. Indeed, correlation and convolution refer to different operations in signal processing. However, in the neural networks literature, most libraries implement the correlation (as described in this chapter) but call it convolution. The distinction is not significant; in principle, if convolution is required to solve the problem, the network could learn the necessary weights. For a discussion of the difference between convolution and correlation and the conventions used in the literature you can read Section 9.1 in this excellent book: [Deep Learning](https://www.deeplearningbook.org).
 
@@ -437,13 +434,13 @@ Well, technically the derivative does not exist at every point, both because of 
 
 ## Backpropagation in a simple CNN
 
-Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $d \times 1 \times 1$, and a single filter $W^1$ of size $r \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $w^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
+Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $x$ of size $d \times 1 \times 1$, and a single filter $W^1$ of size $r \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $w^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
 
 :::{.imagify}
 \begin{tikzpicture}[scale=0.5, background rectangle/.style={fill=white},
     show background rectangle]
     \draw (0,0) rectangle (1,9);
-    \node at (.5, -2) {$X = A^0$};
+    \node at (.5, -2) {$A^0 = x$};
     \draw (0,-1) rectangle (1,0);
     \draw (0,9) rectangle (1,10);
     \node[anchor=center] at (0.5,-.5) {0};
@@ -474,7 +471,7 @@ Let's work through a *very* simple example of how back-propagation can work on a
 :::
 
 
-For simplicity assume $r$ is odd, let the input image $X = A^0$, and assume we are using squared loss. Then we can describe the forward pass as follows: $$\begin{aligned}
+For simplicity assume $r$ is odd, let the input image $A^0 = x$, and assume we are using squared loss. Then we can describe the forward pass as follows: $$\begin{aligned}
   Z_i^1                        & = {W^1}^TA^0_{[i-\lfloor r/2 \rfloor
   : i + \lfloor r/2 \rfloor]}                                         \\
   A^1                          & = \text{ReLU}(Z^1)                   \\
@@ -497,7 +494,7 @@ $$
   \frac{\partial \mathcal{L}}{\partial A^1}
 $$
 
--   $\partial Z^1/\partial W^1$ is the $r \times d$ matrix such that $\partial Z_i^1/\partial W_j^1 = X_{i-\lfloor r/2 \rfloor+j-1}$. So, for example, if $i = 10$, which corresponds to column 10 in this matrix, which illustrates the dependence of pixel 10 of the output image on the weights, and if $r = 5$, then the elements in column 10 will be $X_8, X_9, X_{10}, X_{11}, X_{12}$.
+-   $\partial Z^1/\partial W^1$ is the $r \times d$ matrix such that $\partial Z_i^1/\partial W_j^1 = x_{i-\lfloor r/2 \rfloor+j-1}$. So, for example, if $i = 10$, which corresponds to column 10 in this matrix, which illustrates the dependence of pixel 10 of the output image on the weights, and if $r = 5$, then the elements in column 10 will be $x_8, x_9, x_{10}, x_{11}, x_{12}$.
 
 - $\partial A^1/\partial Z^1$ is the $d \times d$ diagonal matrix such that 
 
