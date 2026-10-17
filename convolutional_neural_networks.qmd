@@ -42,9 +42,9 @@ Unfortunately in AI/ML/CS/Math, the word ``filter'' gets used in many ways: in
 
 An image filter is a function that takes in a local spatial neighborhood of pixel values and detects the presence of some pattern in that data.
 
-Let's consider a very simple case to start, in which we have a 1-dimensional binary "image" and a filter $F$ of size two. The filter is a vector of two numbers, which we will move along the image, taking the dot product between the filter values and the image values at each step, and aggregating the outputs to produce a new image.
+Let's consider a very simple case to start, in which we have a 1-dimensional binary "image" and a filter $f$ of size two. The filter is a vector of two numbers, which we will move along the image, taking the dot product between the filter values and the image values at each step, and aggregating the outputs to produce a new image.
 
-Let $X$ be the original image, of size $d$; then pixel $i$ of the output image is specified by $$Y_i = F \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
+Let $X$ be the original image, of size $d$; then pixel $i$ of the output image is specified by $$Y_i = f \cdot  (X_{i-1}, X_i)\;\;.$$ To ensure that the output image is also of dimension $d$, we will generally "pad" the input image with 0 values if we need to access pixels that are beyond the bounds of the input image. This process of applying the filter to the image to create a new image is called "convolution." 
 
 :::{.column-margin}
 And filters are also sometimes called *convolutional kernels*.
@@ -52,10 +52,10 @@ And filters are also sometimes called *convolutional kernels*.
 
 If you are already familiar with what a convolution is, you might notice that this definition corresponds to what is often called a correlation and not to a convolution. Indeed, correlation and convolution refer to different operations in signal processing. However, in the neural networks literature, most libraries implement the correlation (as described in this chapter) but call it convolution. The distinction is not significant; in principle, if convolution is required to solve the problem, the network could learn the necessary weights. For a discussion of the difference between convolution and correlation and the conventions used in the literature you can read Section 9.1 in this excellent book: [Deep Learning](https://www.deeplearningbook.org).
 
-Here is a concrete example. Let the filter $F_1 = (-1, +1)$. Then given the image in the first line below, we can convolve it with filter $F_1$ to obtain the second image. You can think of this filter as a detector for "left edges" in the original image---to see this, look at the places where there is a $1$ in the output image, and see what pattern exists at that position in the input image. Another interesting filter is $F_2 =  (-1, +1, -1)$. The third image (the last line below) shows the result of convolving the first image with $F_2$, where we see that the output pixel $i$ corresponds to when the center of $F_2$ is aligned at input pixel $i$.
+Here is a concrete example. Let the filter $f_1 = (-1, +1)$. Then given the image in the first line below, we can convolve it with filter $f_1$ to obtain the second image. You can think of this filter as a detector for "left edges" in the original image---to see this, look at the places where there is a $1$ in the output image, and see what pattern exists at that position in the input image. Another interesting filter is $f_2 =  (-1, +1, -1)$. The third image (the last line below) shows the result of convolving the first image with $f_2$, where we see that the output pixel $i$ corresponds to when the center of $f_2$ is aligned at input pixel $i$.
 
 :::{.study-question-callout}
-Convince yourself that filter $F_2$ can be understood as a detector for isolated positive pixels in the binary image.
+Convince yourself that filter $f_2$ can be understood as a detector for isolated positive pixels in the binary image.
 :::
 
 :::{.imagify}
@@ -72,7 +72,7 @@ Convince yourself that filter $F_2$ can be understood as a detector for isolated
       }
     \node[left] at (0,0.5) {Image:};
     \draw (0, -2) grid (2, -1);
-    \node[left] at (0, -1.5) {$F_1$:};
+    \node[left] at (0, -1.5) {$f_1$:};
     \node[anchor=center] (f11) at (0.5, -1.5) {-1};
     \node[anchor=center] (f12) at (1.5, -1.5) {+1};
 
@@ -91,7 +91,7 @@ Convince yourself that filter $F_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \node[left] at (0,0.5) {After convolution (with $F_1$):};
+    \node[left] at (0,0.5) {After convolution (with $f_1$):};
     \draw[very thick] (2, 0) grid (3, 1);
     \draw[very thick] (6, 0) grid (7, 1);
   \end{scope}
@@ -103,9 +103,9 @@ Convince yourself that filter $F_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \node[left] at (0,0.5) {After convolution (with $F_2$):};
+    \node[left] at (0,0.5) {After convolution (with $f_2$):};
     \draw (0, 2) grid (3, 3);
-    \node[left] at (0, 2.5) {$F_2$};
+    \node[left] at (0, 2.5) {$f_2$};
     \draw[very thick] (6, 0) grid (7, 1);
     \node[anchor=center] at (0.5, 2.5) {-1};
     \node[anchor=center] at (1.5, 2.5) {+1};
@@ -378,7 +378,7 @@ For simplicity, we assume all filters are square, with the same number of rows a
 -   *padding*: $p^l$ is the addition of extra border values to an input before convolution to control output size and edge behavior. For an input of size $h^{l-1} \times w^{l-1} \times k^{l-1}$, our new effective input size with padding becomes $(h^{l-1} + 2 \cdot p^l) \times (w^{l-1} + 2 \cdot p^l) \times k^{l-1}$.
 
 This layer will produce an output tensor of size $h^l \times w^l \times
-  k^l$, where $h^l = \lceil (h^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$ and $w^l = \lceil (w^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $k^l$ different $r^l \times r^l \times k^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
+  k^l$, where $h^l = \lceil (h^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$ and $w^l = \lceil (w^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $k^l$ different $r^l \times r^l \times k^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $f_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
 
 :::{.column-margin}
 Recall that $\lceil \cdot \rceil$ is the *ceiling* function; it returns the smallest
