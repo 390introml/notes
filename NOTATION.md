@@ -40,13 +40,14 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Layer widths: `d_l` units in layer `l`, with `d_0 = d`, so `W^l \in \mathbb{R}^{d_{l-1} \times d_l}` and `A^l, Z^l, W_0^l \in \mathbb{R}^{d_l \times 1}`. Never `m^l`/`n^l`, since `n` counts training examples
 - Activation functions: `f^l(\cdot)` per-layer
 - Layer index is a bare superscript throughout: `W^l`, `W_0^l`, `Z^l`, `A^l`, `f^l`
-- **Case**: layer quantities with one entry per unit (`Z^l`, `A^l`, `W^l`, `W_0^l`) are uppercase whether they hold one example or a batch of `K` examples. Never write `z^l` or `a^l` for a layer's vector
+- **Case**: layer quantities with one entry per unit (`Z^l`, `A^l`, `W^l`, `W_0^l`) are uppercase whether they hold one example or a batch of `b` examples. Never write `z^l` or `a^l` for a layer's vector
 - Single numbers are lowercase: entries (`z^l_j`, `a^l_j`, `w^l_{ij}`) and the values of a layer with one unit (`z^l`, `a^l`, `w_0^l`). That unit's weight vector is lowercase too (`w^l`), like a single neuron's `w`
 
 ### Gradients
 - Gradient operator: `\nabla_\theta J(\theta)`
 - Partial derivatives: `\frac{\partial J}{\partial \theta}`
 - Gradient descent update: `\theta^{(t)} = \theta^{(t-1)} - \eta \nabla_\theta J(\theta^{(t-1)})`
+- Mini-batch: size `b`, index set `B` (`\nabla_\theta J_B(\theta) = \frac{1}{b}\sum_{i \in B} \nabla_\theta J_i(\theta)`)
 
 ### Attention Mechanism
 - Queries/keys/values: `q_i = W_q^T x_i`, `k_j = W_k^T x_j`, `v_j = W_v^T x_j`
