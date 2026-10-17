@@ -214,13 +214,13 @@ There are now many useful neural-network software packages, such
 as *TensorFlow* and *PyTorch* that make operations on tensors easy.
 :::
 
-Here is a more complex example of two-dimensional filtering. We have two $3 \times 3$ filters in the first layer, $f_1$ and $f_2$. You can think of each one as "looking" for three pixels in a row, $f_1$ vertically and $f_2$ horizontally. Assuming our input image is $n
-  \times n$, then the result of filtering with these two filters is an $n
-  \times n \times 2$ tensor. Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $n \times  n$ image.
+Here is a more complex example of two-dimensional filtering. We have two $3 \times 3$ filters in the first layer, $f_1$ and $f_2$. You can think of each one as "looking" for three pixels in a row, $f_1$ vertically and $f_2$ horizontally. Assuming our input image is $h
+  \times w$, then the result of filtering with these two filters is an $h
+  \times w \times 2$ tensor. Now we apply a tensor filter (hard to draw!) that "looks for" a combination of two horizontal and two vertical bars (now represented by individual pixels in the two channels), resulting in a single final $h \times  w$ image.
 
 :::{.margin-note}
 When we have a color image as input, we treat it as having three
-channels, and hence as an $n \times n \times 3$ tensor.
+channels, and hence as an $h \times w \times 3$ tensor.
 :::
 
 :::{.column-margin}
@@ -364,21 +364,21 @@ We are going to design neural networks that have this structure. Each "bank" of 
 We will define a filter layer $l$ formally with:
 
 :::{.column-margin}
-For simplicity, we are assuming that  all images and filters are square (having the same number of  rows and columns).  That is in no way  necessary, but is usually fine and definitely simplifies our notation.
+For simplicity, we assume all filters are square, with the same number of rows and columns. Images need not be square: an image has height $h$ and width $w$, always written as the pair $h \times w$.
 :::
 
--   *number* of filters $m^l$;
+-   *number* of filters $k^l$, which is also the number of output channels;
 
--   *size* of one filter is $k^l \times k^l \times m^{l-1}$ plus $1$ bias value (for this one filter);
+-   *size* of one filter is $r^l \times r^l \times k^{l-1}$ plus $1$ bias value (for this one filter);
 
 -   *stride* $s^l$ is the spacing at which we apply the filter to the image; in all of our examples so far, we have used a stride of 1, but if we were to "skip" and apply the filter only at odd-numbered indices of the image, then it would have a stride of two (and produce a resulting image of half the size);
 
--   *input tensor size* $n^{l-1} \times n^{l-1} \times m^{l-1}$
+-   *input tensor size* $h^{l-1} \times w^{l-1} \times k^{l-1}$
 
--   *padding*: $p^l$ is the addition of extra border values to an input before convolution to control output size and edge behavior. For an input of size $n^{l-1} \times n^{l-1} \times m^{l-1}$, our new effective input size with padding becomes $(n^{l-1} + 2 \cdot p^l) \times (n^{l-1} + 2 \cdot p^l) \times m^{l-1}$.
+-   *padding*: $p^l$ is the addition of extra border values to an input before convolution to control output size and edge behavior. For an input of size $h^{l-1} \times w^{l-1} \times k^{l-1}$, our new effective input size with padding becomes $(h^{l-1} + 2 \cdot p^l) \times (w^{l-1} + 2 \cdot p^l) \times k^{l-1}$.
 
-This layer will produce an output tensor of size $n^l \times n^l \times
-  m^l$, where $n^l = \lceil (n^{l-1} + 2 \cdot p^l - (k^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $m^l$ different $k^l \times k^l \times m^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
+This layer will produce an output tensor of size $h^l \times w^l \times
+  k^l$, where $h^l = \lceil (h^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$ and $w^l = \lceil (w^{l-1} + 2 \cdot p^l - (r^l - 1)) / s^l \rceil$. The weights are the values defining the filter: there will be $k^l$ different $r^l \times r^l \times k^{l-1}$ tensors of weight values; plus each filter may have a bias term, which means there is one more weight value per filter. A filter with a bias operates just like the filter examples above, except we add the bias to the output. For instance, if we incorporated a bias term of 0.5 into the filter $F_2$ above, the output would be $(-0.5,0.5,-0.5,0.5, -1.5, 1.5,-0.5,0.5)$ instead of $(-1,0,-1,0,-2,1,-1,0)$.
 
 :::{.column-margin}
 Recall that $\lceil \cdot \rceil$ is the \emph{ceiling} function; it returns the smallest
@@ -407,16 +407,16 @@ We sometimes use the term *receptive field* or just *field* to mean the area of 
 
 Usually, we apply max pooling with the following traits:
 
--   $\text{stride} > 1$, so that the resulting image is smaller than the input image; and
+-   stride $s > 1$, so that the resulting image is smaller than the input image; and
 
--   $k \geq \text{stride}$, so that the whole image is covered.
+-   size $r \geq s$, so that the whole image is covered.
 
 As a result of applying a max pooling layer, we don't keep track of the precise location of a pattern. This helps our filters to learn to recognize patterns independent of their location.
 
-Consider a max pooling layer where both the strides and $k$ are set to be 2. This would map a $64 \times 64 \times 3$ image to a $32 \times 32 \times 3$ image. Note that max pooling layers do not have additional bias or offset values.
+Consider a max pooling layer where both the stride $s$ and the size $r$ are set to be 2. This would map a $64 \times 64 \times 3$ image to a $32 \times 32 \times 3$ image. Note that max pooling layers do not have additional bias or offset values.
 
 ::: {.study-question-callout}
-Maximilian Poole thinks it would be a good idea to add two max pooling layers of size $k$, one right after the other, to their network. What single layer would be equivalent?
+Maximilian Poole thinks it would be a good idea to add two max pooling layers of size $r$, one right after the other, to their network. What single layer would be equivalent?
 :::
 
 One potential concern about max-pooling layers is that they actually don't completely preserve translation invariance. If you do max-pooling with a stride other than 1 (or just pool over the whole image size), then shifting the pattern you are hoping to detect within the image by a small amount can change the output of the max-pooling layer substantially, just because there are discontinuities induced by the way the max-pooling window matches up with its input image. Here is an interesting [paper](https://arxiv.org/pdf/1904.11486.pdf) that illustrates this phenomenon clearly and suggests that one should first do max-pooling with a stride of 1, then do "downsampling" by averaging over a window of outputs.
@@ -437,7 +437,7 @@ Well, technically the derivative does not exist at every point, both because of 
 
 ## Backpropagation in a simple CNN
 
-Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $n \times 1 \times 1$, and a single filter $W^1$ of size $k \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $W^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
+Let's work through a *very* simple example of how back-propagation can work on a convolutional network. The architecture is shown below. Assume we have a one-dimensional single-channel image $X$ of size $d \times 1 \times 1$, and a single filter $W^1$ of size $r \times 1 \times 1$ (where we omit the filter bias) for the first convolutional operation denoted "conv" in the figure below. Then we pass the intermediate result $Z^1$ through a ReLU layer to obtain the activation $A^1$, and finally through a fully-connected layer with weights $W^2$, denoted "fc" below, with no additional activation function, resulting in the output $A^2$.
 
 :::{.imagify}
 \begin{tikzpicture}[scale=0.5, background rectangle/.style={fill=white},
@@ -463,27 +463,27 @@ Let's work through a *very* simple example of how back-propagation can work on a
     \node at (12.5,-1) {$A^1$};
 
     \draw (16,5.5) rectangle (17,6.5);
-    \node at (16.5, 4.0) {$Z^2=A^2$};
+    \node at (16.5, 4.0) {$z^2=a^2$};
 
-    \node at (14.5,5.3) {$W^2$};
+    \node at (14.5,5.3) {$w^2$};
 
     \draw[->,thick] (4.5,6) -- node[above] {conv} (7.5,6);
-    \draw[->,thick] (9.5,6) -- node[above] {ReLU} (11.5,6);
+    \draw[->,thick] (9.5,6) -- node[above] {$\text{ReLU}$} (11.5,6);
     \draw[->,thick] (13.5,6) -- node[above] {fc} (15.5,6);
   \end{tikzpicture}
 :::
 
 
-For simplicity assume $k$ is odd, let the input image $X = A^0$, and assume we are using squared loss. Then we can describe the forward pass as follows: $$\begin{aligned}
-  Z_i^1                        & = {W^1}^TA^0_{[i-\lfloor k/2 \rfloor
-  : i + \lfloor k/2 \rfloor]}                                         \\
-  A^1                          & = ReLU(Z^1)                          \\
-  A^2                          & = Z^2 = {W^2}^T A^1                  \\
-  \mathcal{L}_{square}(A^2, y) & = (A^2-y)^2
+For simplicity assume $r$ is odd, let the input image $X = A^0$, and assume we are using squared loss. Then we can describe the forward pass as follows: $$\begin{aligned}
+  Z_i^1                        & = {W^1}^TA^0_{[i-\lfloor r/2 \rfloor
+  : i + \lfloor r/2 \rfloor]}                                         \\
+  A^1                          & = \text{ReLU}(Z^1)                   \\
+  a^2                          & = z^2 = (w^2)^T A^1                  \\
+  \mathcal{L}_{\text{SE}}(a^2, y) & = (a^2-y)^2
 \end{aligned}$$
 
 :::{.study-question-callout}
-Assuming a stride of $1,$ for a filter of size $k$, how much padding do we need to add to the top and bottom of the image? We see one zero at the top and bottom in the figure just above; what filter size is implicitly being shown in the figure? (Recall the padding is for the sake of getting an output the same size as the input.)
+Assuming a stride of $1,$ for a filter of size $r$, how much padding do we need to add to the top and bottom of the image? We see one zero at the top and bottom in the figure just above; what filter size is implicitly being shown in the figure? (Recall the padding is for the sake of getting an output the same size as the input.)
 :::
 
 ### Weight update
@@ -491,15 +491,15 @@ Assuming a stride of $1,$ for a filter of size $k$, how much padding do we need 
 How do we update the weights in filter $W^1$? 
 
 $$
-\frac{\partial \text{loss}}{\partial W^1}
+\frac{\partial \mathcal{L}}{\partial W^1}
   = \frac{\partial Z^1}{\partial W^1}
   \frac{\partial A^1}{\partial Z^1}
-  \frac{\partial \text{loss}}{\partial A^1}
+  \frac{\partial \mathcal{L}}{\partial A^1}
 $$
 
--   $\partial Z^1/\partial W^1$ is the $k \times n$ matrix such that $\partial Z_i^1/\partial W_j^1 = X_{i-\lfloor k/2 \rfloor+j-1}$. So, for example, if $i = 10$, which corresponds to column 10 in this matrix, which illustrates the dependence of pixel 10 of the output image on the weights, and if $k = 5$, then the elements in column 10 will be $X_8, X_9, X_{10}, X_{11}, X_{12}$.
+-   $\partial Z^1/\partial W^1$ is the $r \times d$ matrix such that $\partial Z_i^1/\partial W_j^1 = X_{i-\lfloor r/2 \rfloor+j-1}$. So, for example, if $i = 10$, which corresponds to column 10 in this matrix, which illustrates the dependence of pixel 10 of the output image on the weights, and if $r = 5$, then the elements in column 10 will be $X_8, X_9, X_{10}, X_{11}, X_{12}$.
 
-- $\partial A^1/\partial Z^1$ is the $n \times n$ diagonal matrix such that 
+- $\partial A^1/\partial Z^1$ is the $d \times d$ diagonal matrix such that 
 
 $$
 \begin{aligned}
@@ -511,9 +511,9 @@ $$
 \end{aligned}
 $$
 
--   $\partial \text{loss}/{\partial A^1} = (\partial \text{loss} / {\partial A^2}) (\partial A^2 / {\partial A^1}) = 2(A^2 - y)W^2$, an $n \times 1$ vector
+-   $\partial \mathcal{L}/{\partial A^1} = (\partial a^2 / {\partial A^1}) (\partial \mathcal{L} / {\partial a^2}) = 2(a^2 - y)\,w^2$, a $d \times 1$ vector
 
-Multiplying these components yields the desired gradient, of shape $k \times 1$.
+Multiplying these components yields the desired gradient, of shape $r \times 1$.
 
 ### Max pooling
 
