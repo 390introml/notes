@@ -54,6 +54,7 @@ Consistent notation across all course materials: notes, exams, labs, homework, a
 - Attention scores: `s_{ij} = q_i \cdot k_j`
 - Softmax'd attention scores: `\alpha_{ij} = \frac{e^{s_{ij}}}{\sum_l e^{s_{il}}}` (explicit softmax formula) -- do NOT call these "attention weights"
 - Output: `z_i = \sum_j \alpha_{ij} v_j`
+- Multi-head: head index is a superscript (`W_q^h`, `Q^h`, `Z^h`); the output projection is `W_o` (lowercase subscript)
 
 ### CNNs
 - Filter/kernel: lowercase `f`, numbered `f_1, f_2, \ldots` when there are several; shown as small matrices
