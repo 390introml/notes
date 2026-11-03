@@ -67,7 +67,11 @@ Convince yourself that filter $f_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \node[left] at (0,0.5) {Image:};
+    \draw[gray] (-1, 0) grid (0, 1);
+    \draw[gray] (10, 0) grid (11, 1);
+    \node[anchor=center, gray] at (-0.5, 0.5) {0};
+    \node[anchor=center, gray] at (10.5, 0.5) {0};
+    \node[left] at (-1,0.5) {Image:};
     \draw (0, -2) grid (2, -1);
     \node[left] at (0, -1.5) {$f_1$:};
     \node[anchor=center] (f11) at (0.5, -1.5) {-1};
@@ -88,7 +92,11 @@ Convince yourself that filter $f_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \node[left] at (0,0.5) {After convolution (with $f_1$):};
+    \draw[gray] (-1, 0) grid (0, 1);
+    \draw[gray] (10, 0) grid (11, 1);
+    \node[anchor=center, gray] at (-0.5, 0.5) {0};
+    \node[anchor=center, gray] at (10.5, 0.5) {0};
+    \node[left] at (-1,0.5) {After convolution (with $f_1$):};
     \draw[very thick] (1, 0) grid (2, 1);
     \draw[very thick] (5, 0) grid (6, 1);
   \end{scope}
@@ -100,7 +108,11 @@ Convince yourself that filter $f_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \node[left] at (0,0.5) {After convolution (with $f_2$):};
+    \draw[gray] (-1, 0) grid (0, 1);
+    \draw[gray] (10, 0) grid (11, 1);
+    \node[anchor=center, gray] at (-0.5, 0.5) {0};
+    \node[anchor=center, gray] at (10.5, 0.5) {0};
+    \node[left] at (-1,0.5) {After convolution (with $f_2$):};
     \draw (0, 2) grid (3, 3);
     \node[left] at (0, 2.5) {$f_2$};
     \draw[very thick] (6, 0) grid (7, 1);
