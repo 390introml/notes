@@ -67,8 +67,8 @@ Convince yourself that filter $f_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \draw[gray] (-1, 0) grid (0, 1);
-    \draw[gray] (10, 0) grid (11, 1);
+    \draw[gray, fill=gray!20] (-1, 0) rectangle (0, 1);
+    \draw[gray, fill=gray!20] (10, 0) rectangle (11, 1);
     \node[anchor=center, gray] at (-0.5, 0.5) {0};
     \node[anchor=center, gray] at (10.5, 0.5) {0};
     \node[left] at (-1,0.5) {Image:};
@@ -92,8 +92,8 @@ Convince yourself that filter $f_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \draw[gray] (-1, 0) grid (0, 1);
-    \draw[gray] (10, 0) grid (11, 1);
+    \draw[gray, fill=gray!20] (-1, 0) rectangle (0, 1);
+    \draw[gray, fill=gray!20] (10, 0) rectangle (11, 1);
     \node[anchor=center, gray] at (-0.5, 0.5) {0};
     \node[anchor=center, gray] at (10.5, 0.5) {0};
     \node[left] at (-1,0.5) {After convolution (with $f_1$):};
@@ -108,8 +108,8 @@ Convince yourself that filter $f_2$ can be understood as a detector for isolated
         \node[anchor=center] at (\x, 0.5) {\p};
         \stepcounter{col}
       }
-    \draw[gray] (-1, 0) grid (0, 1);
-    \draw[gray] (10, 0) grid (11, 1);
+    \draw[gray, fill=gray!20] (-1, 0) rectangle (0, 1);
+    \draw[gray, fill=gray!20] (10, 0) rectangle (11, 1);
     \node[anchor=center, gray] at (-0.5, 0.5) {0};
     \node[anchor=center, gray] at (10.5, 0.5) {0};
     \node[left] at (-1,0.5) {After convolution (with $f_2$):};
@@ -453,8 +453,8 @@ Let's work through a *very* simple example of how back-propagation can work on a
     show background rectangle]
     \draw (0,0) rectangle (1,9);
     \node at (.5, -2) {$A^0 = x$};
-    \draw (0,-1) rectangle (1,0);
-    \draw (0,9) rectangle (1,10);
+    \draw[fill=gray!20] (0,-1) rectangle (1,0);
+    \draw[fill=gray!20] (0,9) rectangle (1,10);
     \node[anchor=center] at (0.5,-.5) {0};
     \node[anchor=center] at (0.5,9.5) {0};
     \node[left] at (0,-0.5) {\begin{tabular}{c}
